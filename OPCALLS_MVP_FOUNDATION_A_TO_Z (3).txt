@@ -1,0 +1,1734 @@
+OPCALLS / VOICEAGENT PLATFORM
+FOUNDATION DOCUMENT FOR MVP
+A-to-Z product, architecture, security, billing, provisioning, scalability, and flexibility blueprint
+Version 1.0
+
+PURPOSE
+This document is the execution foundation for the MVP of a multi-tenant SaaS that lets businesses launch AI voice agents with almost no technical knowledge. The system must feel frictionless to end users, but internally it must be built like a serious control plane: billing-safe, provider-agnostic, auditable, scalable, and easy to evolve.
+
+CORE PRODUCT TRUTH
+This is not just an “AI call agent builder.”
+This is a zero-config vertical front-desk operating system.
+
+The client experience must feel like this:
+choose industry -> enter business basics -> choose number -> pay -> agent goes live -> see ROI and call activity.
+
+The system must be designed so that:
+- end users do not touch raw Retell/Twilio configuration
+- admin can review and approve before a real deployment goes live
+- the platform can later swap Retell for Bland, Vapi, or another AI provider with minimal disruption
+- billing and service access are controlled by the platform, not by manual operations
+- all risky or high-cost actions are behind entitlement, fraud, and spend controls
+
+====================================================================
+A. VISION, MARKET POSITIONING, AND PRODUCT IDENTITY
+====================================================================
+
+1. Vision
+Build the easiest platform in the market for launching AI receptionists, call handlers, intake agents, and booking agents for SMBs and agencies.
+
+2. Product positioning
+The product should be positioned as:
+- plug-and-play AI receptionist
+- done-for-you AI call operations layer
+- instant-launch voice employee for businesses
+- white-label AI call platform for agencies
+
+3. Core promise
+“Choose your number, pay, and your AI receptionist goes live in minutes.”
+
+4. What makes the offer stronger than generic competitors
+- zero-code onboarding
+- vertical presets with deep business logic
+- admin review before production deployment
+- ROI dashboard, not just transcripts
+- post-call self-improvement loop
+- agency / white-label channel
+- platform-owned billing firewall
+- provider abstraction layer
+
+5. Best initial niche strategy
+Build the engine once, but launch with 1 to 3 strong vertical packs first.
+Recommended first packs:
+- clinic / dental / salon
+- HVAC / plumber / electrician
+- legal intake
+
+====================================================================
+B. USER TYPES AND ACCESS MODEL
+====================================================================
+
+1. Platform Super Admin
+Internal operator with full power over all tenants, billing overrides, provisioning jobs, provider status, replay tools, fraud controls, and support actions.
+
+2. Internal Reviewer / QA Admin
+Can review generated prompts, test agents, approve or reject deployments, inspect failed jobs, and validate updates.
+
+3. Tenant Owner
+The paying customer. Can manage business settings, billing, number choices, AI behavior options, and view reports.
+
+4. Tenant Staff
+Can view calls, transcripts, and limited business settings depending on role.
+
+5. Agency Owner
+Can create and manage multiple client tenants under an agency umbrella, white-label experience, margins, and reporting.
+
+6. Agency Staff
+Can handle onboarding and reporting for agency-managed clients, depending on permissions.
+
+====================================================================
+C. PRODUCT PILLARS
+====================================================================
+
+1. Frictionless onboarding
+No technical dashboard during setup. The product should ask business questions, not AI configuration questions.
+
+2. Controlled automation
+Automation should be strong, but never blind. Admin review must be possible before production launch.
+
+3. Provider flexibility
+All Twilio / Retell / Stripe logic must sit behind adapters so providers can be swapped later.
+
+4. Billing-first safety
+Before any costly action, the system must check subscription state, spend limits, fraud score, and entitlements.
+
+5. Vertical depth
+A clinic should not get the same generic agent as a salon. Every vertical pack must have distinct flows, language, constraints, and KPIs.
+
+6. Measurable value
+The system must show outcome metrics such as bookings, lead captures, estimated revenue, missed-call recovery, and time saved.
+
+====================================================================
+D. CLIENT EXPERIENCE FROM START TO LIVE
+====================================================================
+
+1. Step D1 - Choose business type
+Examples:
+- clinic
+- salon
+- HVAC
+- legal intake
+- restaurant
+- real estate
+- other
+
+2. Step D2 - Business basics form
+Required inputs:
+- business name
+- website
+- country and city
+- timezone
+- primary language
+- additional languages
+- opening hours
+- services offered
+- preferred tone (friendly, premium, urgent, calm, professional)
+- booking preference
+- fallback person / phone
+- average order value or estimated customer value for ROI dashboard
+
+3. Step D3 - Business understanding
+System ingests:
+- website content
+- uploaded documents
+- FAQs
+- hours
+- services
+- service-specific policies
+- escalation rules
+
+4. Step D4 - Number selection
+User chooses:
+- local number
+- toll-free number
+- region / city preference
+
+The platform dynamically searches number inventory and regulations.
+
+5. Step D5 - Payment
+Stripe Checkout or a direct plan selection flow.
+
+6. Step D6 - Provisioning begins
+Once payment is valid, a provisioning job starts.
+
+7. Step D7 - Admin review option
+Before final production deploy, admin can:
+- view generated prompt
+- view proposed voice and dynamic variables
+- test agent in simulation
+- approve or reject
+
+8. Step D8 - Auto-deploy
+The platform:
+- creates tenant resources
+- creates Twilio subaccount
+- purchases number
+- creates SIP trunk or routes voice path
+- creates AI agent
+- imports / binds number
+- configures webhooks
+- syncs knowledge
+- runs test call
+- marks tenant live
+
+9. Step D9 - Client dashboard ready
+The customer lands in a simple dashboard with:
+- active number
+- agent status
+- transcripts
+- calls answered
+- bookings / leads
+- estimated ROI
+- billing state
+
+====================================================================
+E. MVP PRODUCT MODULES
+====================================================================
+
+1. Marketing site
+- clear value proposition
+- vertical-specific landing pages
+- comparison against missed calls / receptionist costs
+- CTA to launch in minutes
+
+2. Signup and auth
+- email/password
+- optional OAuth later
+- invitation flow for team members
+
+3. Onboarding wizard
+- business profile capture
+- preset selection
+- website import
+- number selection
+- payment
+
+4. Billing system
+- subscription checkout
+- customer portal
+- invoice history
+- failed payment handling
+- plan changes
+
+5. Provisioning engine
+- durable jobs
+- retries
+- step tracking
+- drift detection
+
+6. AI agent generation
+- preset templates
+- LLM prompt compiler
+- dynamic variables
+- versioning
+- admin review
+
+7. Telephony setup
+- subaccount creation
+- number purchase
+- trunk creation / routing
+- SMS support
+- suspension / resume
+
+8. Call operations
+- live call logs
+- transcript metadata
+- outcomes
+- summaries
+- replay links if supported
+
+9. Knowledge management
+- website ingest
+- file upload
+- FAQs
+- manual text entries
+- resync controls
+
+10. Dashboard analytics
+- calls answered
+- missed-call recovery
+- bookings captured
+- estimated revenue
+- agent performance
+- plan / usage / margin awareness
+
+11. Admin control plane
+- tenant search
+- provisioning monitor
+- webhook replay
+- test call launcher
+- suspend / resume
+- prompt review
+- support actions
+
+12. Agency mode (phase 2 but architect now)
+- agency-level tenants
+- white-label branding
+- margin settings
+- agency dashboard
+- sub-client overview
+
+====================================================================
+F. THE FOUR-LAYER ARCHITECTURE
+====================================================================
+
+1. Control Plane
+Purpose:
+The brain of the SaaS.
+
+Responsibilities:
+- tenants
+- users and roles
+- plans and subscriptions
+- entitlements
+- provisioning state
+- audit logs
+- billing state
+- analytics rollups
+- admin actions
+
+Recommended stack:
+- Next.js app + API routes or route handlers
+- Supabase Postgres
+- Supabase Auth
+- Supabase RLS
+- Supabase Storage
+
+2. Communication Plane
+Purpose:
+The telephony transport and routing layer.
+
+Responsibilities:
+- numbers
+- SIP trunks
+- inbound/outbound routing
+- SMS routes
+- fallback routing
+- region / country compliance handling
+
+Recommended provider now:
+- Twilio
+
+Design requirement:
+Must be abstracted so TelephonyProvider can later support Telnyx or other vendors.
+
+3. Intelligence Plane
+Purpose:
+The conversational layer.
+
+Responsibilities:
+- agent creation
+- voice assignment
+- prompt compilation
+- dynamic variables
+- call tools
+- knowledge sources
+- post-call analysis
+- agent versioning
+
+Recommended provider now:
+- Retell
+
+Design requirement:
+Must be abstracted so AIProvider can later support Bland, Vapi, or a custom stack.
+
+4. Reliability Plane
+Purpose:
+The operational safety and async engine.
+
+Responsibilities:
+- queues
+- retries
+- idempotency
+- replay
+- rate limiting
+- locks
+- spend and fraud guards
+- reconciliation jobs
+
+Recommended components:
+- Supabase Queues / pgmq for durable jobs
+- Upstash Redis for rate limits, locks, and hot-path idempotency
+
+====================================================================
+G. PROVIDER-AGNOSTIC DESIGN REQUIREMENT
+====================================================================
+
+This is one of the most important foundation rules.
+
+Do not let the app talk directly to provider SDKs everywhere.
+All provider-specific logic must be wrapped behind internal adapters.
+
+Required provider interfaces:
+- BillingProvider
+- TelephonyProvider
+- AIProvider
+- QueueProvider
+- StorageProvider
+- NotificationProvider
+
+Minimum behavior of these providers:
+
+1. BillingProvider
+- create customer
+- create checkout session
+- create portal session
+- parse webhook
+- read subscription status
+- handle upgrades / downgrades
+- support metering later
+
+2. TelephonyProvider
+- create tenant account / subaccount
+- search numbers
+- buy number
+- release number
+- create trunk
+- attach number to trunk
+- suspend account
+- resume account
+- validate webhook
+- fetch call metadata
+
+3. AIProvider
+- create agent
+- update agent
+- version prompt config
+- import phone number
+- bind phone number
+- unbind phone number
+- create knowledge source
+- trigger test call if supported
+- validate webhook
+- fetch call result metadata
+
+4. QueueProvider
+- enqueue job
+- schedule retry
+- dead-letter failed jobs
+- replay job
+
+5. NotificationProvider
+- email
+- SMS
+- internal alerts
+
+Result:
+Switching from Retell to Bland or Vapi should mostly mean creating a new provider implementation, not rewriting the entire app.
+
+====================================================================
+H. PRODUCT FLOWS - STEP A TO STEP Z
+====================================================================
+
+STEP A - Visitor lands on landing page
+STEP B - User clicks start or book demo
+STEP C - User creates account
+STEP D - Tenant draft is created
+STEP E - User chooses vertical preset
+STEP F - User enters business basics
+STEP G - User enters hours, services, tone, fallback rules
+STEP H - Website and docs are imported
+STEP I - System generates business summary + draft agent config
+STEP J - User chooses number preferences
+STEP K - System searches number inventory and regulatory requirements
+STEP L - User selects plan
+STEP M - Stripe checkout completes
+STEP N - Subscription state becomes active / valid for provisioning
+STEP O - Provisioning job is created
+STEP P - Twilio subaccount is created
+STEP Q - Number is purchased
+STEP R - SIP trunk / routing is created and attached
+STEP S - AI agent is created
+STEP T - Knowledge sources are synced
+STEP U - Number is imported into AI provider and bound
+STEP V - Internal test call is run
+STEP W - Admin reviews and approves if required
+STEP X - Tenant status becomes live
+STEP Y - Client dashboard opens with ready-to-use metrics
+STEP Z - Post-call learning, analytics, billing control, and support tooling continue operating automatically
+
+====================================================================
+I. DATABASE FOUNDATION
+====================================================================
+
+Use Supabase Postgres as source of truth.
+Every tenant-facing table must include tenant_id.
+RLS must be enabled on all tenant tables.
+
+Core tables:
+
+1. tenants
+Purpose:
+Store tenant identity and lifecycle status.
+Fields:
+- id
+- name
+- slug
+- status: draft, trialing, active, past_due, restricted, suspended, canceled
+- vertical
+- country
+- timezone
+- created_at
+- updated_at
+
+2. tenant_users
+Purpose:
+Map users to tenants and roles.
+Fields:
+- id
+- tenant_id
+- user_id
+- role: owner, admin, staff, billing, support
+- created_at
+
+3. business_profiles
+Purpose:
+Store business-level configuration.
+Fields:
+- tenant_id
+- business_name
+- website_url
+- primary_language
+- additional_languages
+- address
+- hours
+- services
+- faq
+- escalation_phone
+- booking_mode
+- avg_order_value
+- created_at
+- updated_at
+
+4. plans
+Purpose:
+Define pricing and included limits.
+Fields:
+- id
+- code
+- name
+- monthly_price_cents
+- included_minutes
+- included_numbers
+- included_sms
+- overage_voice_per_minute_cents
+- overage_sms_per_unit_cents
+- max_concurrent_calls
+- features_json
+
+5. subscriptions
+Purpose:
+Store Stripe linkage and billing status.
+Fields:
+- tenant_id
+- plan_id
+- stripe_customer_id
+- stripe_subscription_id
+- stripe_price_id
+- status
+- current_period_start
+- current_period_end
+- cancel_at_period_end
+
+6. entitlements
+Purpose:
+Store current service permissions.
+Fields:
+- tenant_id
+- can_receive_calls
+- can_make_calls
+- can_send_sms
+- can_edit_settings
+- can_add_numbers
+- soft_spend_limit_cents
+- hard_spend_limit_cents
+- grace_ends_at
+- restriction_reason
+- updated_at
+
+7. twilio_accounts
+Purpose:
+Store tenant-linked Twilio account references.
+Fields:
+- tenant_id
+- twilio_subaccount_sid
+- status
+- credentials_ref
+- created_at
+- updated_at
+
+8. phone_numbers
+Purpose:
+Store number lifecycle and ownership.
+Fields:
+- tenant_id
+- provider
+- e164
+- country_code
+- locality
+- capabilities
+- twilio_sid
+- twilio_subaccount_sid
+- status
+- monthly_cost_cents
+- purchased_at
+- released_at
+
+9. sip_trunks
+Purpose:
+Store telephony routing resources.
+Fields:
+- tenant_id
+- twilio_trunk_sid
+- termination_uri
+- origination_uris
+- status
+
+10. retell_agents
+Purpose:
+Store AI agent resources and versions.
+Fields:
+- tenant_id
+- retell_agent_id
+- purpose
+- version
+- published
+- voice_id
+- response_engine
+- prompt_snapshot
+
+11. retell_bindings
+Purpose:
+Store number-to-agent binding details.
+Fields:
+- tenant_id
+- phone_number_id
+- retell_phone_number_id
+- inbound_webhook_url
+- binding_mode
+- status
+- config
+
+12. knowledge_sources
+Purpose:
+Store imported websites, files, FAQs, and sync state.
+Fields:
+- tenant_id
+- source_type
+- source_uri
+- sync_status
+- checksum
+- metadata
+
+13. prompt_versions
+Purpose:
+Store prompt history and admin-approved revisions.
+Fields:
+- tenant_id
+- agent_id
+- version_number
+- generated_prompt
+- edited_prompt
+- generated_by
+- approved_by
+- approval_status
+- reason_for_change
+- created_at
+
+14. calls
+Purpose:
+Store normalized call records.
+Fields:
+- tenant_id
+- provider
+- provider_call_id
+- phone_number_id
+- direction
+- caller_number
+- callee_number
+- started_at
+- ended_at
+- duration_seconds
+- outcome
+- summary
+- transcript_url
+
+15. call_analysis
+Purpose:
+Store AI post-call analysis and suggestions.
+Fields:
+- tenant_id
+- call_id
+- sentiment
+- result
+- failure_reason
+- suggested_prompt_change
+- approved_change_applied
+- created_at
+
+16. webhook_events
+Purpose:
+Store all raw provider events before async processing.
+Fields:
+- provider
+- external_id
+- event_type
+- signature_verified
+- payload
+- processing_status
+- attempts
+- created_at
+- processed_at
+
+17. provisioning_jobs
+Purpose:
+Store async provisioning lifecycle.
+Fields:
+- tenant_id
+- type
+- status
+- current_step
+- retry_count
+- error_message
+- step_data
+- created_at
+- updated_at
+
+18. provisioning_steps
+Purpose:
+Store each provisioning step detail.
+Fields:
+- job_id
+- step_name
+- step_order
+- status
+- request_payload
+- response_payload
+- started_at
+- completed_at
+
+19. usage_daily
+Purpose:
+Store cost, usage, and revenue rollups.
+Fields:
+- tenant_id
+- date
+- inbound_minutes
+- outbound_minutes
+- sms counts
+- twilio_cost_cents
+- retell_cost_cents
+- revenue_cents
+- margin_cents
+
+20. audit_logs
+Purpose:
+Store sensitive admin and system actions.
+Fields:
+- actor_type
+- actor_id
+- tenant_id
+- action
+- entity_type
+- entity_id
+- before_json
+- after_json
+- created_at
+
+21. agencies
+Purpose:
+Store agency-level entities.
+Fields:
+- id
+- name
+- owner_user_id
+- white_label_settings
+- created_at
+
+22. agency_tenants
+Purpose:
+Map agencies to client tenants.
+Fields:
+- agency_id
+- tenant_id
+- margin_rules
+- created_at
+
+====================================================================
+J. RLS AND MULTI-TENANT SECURITY MODEL
+====================================================================
+
+Rules:
+- enable RLS on all tenant-facing tables
+- every user request must be filtered by tenant_id through DB policies
+- no frontend trust model
+- internal admin actions only through secure server-side routes
+
+Required helper idea:
+- function is_tenant_member(target_tenant uuid)
+
+Basic policies:
+- tenant members can read their tenant and related data
+- tenant admins can update business profile
+- billing roles can view subscription details
+- only platform admins can access global admin tools
+
+Storage rules:
+- uploaded files must not be public by default
+- knowledge files are accessible only to tenant members and internal admins
+
+====================================================================
+K. BILLING MODEL AND PAYMENT TRUTH
+====================================================================
+
+This must be implemented clearly.
+
+1. Payment truth
+- customer pays you through Stripe
+- Twilio bills your master account
+- Retell bills your provider account
+- your platform manages access
+- this is not a direct automated split between Stripe and vendors in the base model
+
+2. Billing states
+- draft
+- trialing
+- active
+- past_due
+- restricted
+- suspended
+- canceled
+
+3. Dunning flow
+A. payment fails
+- set past_due
+- notify tenant
+- start grace timer
+
+B. grace expires
+- set restricted
+- block outbound
+- block advanced settings
+- keep billing portal accessible
+
+C. still unpaid
+- set suspended
+- suspend telephony account / routing
+- unbind or redirect AI number behavior
+
+D. payment recovered
+- set active
+- restore entitlements
+- resume providers
+- run health check
+
+4. Spend guardrails
+Per tenant define:
+- soft spend threshold
+- hard spend threshold
+- max daily minutes
+- max concurrent calls
+- max outbound attempts per hour
+- country allowlist
+- call hour window
+- fraud threshold
+
+5. Billing UX
+Tenant dashboard must show:
+- current plan
+- included limits
+- current usage
+- invoices
+- payment method
+- past_due banner if relevant
+- upgrade path
+
+====================================================================
+L. ENTITLEMENT ENGINE
+====================================================================
+
+The entitlement engine is one of the most important backend services.
+Every sensitive action must check entitlements before executing.
+
+Examples of actions gated by entitlements:
+- receive inbound calls
+- start outbound calls
+- send SMS
+- add new number
+- edit advanced settings
+- access premium analytics
+- access white-label features
+- create multiple agents
+
+Entitlement checks should depend on:
+- subscription status
+- plan limits
+- spend thresholds
+- fraud state
+- admin override
+- provider health if necessary
+
+====================================================================
+M. PROVISIONING STATE MACHINE
+====================================================================
+
+Never implement onboarding as one huge synchronous function.
+Use a durable state machine.
+
+Initial launch flow:
+- draft
+- stripe_customer_created
+- subscription_created
+- provisioning_queued
+- twilio_subaccount_created
+- regulatory_check_passed
+- number_selected
+- number_purchased
+- sip_trunk_created
+- number_attached_to_trunk
+- ai_agent_created
+- knowledge_synced
+- phone_imported_into_ai
+- number_bound
+- test_call_passed
+- live
+
+Failure branches:
+- waiting_retry
+- manual_review_required
+- rollback_required
+- restricted
+- failed
+
+Rollback examples:
+- number purchased but AI binding failed -> keep number purchased_unbound, retry binding
+- AI agent created but KB sync failed -> mark KB pending, deploy minimal prompt if safe
+- payment invalid during provisioning -> stop activation and move to restricted
+
+Suspend flow:
+- active -> past_due -> restricted -> suspended
+
+Resume flow:
+- payment_recovered -> resume_service -> health_check -> active
+
+====================================================================
+N. ASYNC JOBS, QUEUES, AND RETRIES
+====================================================================
+
+Recommended queues:
+- provisioning_jobs
+- billing_events
+- twilio_events
+- ai_events
+- analytics_rollups
+- resource_reconciliation
+- fraud_checks
+- notifications
+
+Worker rules:
+- every step idempotent
+- every step logged
+- external API steps retried with backoff
+- dead-letter after max attempts
+- replay tool for admin
+
+Long-running jobs include:
+- full onboarding deploy
+- KB sync
+- number release
+- suspend / resume flows
+- daily analytics rollup
+- fraud response
+- resource drift reconciliation
+
+====================================================================
+O. ADMIN REVIEW + APPROVAL SYSTEM
+====================================================================
+
+This came strongly from the source doc and must be preserved.
+
+The system should not automatically deploy every generated agent without a control point.
+
+Admin review screen must show:
+- tenant info
+- vertical preset
+- generated prompt
+- extracted dynamic variables
+- selected voice
+- webhook config summary
+- knowledge sources
+- simulation / test output
+- risk notes
+
+Admin actions:
+- approve
+- reject
+- request changes
+- edit prompt
+- switch voice
+- switch fallback mode
+- launch test call
+
+Why this matters:
+- better quality control
+- safer first deployments
+- easier support
+- stronger enterprise confidence
+- useful even later for agency quality assurance
+
+====================================================================
+P. LLM CONFIG COMPILER
+====================================================================
+
+This is a core differentiator.
+The LLM should not only rewrite text. It should compile a business description into a production-ready configuration.
+
+Inputs:
+- preset template
+- business profile
+- hours
+- services
+- FAQs
+- website data
+- tone
+- booking style
+- fallback rules
+- vertical rules
+
+Outputs:
+- prompt draft
+- dynamic variables list
+- call flow structure
+- edge-case handling notes
+- escalation triggers
+- voice suggestion
+- compliance / safety notes
+
+Rules:
+- generate structured output, not only plain text
+- keep templates versioned
+- save generated prompt before approval
+- allow admin edits
+- save final approved prompt snapshot
+
+====================================================================
+Q. VERTICAL PACKS
+====================================================================
+
+Every vertical pack must contain:
+- preset prompt skeleton
+- required business fields
+- allowed / forbidden phrases
+- default workflow steps
+- common edge cases
+- after-hours policy
+- transfer rules
+- KPI definitions
+- analytics labels
+- common FAQs
+
+Examples:
+
+Clinic pack:
+- appointment booking
+- cancellation
+- reminders
+- urgent escalation boundaries
+- insurance / preparation questions if allowed
+
+HVAC pack:
+- emergency vs scheduled distinction
+- service area checks
+- estimate lead capture
+- after-hours emergency routing
+
+Salon pack:
+- booking by service category
+- stylist preference
+- hours / holiday rules
+- repeat customer friendliness
+
+Legal intake pack:
+- intake questions
+- disclaimer boundaries
+- urgency categorization
+- callback collection
+
+====================================================================
+R. TELEPHONY DESIGN
+====================================================================
+
+Current provider: Twilio
+Design future-proofing: mandatory
+
+Core telephony objects:
+- master account
+- one subaccount per tenant
+- phone numbers per tenant
+- SIP trunk or equivalent routing abstraction
+- status callbacks
+- usage triggers
+- message routes if SMS enabled
+
+Rules:
+- store all provider IDs in DB
+- do not hardcode a single routing assumption
+- separate inbound and outbound logic
+- support fallback numbers
+- support number release process
+- allow future BYO-vendor mode for bigger clients
+
+Routing principles:
+- inbound calls should always hit a fast webhook path
+- heavy processing must be async
+- fallback route must exist for outage / suspension / after-hours mode
+
+====================================================================
+S. AI AGENT DESIGN
+====================================================================
+
+Current provider: Retell
+Design future-proofing: mandatory
+
+Every tenant can have several logical agent types:
+- frontdesk / main reception agent
+- after-hours agent
+- fallback agent
+- overflow agent
+- outbound follow-up agent later
+
+Agent design requirements:
+- prompt versioning
+- business dynamic variables
+- clear escalation triggers
+- binding to number abstracted behind adapter
+- optional weighted routing for experiments or fallback
+- knowledge source attachment
+- safe test mode before go-live
+
+Important design note:
+Do not let tenant users edit raw AI config fields unless in advanced mode.
+Expose business-language controls instead.
+
+====================================================================
+T. KNOWLEDGE SYSTEM
+====================================================================
+
+Sources:
+- website pages
+- PDFs
+- docs
+- manual FAQs
+- pasted text
+
+Requirements:
+- source type tracking
+- sync status
+- checksum / version awareness
+- manual resync
+- admin visibility
+- prompt-context hygiene
+
+Rules:
+- knowledge should enrich the agent, not become an uncontrolled dump
+- create source summaries
+- let admin disable bad sources
+- store what was active at each deployment version when possible
+
+====================================================================
+U. POST-CALL ANALYSIS AND SELF-IMPROVEMENT LOOP
+====================================================================
+
+This is a major differentiator from the source document.
+
+After each completed call, the system should be able to:
+- store transcript metadata
+- classify outcome
+- detect success / failure patterns
+- generate a suggested prompt improvement
+- present that suggestion to admin for approval
+- apply approved prompt revision as a new version
+
+Examples:
+- agent failed repeatedly when asked about allergies
+- agent handled after-hours requests poorly
+- caller confusion happened at booking step 2
+- transfer language was too robotic
+
+This creates a flywheel:
+more calls -> more insight -> better prompts -> better conversion -> better retention.
+
+====================================================================
+V. ROI DASHBOARD AND ANALYTICS
+====================================================================
+
+A major rule from the source doc:
+Do not stop at call counts.
+Show business value.
+
+Required metrics:
+- total calls
+- answered calls
+- missed calls recovered
+- appointments booked
+- leads captured
+- transfers completed
+- estimated revenue generated
+- time saved
+- call success rate
+- payment status
+- plan usage
+
+Estimated revenue formula for MVP:
+confirmed bookings or qualified leads x average order value
+
+Dashboard sections:
+1. overview cards
+2. recent calls
+3. ROI chart
+4. usage and limits
+5. improvement suggestions
+6. billing alerts
+
+====================================================================
+W. AGENCY / WHITE-LABEL MODE
+====================================================================
+
+Architect now, even if phase 2.
+
+Agency requirements:
+- agency account
+- agency can create/manage multiple client tenants
+- optional white-label branding
+- margin logic
+- agency analytics dashboard
+- agency-level support workflows
+- client isolation preserved
+
+White-label items:
+- logo
+- colors
+- sender name
+- custom domain later
+- invoice branding later
+
+Agency value proposition:
+They resell the platform while you provide the infrastructure.
+
+====================================================================
+X. SECURITY, COMPLIANCE, AND TRUST
+====================================================================
+
+Must-have security features:
+- Supabase Auth
+- RLS on all tenant data
+- strict server-side provider operations
+- webhook signature validation for Stripe, Twilio, and AI provider
+- encrypted secret handling
+- audit logs for admin overrides
+- idempotent webhook processing
+- input validation everywhere
+- rate limiting on sensitive routes
+- account / tenant suspension controls
+
+Compliance-aware behavior:
+- number availability and regulation vary by country and type
+- do not hardcode assumptions
+- include a compliance check step before provisioning where required
+
+Operational trust features:
+- admin review before deploy
+- test call before live
+- fallback route for outages
+- health-check actions after resume
+
+====================================================================
+Y. SCALABILITY, CONCURRENCY, AND COST CONTROL
+====================================================================
+
+Reality:
+No platform has infinite concurrency.
+The goal is that the architecture degrades safely and scales predictably.
+
+Rules:
+1. keep inbound path fast and lightweight
+2. move heavy work to queues
+3. queue all outbound work
+4. rate-limit by tenant
+5. set max concurrent actions per tenant
+6. separate hot call logging from heavy analytics
+7. use reconciliation jobs to detect drift
+8. add spend triggers and anomaly detection
+
+Concurrency design:
+- inbound call events: lightweight ingestion + async processing
+- outbound campaigns: queued and throttled
+- provisioning: fully async
+- analytics: batched rollups
+
+Future scale options:
+- shard heavy tenants to dedicated workers
+- isolate high-volume enterprise tenants on separate vendor accounts if needed
+- introduce event streaming later if the product outgrows simple queue processing
+
+====================================================================
+Z. EXACT MVP BUILD ORDER
+====================================================================
+
+PHASE 0 - Foundation setup
+- monorepo
+- shared config
+- provider adapter interfaces
+- environment management
+- logging and error utilities
+
+PHASE 1 - Core control plane
+- Supabase schema
+- tenant and user model
+- auth
+- RLS
+- plans
+- subscriptions
+- entitlements engine
+- basic dashboard shell
+
+PHASE 2 - Billing first
+- Stripe checkout
+- customer portal
+- Stripe webhooks
+- state transitions: active, past_due, restricted, suspended
+- billing banners and portal access
+
+PHASE 3 - Telephony foundation
+- Twilio subaccount service
+- number search
+- number purchase
+- number persistence
+- suspend / resume operations
+- basic callbacks
+
+PHASE 4 - AI foundation
+- AI provider adapter
+- create agent from preset
+- import / bind number
+- inbound webhook route
+- store call logs and summaries
+
+PHASE 5 - Provisioning engine
+- durable provisioning jobs
+- provisioning steps
+- retries
+- replay
+- admin job inspector
+
+PHASE 6 - Frictionless onboarding
+- business wizard
+- website import
+- prompt compiler
+- number selection UX
+- admin review screen
+- test call action
+- go-live workflow
+
+PHASE 7 - Quality and value layer
+- ROI dashboard
+- post-call analysis
+- prompt suggestion loop
+- prompt version history
+
+PHASE 8 - Scale and protection
+- resource reconciliation
+- fraud controls
+- spend controls
+- alerting
+- support tools
+
+PHASE 9 - Agency mode
+- agency accounts
+- white-label basics
+- agency dashboard
+- margin logic
+
+====================================================================
+NON-NEGOTIABLE BUILD RULES
+====================================================================
+
+1. Never let billing logic live only in the frontend.
+2. Never let provider IDs exist without DB ownership tracking.
+3. Never let onboarding be one giant non-retryable function.
+4. Never expose raw low-level provider settings to normal customers.
+5. Never trust a webhook without signature verification.
+6. Never allow cross-tenant reads outside RLS-protected flows.
+7. Never launch outbound or high-cost operations without entitlement checks.
+8. Never hardcode country-specific number rules.
+9. Never tie the whole app directly to one provider SDK.
+10. Never skip admin and support tooling.
+
+====================================================================
+WHAT MAKES THIS HARD TO BEAT
+====================================================================
+
+The unbeatable version is not “more AI.”
+It is this combination:
+- frictionless onboarding
+- deep vertical packs
+- LLM config compiler
+- admin review gate
+- automated provisioning
+- billing firewall
+- post-call improvement loop
+- ROI dashboard
+- agency white-label layer
+- provider abstraction
+- durable jobs and reconciliation
+- excellent internal admin tools
+
+That is the real moat.
+
+====================================================================
+FINAL PRODUCT DEFINITION
+====================================================================
+
+OPCALLS should be built as:
+“A multi-tenant AI front-desk operating system that launches production-ready business voice agents in minutes, with admin-reviewed deployment, billing-safe automation, ROI reporting, post-call improvement, and a provider-agnostic architecture.”
+
+This is the foundation of the MVP.
+Build the engine cleanly first, then go deep on one vertical before expanding.
+
+
+------------------------------------------------------------  comment ------------------------------------------------------------------------
+
+That verdict is strong — and the refinements are good.
+
+I agree with almost all of it. The biggest value in that feedback is not the praise; it’s the missing operational details it surfaced. Those are exactly the things that hurt later if you ignore them now.
+
+Here’s my read:
+
+What I agree with most
+
+They correctly identified your real strengths:
+
+control-plane architecture
+
+provider abstraction
+
+entitlement engine
+
+provisioning state machine
+
+admin review gate
+
+post-call learning loop
+
+That means the foundation is not “just a SaaS.” It is starting to look like a platform OS.
+
+The refinements I would absolutely adopt
+1. Add indexes now
+
+Yes. Do this early.
+
+At minimum:
+
+create index calls_tenant_created_at_idx
+  on public.calls (tenant_id, created_at desc);
+
+create index webhook_events_provider_created_at_idx
+  on public.webhook_events (provider, created_at desc);
+
+create index provisioning_jobs_tenant_status_idx
+  on public.provisioning_jobs (tenant_id, status);
+
+create index phone_numbers_tenant_status_idx
+  on public.phone_numbers (tenant_id, status);
+
+create index retell_agents_tenant_purpose_idx
+  on public.retell_agents (tenant_id, purpose);
+2. Add vertical preset storage
+
+Yes. This should be first-class.
+
+Add:
+
+create table public.vertical_presets (
+  id uuid primary key default gen_random_uuid(),
+  code text not null, -- clinic, hvac, salon, legal
+  version integer not null default 1,
+  name text not null,
+  config jsonb not null default '{}'::jsonb,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (code, version)
+);
+
+This table should contain:
+
+onboarding fields
+
+default prompt pack
+
+booking rules
+
+after-hours behavior
+
+escalation rules
+
+KPI definitions
+
+compliance notes
+
+suggested voices
+
+FAQ starter pack
+
+3. Add idempotency more explicitly
+
+Yes. Very important.
+
+Add:
+
+alter table public.webhook_events
+add column idempotency_key text;
+
+create unique index webhook_events_provider_idempotency_idx
+  on public.webhook_events (provider, idempotency_key);
+
+Also add idempotency at:
+
+provisioning step execution
+
+number purchase
+
+agent creation
+
+binding update
+
+suspension/resume actions
+
+4. Add plan-level API limits
+
+Yes.
+
+Add to plans:
+
+alter table public.plans
+add column api_requests_per_minute integer not null default 60,
+add column max_active_numbers integer not null default 1,
+add column max_monthly_test_calls integer not null default 10;
+
+That gives you much better commercial control.
+
+The missing pieces I would add immediately
+A. Error taxonomy
+
+This is needed.
+
+Add a central error system:
+
+create table public.error_codes (
+  code text primary key,
+  category text not null, -- billing, telephony, ai, auth, provisioning, internal
+  severity text not null, -- info, warn, error, critical
+  message text not null,
+  retryable boolean not null default false
+);
+
+Examples:
+
+BILLING_PAYMENT_FAILED
+
+BILLING_SUBSCRIPTION_MISSING
+
+TWILIO_NUMBER_UNAVAILABLE
+
+TWILIO_SUBACCOUNT_SUSPENDED
+
+RETELL_AGENT_CREATE_FAILED
+
+RETELL_BINDING_FAILED
+
+PROVISIONING_STEP_TIMEOUT
+
+AUTH_RLS_DENIED
+
+ENTITLEMENT_BLOCKED
+
+HEALTHCHECK_FAILED
+
+This will make logs, support, admin, and retries much cleaner.
+
+B. Health-check design
+
+Yes, this must be defined.
+
+After resume or provisioning, health check should verify:
+
+tenant status is active
+
+subscription is valid
+
+entitlements allow service
+
+Twilio subaccount is active
+
+at least one phone number exists and is active
+
+SIP trunk exists and matches expected routing
+
+Retell agent exists
+
+Retell binding exists
+
+knowledge base sync is not broken
+
+test call passes or synthetic check returns healthy
+
+Store result in:
+
+create table public.health_checks (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  check_type text not null, -- provisioning, resume, nightly, manual
+  status text not null, -- passed, failed, warning
+  details jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+C. Notification templates
+
+Yes. Needed.
+
+Add:
+
+create table public.notification_templates (
+  id uuid primary key default gen_random_uuid(),
+  code text unique not null,
+  channel text not null, -- email, sms, in_app
+  subject text,
+  body text not null,
+  variables jsonb not null default '[]'::jsonb,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+You need templates for:
+
+payment failed
+
+grace period ending
+
+service suspended
+
+service resumed
+
+agent approved
+
+provisioning failed
+
+number purchased
+
+usage threshold hit
+
+test call passed
+
+admin review needed
+
+D. Vertical presets + prompt versions should connect
+
+Add:
+
+create table public.prompt_versions (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid references public.tenants(id) on delete cascade,
+  vertical_preset_id uuid references public.vertical_presets(id),
+  version integer not null,
+  purpose text not null,
+  prompt_text text not null,
+  config jsonb not null default '{}'::jsonb,
+  created_by text not null, -- system, admin, user
+  created_at timestamptz not null default now()
+);
+
+That creates a real improvement loop.
+
+My verdict on the feedback
+
+It is excellent.
+
+And it confirms something important:
+your blueprint is already beyond “idea stage.”
+It is now at implementation architecture stage.
+
+What should happen next
+
+Yes — Phase 2 Billing is the right next move.
+
+Not because billing is glamorous, but because it is the first hard gate that protects you from building cost before revenue control.
+
+Phase 2 should include:
+
+Stripe products/prices
+
+Stripe Checkout
+
+Stripe Customer Portal
+
+webhook verification
+
+subscription state sync
+
+tenant status transitions
+
+entitlement recalculation
+
+grace period logic
+
+restriction logic
+
+suspension trigger logic
+
+resume-on-payment logic
+
+Billing states to implement first
+
+trialing
+
+active
+
+past_due
+
+restricted
+
+suspended
+
+canceled
+
+Entitlement outcomes tied to those
+
+active: all allowed by plan
+
+past_due: service mostly active, warning shown
+
+restricted: outbound blocked, edits blocked
+
+suspended: calls and SMS disabled
+
+canceled: retention / export / release flow
+
+My recommendation
+
+Take that feedback, adopt the refinements, and do not jump to Twilio next until billing and entitlements are wired correctly.
+
+The safest order is:
+
+refine schema with indexes, presets, notifications, health checks, errors
+
+build Phase 2 billing
+
+then telephony
+
+then provisioning engine
+
+That is the path that keeps your future platform sane.
+
+
+
+

@@ -483,8 +483,11 @@ export async function checkUsageThresholds(): Promise<WorkerResult> {
   for (const sub of subs || []) {
     result.processed++
     
-    const plan = sub.plans as { included_minutes: number } | null
-    const entitlements = sub.entitlements as { 
+    // Handle both array and object responses from Supabase join
+    const plansRaw = sub.plans as unknown
+    const plan = (Array.isArray(plansRaw) ? plansRaw[0] : plansRaw) as { included_minutes: number } | null
+    const entsRaw = sub.entitlements as unknown
+    const entitlements = (Array.isArray(entsRaw) ? entsRaw[0] : entsRaw) as { 
       max_minutes: number
       current_month_spend_cents: number
       soft_spend_limit_cents: number | null 

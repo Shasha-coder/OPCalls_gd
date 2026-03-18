@@ -45,7 +45,7 @@ const fullOnboardingSteps: WorkflowStep[] = [
     maxRetries: 3,
     timeoutMs: 30000,
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as FullOnboardingInput
+      const input = ctx.inputParams as unknown as FullOnboardingInput
       
       const result = await createSubaccountForOrg(ctx.orgId, input.businessName)
       
@@ -79,7 +79,7 @@ const fullOnboardingSteps: WorkflowStep[] = [
     timeoutMs: 30000,
     dependsOn: ['create_subaccount'],
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as FullOnboardingInput
+      const input = ctx.inputParams as unknown as FullOnboardingInput
       
       const result = await createSipTrunkForOrg(ctx.orgId, `${input.businessName} - Voice`)
       
@@ -109,7 +109,7 @@ const fullOnboardingSteps: WorkflowStep[] = [
     timeoutMs: 15000,
     dependsOn: ['create_subaccount'],
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as FullOnboardingInput
+      const input = ctx.inputParams as unknown as FullOnboardingInput
       
       const result = await searchAvailableNumbers({
         orgId: ctx.orgId,
@@ -147,7 +147,7 @@ const fullOnboardingSteps: WorkflowStep[] = [
     timeoutMs: 30000,
     dependsOn: ['search_phone_number'],
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as FullOnboardingInput
+      const input = ctx.inputParams as unknown as FullOnboardingInput
       const searchResult = ctx.previousStepResults['search_phone_number']
       
       const phoneNumber = searchResult?.data?.selectedNumber as string
@@ -192,7 +192,7 @@ const fullOnboardingSteps: WorkflowStep[] = [
     maxRetries: 3,
     timeoutMs: 60000,
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as FullOnboardingInput
+      const input = ctx.inputParams as unknown as FullOnboardingInput
       
       const result = await createAgent({
         orgId: ctx.orgId,

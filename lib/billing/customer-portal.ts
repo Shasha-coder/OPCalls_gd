@@ -255,7 +255,7 @@ export async function getSubscriptionInfo(
     return {
       status: subscription.status,
       planName: plan?.name as string || 'Unknown',
-      planCode: plan?.code as string || 'unknown',
+      planCode: plan?.slug as string || 'unknown',
       currentPeriodEnd: subscription.current_period_end,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       amount: subscription.billing_interval === 'year' 

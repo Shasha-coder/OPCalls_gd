@@ -206,7 +206,7 @@ async function handleCheckoutCompleted(
   const { data: plan } = await supabase
     .from('plans')
     .select('*')
-    .eq('code', planCode)
+    .eq('slug', planCode)
     .single()
 
   if (!plan) {

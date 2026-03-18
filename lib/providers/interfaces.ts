@@ -89,11 +89,22 @@ export interface PurchaseNumberParams {
   smsUrl?: string
 }
 
+export interface NumberCapabilities {
+  voice: boolean
+  sms: boolean
+  mms: boolean
+  fax?: boolean
+}
+
+export type NumberStatus = 'active' | 'pending' | 'suspended' | 'released'
+
 export interface PurchasedNumber {
-  id: string
+  sid: string
   phoneNumber: string
   friendlyName: string
-  status: 'active' | 'pending'
+  capabilities: NumberCapabilities
+  status: NumberStatus
+  dateCreated: Date
 }
 
 export interface NumberUpdateParams {

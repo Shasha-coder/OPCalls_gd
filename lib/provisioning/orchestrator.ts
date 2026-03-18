@@ -309,7 +309,7 @@ export async function startOnboardingProvisioning(
   const { jobId } = await startProvisioningJob({
     orgId,
     jobType: 'full_onboarding',
-    inputParams: input,
+    inputParams: input as unknown as Record<string, unknown>,
     triggeredBy: 'user',
   })
   

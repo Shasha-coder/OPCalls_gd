@@ -216,14 +216,14 @@ async function handleIncomingCall(body: Record<string, string>): Promise<NextRes
   
   if (retellTerminationUri) {
     // Forward to Retell via SIP
-    twiml.dial().sip(
-      `sip:${agent.retell_agent_id}@${retellTerminationUri}`,
-      {
-        // Pass call metadata
-        statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
-        statusCallback: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/twilio/status`,
-      }
-    )
+    const dial = twiml.dial({
+      callerId: body.To,
+    })
+    dial.sip({
+      url: `sip:${agent.retell_agent_id}@${retellTerminationUri}`,
+      statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
+      statusCallback: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/twilio/status`,
+    })
   } else {
     // Fallback: simple greeting
     twiml.say('Hello! Thank you for calling. Our AI assistant will be with you shortly.')

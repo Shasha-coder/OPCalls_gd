@@ -21,7 +21,7 @@ import { logBillingEvent } from '@/lib/billing/utils'
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2023-10-16',
 })
 
 // Initialize Supabase with service role for server-side operations
@@ -199,7 +199,7 @@ async function handleCheckoutCompleted(
   const planCode = session.metadata?.plan_code
 
   if (!orgId) {
-    return { success: false, error: 'Missing org_id in metadata' }
+    return { success: false, message: 'Missing org_id in metadata', error: 'Missing org_id in metadata' }
   }
 
   // Get plan
@@ -210,7 +210,7 @@ async function handleCheckoutCompleted(
     .single()
 
   if (!plan) {
-    return { success: false, error: `Plan not found: ${planCode}` }
+    return { success: false, message: `Plan not found: ${planCode}`, error: `Plan not found: ${planCode}` }
   }
 
   // Create or update subscription record
@@ -232,7 +232,7 @@ async function handleCheckoutCompleted(
 
   if (error) {
     console.error('Error creating subscription:', error)
-    return { success: false, error: 'Failed to create subscription' }
+    return { success: false, message: 'Failed to create subscription', error: 'Failed to create subscription' }
   }
 
   // Recalculate entitlements

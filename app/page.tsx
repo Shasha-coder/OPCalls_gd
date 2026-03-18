@@ -1,11 +1,11 @@
 import Header from '@/components/Header'
-import MinimalTestimonial from '@/components/MinimalTestimonial'
+import Hero from '@/components/Hero'
 
 export default function Home() {
   return (
-    <main className="min-h-screen metal-bg">
+    <main className="min-h-screen dark-bg">
       <Header />
-      <MinimalTestimonial />
+      <Hero />
     </main>
   )
 }

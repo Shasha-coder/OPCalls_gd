@@ -347,8 +347,8 @@ async function sendGraceWarningEmail(
   
   // TODO: Actually send email via notification provider
   // For now, just log it
-  console.log(`[NOTIFICATION] Grace warning for ${org.name}:`, {
-    to: org.profiles?.[0]?.email,
+  console.log(`[NOTIFICATION] Grace warning for ${org?.name || 'Unknown Org'}:`, {
+    to: org?.profiles?.[0]?.email,
     subject: template.subject,
     daysRemaining,
     status: subscription.status,

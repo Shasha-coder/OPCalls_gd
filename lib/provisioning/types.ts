@@ -78,6 +78,7 @@ export interface ProvisioningStep {
 export interface StepResult {
   status: 'success' | 'failed' | 'skipped'
   data?: Record<string, unknown>
+  rollbackData?: Record<string, unknown>
   error?: string
   durationMs?: number
 }

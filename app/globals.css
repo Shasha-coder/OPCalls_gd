@@ -107,12 +107,18 @@ body {
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* Scrollbar */
-.hide-scrollbar {
+/* Scrollbar - hide globally on forms and modals */
+.hide-scrollbar,
+form,
+[role="dialog"],
+.modal {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-.hide-scrollbar::-webkit-scrollbar {
+.hide-scrollbar::-webkit-scrollbar,
+form::-webkit-scrollbar,
+[role="dialog"]::-webkit-scrollbar,
+.modal::-webkit-scrollbar {
   display: none;
 }
 

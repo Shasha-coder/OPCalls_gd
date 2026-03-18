@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 import gsap from 'gsap'
 
 export default function Hero() {
@@ -9,7 +8,6 @@ export default function Hero() {
   const headlineRef = useRef<HTMLHeadingElement>(null)
   const subtextRef = useRef<HTMLParagraphElement>(null)
   const dfyRef = useRef<HTMLDivElement>(null)
-  const blobRef = useRef<HTMLDivElement>(null)
   const [showDFYModal, setShowDFYModal] = useState(false)
 
   useEffect(() => {
@@ -30,11 +28,6 @@ export default function Hero() {
         { y: 0, opacity: 1, duration: 0.7 }, 
         '-=0.5'
       )
-      .fromTo(blobRef.current, 
-        { scale: 0.8, opacity: 0 }, 
-        { scale: 1, opacity: 1, duration: 1.2, ease: 'power2.out' }, 
-        '-=0.8'
-      )
     }, sectionRef)
 
     return () => ctx.revert()
@@ -42,7 +35,25 @@ export default function Hero() {
 
   return (
     <>
-      <section ref={sectionRef} className="relative min-h-[70vh] dark-bg overflow-hidden pt-32 pb-16">
+      <section ref={sectionRef} className="relative min-h-[80vh] dark-bg overflow-hidden pt-32 pb-20">
+        {/* Artistic Dots Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-[10%] w-1 h-1 bg-white/20 rounded-full" />
+          <div className="absolute top-32 left-[15%] w-1.5 h-1.5 bg-white/10 rounded-full" />
+          <div className="absolute top-48 left-[8%] w-0.5 h-0.5 bg-white/30 rounded-full" />
+          <div className="absolute top-24 right-[12%] w-1 h-1 bg-white/15 rounded-full" />
+          <div className="absolute top-40 right-[18%] w-2 h-2 bg-white/5 rounded-full" />
+          <div className="absolute top-56 right-[8%] w-1 h-1 bg-white/20 rounded-full" />
+          <div className="absolute bottom-40 left-[20%] w-1 h-1 bg-white/15 rounded-full" />
+          <div className="absolute bottom-32 left-[25%] w-0.5 h-0.5 bg-white/25 rounded-full" />
+          <div className="absolute bottom-48 right-[22%] w-1.5 h-1.5 bg-white/10 rounded-full" />
+          <div className="absolute bottom-28 right-[15%] w-1 h-1 bg-white/20 rounded-full" />
+          <div className="absolute top-[45%] left-[5%] w-1 h-1 bg-white/10 rounded-full" />
+          <div className="absolute top-[55%] right-[5%] w-0.5 h-0.5 bg-white/20 rounded-full" />
+          <div className="absolute top-[35%] left-[30%] w-0.5 h-0.5 bg-white/15 rounded-full" />
+          <div className="absolute top-[65%] right-[28%] w-1 h-1 bg-white/10 rounded-full" />
+        </div>
+        
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <h1 
@@ -74,18 +85,7 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Golden Blob */}
-          <div ref={blobRef} className="relative mt-8 flex justify-center">
-            <div className="relative w-[280px] h-[180px] sm:w-[360px] sm:h-[240px]">
-              <Image
-                src="/images/hero-blob.jpg"
-                alt="AI Voice Technology"
-                fill
-                className="object-contain opacity-70"
-                priority
-              />
-            </div>
-          </div>
+
         </div>
       </section>
 
@@ -147,7 +147,7 @@ function DFYModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-      <div ref={modalRef} className="relative w-full max-w-lg glass-card rounded-3xl p-8 max-h-[90vh] overflow-y-auto">
+      <div ref={modalRef} className="relative w-full max-w-lg glass-card rounded-3xl p-8 max-h-[90vh] overflow-y-auto hide-scrollbar">
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 p-2 text-white/40 hover:text-white transition-colors"

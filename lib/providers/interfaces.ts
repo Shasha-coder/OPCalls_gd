@@ -9,12 +9,17 @@
 // TELEPHONY PROVIDER INTERFACE
 // ============================================================================
 
+export interface CreateSubaccountParams {
+  orgId?: string
+  friendlyName: string
+}
+
 export interface TelephonyProvider {
   readonly name: string
   readonly type: 'twilio' | 'telnyx' | 'bandwidth' | 'signalwire'
   
   // Subaccount/Project Management
-  createSubaccount(orgId: string, friendlyName: string): Promise<SubaccountResult>
+  createSubaccount(params: CreateSubaccountParams): Promise<SubaccountResult>
   getSubaccount(subaccountId: string): Promise<Subaccount | null>
   suspendSubaccount(subaccountId: string): Promise<void>
   resumeSubaccount(subaccountId: string): Promise<void>
@@ -30,21 +35,30 @@ export interface TelephonyProvider {
   deleteSipEndpoint(endpointId: string): Promise<void>
   
   // Health
-  healthCheck(): Promise<ProviderHealth>
+  healthCheck(): Promise<ProviderHealthStatus>
+}
+
+export interface ProviderHealthStatus {
+  healthy: boolean
+  latencyMs?: number
+  message?: string
+  lastChecked: Date
 }
 
 export interface SubaccountResult {
-  success: boolean
-  subaccountId?: string
-  authToken?: string
-  error?: string
-}
-
-export interface Subaccount {
-  id: string
+  sid: string
+  authToken: string
   friendlyName: string
   status: 'active' | 'suspended' | 'closed'
   dateCreated: Date
+}
+
+export interface Subaccount {
+  sid: string
+  friendlyName: string
+  status: 'active' | 'suspended' | 'closed'
+  dateCreated: Date
+  dateUpdated?: Date
 }
 
 export interface NumberSearchParams {
@@ -75,11 +89,22 @@ export interface PurchaseNumberParams {
   smsUrl?: string
 }
 
+export interface NumberCapabilities {
+  voice: boolean
+  sms: boolean
+  mms: boolean
+  fax?: boolean
+}
+
+export type NumberStatus = 'active' | 'pending' | 'suspended' | 'released'
+
 export interface PurchasedNumber {
-  id: string
+  sid: string
   phoneNumber: string
   friendlyName: string
-  status: 'active' | 'pending'
+  capabilities: NumberCapabilities
+  status: NumberStatus
+  dateCreated: Date
 }
 
 export interface NumberUpdateParams {

@@ -414,7 +414,9 @@ export async function getBillingDashboard(orgId: string): Promise<{
     .order('created_at', { ascending: false })
     .limit(5)
   
-  const plan = subscription?.plans as {
+  // Handle both array and object responses from Supabase join
+  const plansRaw = subscription?.plans as unknown
+  const plan = (Array.isArray(plansRaw) ? plansRaw[0] : plansRaw) as {
     name: string
     monthly_price_cents: number
     annual_price_cents: number

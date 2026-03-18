@@ -328,10 +328,10 @@ async function sendGraceWarningEmail(
   },
   daysRemaining: number
 ): Promise<void> {
-  const org = subscription.organizations as {
-    name: string
-    profiles: Array<{ email: string }>
-  }
+  // Handle both array and object responses from Supabase join
+  const orgs = subscription.organizations as unknown
+  const orgRaw = Array.isArray(orgs) ? orgs[0] : orgs
+  const org = orgRaw as { name?: string; profiles?: Array<{ email: string }> } | null
   
   // Get notification template
   const { data: template } = await supabase

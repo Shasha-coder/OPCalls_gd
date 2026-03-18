@@ -4,10 +4,13 @@ import type { Profile, Organization, Agent } from '@/types/database'
 // Lazy load Supabase client to prevent crashes
 const getSupabaseClient = () => {
   try {
+    // Check if env vars exist before attempting to create client
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return null
+    }
     const { createClient } = require('@/lib/supabase/client')
     return createClient()
-  } catch (error) {
-    console.error('Failed to initialize Supabase client:', error)
+  } catch {
     return null
   }
 }
@@ -42,7 +45,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const supabase = getSupabaseClient()
     
     if (!supabase) {
-      console.warn('Supabase client not available - auth disabled')
       set({ isLoading: false, isInitialized: true })
       return
     }

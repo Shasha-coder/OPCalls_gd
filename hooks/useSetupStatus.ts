@@ -41,23 +41,19 @@ type SetupAction =
 // ============================================================================
 
 export function useSetupStatus() {
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   const [status, setStatus] = useState<SetupStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
   const fetchStatus = useCallback(async () => {
-    if (!session?.access_token) {
+    if (!user) {
       setLoading(false)
       return
     }
     
     try {
-      const response = await fetch('/api/user/setup-status', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch('/api/user/setup-status')
       
       if (!response.ok) {
         throw new Error('Failed to fetch setup status')
@@ -71,7 +67,7 @@ export function useSetupStatus() {
     } finally {
       setLoading(false)
     }
-  }, [session?.access_token])
+  }, [user])
   
   useEffect(() => {
     fetchStatus()

@@ -57,11 +57,14 @@ async function getAuthenticatedOrg(request: NextRequest): Promise<{
     return { orgId: null, orgName: null, error: 'No organization found' }
   }
   
-  const org = profile.organizations as { name: string; industry: string } | null
+  // Handle both array and object responses from Supabase join
+  const orgs = profile.organizations as unknown
+  const org = Array.isArray(orgs) ? orgs[0] : orgs
+  const orgData = org as { name?: string; industry?: string } | null
   
   return { 
     orgId: profile.org_id,
-    orgName: org?.name || 'My Business',
+    orgName: orgData?.name || 'My Business',
   }
 }
 

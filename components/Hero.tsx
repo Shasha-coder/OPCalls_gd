@@ -1,289 +1,276 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import Link from 'next/link'
-import DoneForYouModal from './DoneForYouModal'
+import { useEffect, useRef, useState } from 'react'
+import gsap from 'gsap'
 
 export default function Hero() {
-  const [mounted, setMounted] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+  const headlineRef = useRef<HTMLHeadingElement>(null)
+  const subtextRef = useRef<HTMLParagraphElement>(null)
+  const dfyRef = useRef<HTMLDivElement>(null)
+  const [showDFYModal, setShowDFYModal] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+
+      tl.fromTo(headlineRef.current, 
+        { y: 60, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 1 }
+      )
+      .fromTo(subtextRef.current, 
+        { y: 40, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 0.8 }, 
+        '-=0.6'
+      )
+      .fromTo(dfyRef.current, 
+        { y: 30, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 0.7 }, 
+        '-=0.5'
+      )
+    }, sectionRef)
+
+    return () => ctx.revert()
   }, [])
 
-  // Canvas-based orbiting light animation for smooth performance
-  useEffect(() => {
-    if (!mounted || !canvasRef.current) return
-
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Set canvas size
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1
-      const rect = canvas.getBoundingClientRect()
-      canvas.width = rect.width * dpr
-      canvas.height = rect.height * dpr
-      ctx.scale(dpr, dpr)
-    }
-    resize()
-    window.addEventListener('resize', resize)
-
-    const centerX = canvas.getBoundingClientRect().width / 2
-    const centerY = canvas.getBoundingClientRect().height / 2
-
-    // Orbit configuration - 3 elliptical orbits at different angles
-    const orbits = [
-      { rx: 180, ry: 60, rotation: -25, speed: 0.0008, color: '#e8fb76', opacity: 0.8, width: 2 },
-      { rx: 220, ry: 75, rotation: 15, speed: -0.0006, color: '#e8fb76', opacity: 0.6, width: 1.5 },
-      { rx: 260, ry: 90, rotation: -40, speed: 0.0004, color: '#c8d96a', opacity: 0.4, width: 1 },
-    ]
-
-    // Particles that travel along the orbits
-    const particles = [
-      { orbitIndex: 0, angle: 0, size: 4, glowSize: 15 },
-      { orbitIndex: 0, angle: Math.PI, size: 3, glowSize: 12 },
-      { orbitIndex: 1, angle: Math.PI / 2, size: 3, glowSize: 12 },
-      { orbitIndex: 1, angle: Math.PI * 1.5, size: 2, glowSize: 10 },
-      { orbitIndex: 2, angle: Math.PI / 4, size: 2, glowSize: 8 },
-      { orbitIndex: 2, angle: Math.PI * 1.25, size: 2, glowSize: 8 },
-    ]
-
-    let animationId: number
-    let time = 0
-
-    const animate = () => {
-      time += 1
-      ctx.clearRect(0, 0, canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height)
-
-      // Draw orbits
-      orbits.forEach((orbit, index) => {
-        ctx.save()
-        ctx.translate(centerX, centerY)
-        ctx.rotate((orbit.rotation * Math.PI) / 180)
-
-        // Create gradient for the orbit line
-        const gradient = ctx.createLinearGradient(-orbit.rx, 0, orbit.rx, 0)
-        gradient.addColorStop(0, `rgba(232, 251, 118, 0)`)
-        gradient.addColorStop(0.3, `rgba(232, 251, 118, ${orbit.opacity})`)
-        gradient.addColorStop(0.7, `rgba(232, 251, 118, ${orbit.opacity})`)
-        gradient.addColorStop(1, `rgba(232, 251, 118, 0)`)
-
-        ctx.strokeStyle = gradient
-        ctx.lineWidth = orbit.width
-        ctx.beginPath()
-        ctx.ellipse(0, 0, orbit.rx, orbit.ry, 0, 0, Math.PI * 2)
-        ctx.stroke()
-        ctx.restore()
-      })
-
-      // Draw particles
-      particles.forEach((particle) => {
-        const orbit = orbits[particle.orbitIndex]
-        const angle = particle.angle + time * orbit.speed
-
-        // Calculate position on ellipse
-        const x = orbit.rx * Math.cos(angle)
-        const y = orbit.ry * Math.sin(angle)
-
-        // Rotate the point
-        const rotRad = (orbit.rotation * Math.PI) / 180
-        const rotatedX = x * Math.cos(rotRad) - y * Math.sin(rotRad)
-        const rotatedY = x * Math.sin(rotRad) + y * Math.cos(rotRad)
-
-        const finalX = centerX + rotatedX
-        const finalY = centerY + rotatedY
-
-        // Draw glow
-        const glow = ctx.createRadialGradient(finalX, finalY, 0, finalX, finalY, particle.glowSize)
-        glow.addColorStop(0, 'rgba(232, 251, 118, 0.8)')
-        glow.addColorStop(0.5, 'rgba(232, 251, 118, 0.3)')
-        glow.addColorStop(1, 'rgba(232, 251, 118, 0)')
-        ctx.fillStyle = glow
-        ctx.beginPath()
-        ctx.arc(finalX, finalY, particle.glowSize, 0, Math.PI * 2)
-        ctx.fill()
-
-        // Draw particle
-        ctx.fillStyle = '#e8fb76'
-        ctx.beginPath()
-        ctx.arc(finalX, finalY, particle.size, 0, Math.PI * 2)
-        ctx.fill()
-      })
-
-      animationId = requestAnimationFrame(animate)
-    }
-
-    animate()
-
-    return () => {
-      window.removeEventListener('resize', resize)
-      cancelAnimationFrame(animationId)
-    }
-  }, [mounted])
-
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
-      {/* Background */}
-      <div className="absolute inset-0 bg-dark" />
-      
-      {/* Gradient Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#e8fb76]/10 rounded-full blur-[120px] opacity-50" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#6c743f]/20 rounded-full blur-[100px] opacity-40" />
-      
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 grid-pattern opacity-30" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Left Content */}
-          <div className={`space-y-8 ${mounted ? 'animate-fade-in-up' : 'opacity-0'}`}>
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#e8fb76]/10 border border-[#e8fb76]/20">
-              <span className="text-2xl">📞</span>
-              <span className="text-sm text-[#e8fb76] font-medium">AI-Powered Voice Agents</span>
-            </div>
-
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold leading-[1.1] tracking-tight">
-              <span className="text-white">Never Miss</span>
+    <>
+      <section ref={sectionRef} className="relative min-h-[80vh] dark-bg overflow-hidden pt-32 pb-20">
+        {/* Artistic Dots Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-[10%] w-1 h-1 bg-white/20 rounded-full" />
+          <div className="absolute top-32 left-[15%] w-1.5 h-1.5 bg-white/10 rounded-full" />
+          <div className="absolute top-48 left-[8%] w-0.5 h-0.5 bg-white/30 rounded-full" />
+          <div className="absolute top-24 right-[12%] w-1 h-1 bg-white/15 rounded-full" />
+          <div className="absolute top-40 right-[18%] w-2 h-2 bg-white/5 rounded-full" />
+          <div className="absolute top-56 right-[8%] w-1 h-1 bg-white/20 rounded-full" />
+          <div className="absolute bottom-40 left-[20%] w-1 h-1 bg-white/15 rounded-full" />
+          <div className="absolute bottom-32 left-[25%] w-0.5 h-0.5 bg-white/25 rounded-full" />
+          <div className="absolute bottom-48 right-[22%] w-1.5 h-1.5 bg-white/10 rounded-full" />
+          <div className="absolute bottom-28 right-[15%] w-1 h-1 bg-white/20 rounded-full" />
+          <div className="absolute top-[45%] left-[5%] w-1 h-1 bg-white/10 rounded-full" />
+          <div className="absolute top-[55%] right-[5%] w-0.5 h-0.5 bg-white/20 rounded-full" />
+          <div className="absolute top-[35%] left-[30%] w-0.5 h-0.5 bg-white/15 rounded-full" />
+          <div className="absolute top-[65%] right-[28%] w-1 h-1 bg-white/10 rounded-full" />
+        </div>
+        
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 
+              ref={headlineRef}
+              className="font-display text-5xl sm:text-6xl lg:text-7xl text-white leading-[1.05] tracking-tight mb-6"
+            >
+              Elevate Your
               <br />
-              <span className="bg-gradient-to-r from-[#e8fb76] to-[#c8d96a] bg-clip-text text-transparent">Another Call</span>
+              <span className="text-white/70">Business Calls</span>
             </h1>
-
-            {/* Subheadline */}
-            <p className="text-lg sm:text-xl text-white/60 max-w-xl leading-relaxed">
-              Tell us about your business. We build your custom AI voice agent in 
-              <span className="text-[#e8fb76] font-semibold"> 48 hours</span>. Handle calls 24/7, 
-              book appointments, and never lose a customer again.
+            
+            <p 
+              ref={subtextRef}
+              className="text-white/40 text-lg sm:text-xl max-w-xl mx-auto leading-relaxed mb-10"
+            >
+              Unlock your business potential with AI-powered voice agents, handling calls 24/7 professionally.
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4">
-              <button 
-                onClick={() => setShowModal(true)}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#e8fb76] to-[#d4e86a] text-[#1a1a1a] font-semibold rounded-full hover:shadow-[0_0_30px_rgba(232,251,118,0.3)] transition-all duration-300 hover:scale-105"
+            {/* Done-For-You Section */}
+            <div ref={dfyRef} className="glass-card rounded-2xl p-6 max-w-md mx-auto">
+              <h3 className="text-white font-semibold text-lg mb-2">Done-For-You Setup</h3>
+              <p className="text-white/50 text-sm mb-4">Let our experts build and configure your AI voice agent</p>
+              <button
+                onClick={() => setShowDFYModal(true)}
+                className="w-full py-3.5 bg-white text-gray-900 rounded-xl font-medium hover:bg-white/90 transition-all"
               >
-                Get Your AI Agent Built
-                <span>→</span>
+                Request Done-For-You
               </button>
-              <Link 
-                href="/auth/signup"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white/5 text-white font-semibold rounded-full border border-white/10 hover:bg-white/10 transition-all duration-300"
-              >
-                <span>⚡</span>
-                DIY Setup
-              </Link>
-            </div>
-
-            {/* Trust Badges */}
-            <div className="flex flex-wrap items-center gap-6 pt-4">
-              <div className="flex items-center gap-2 text-white/50 text-sm">
-                <span className="text-[#e8fb76]">🛡️</span>
-                <span>14-day free trial</span>
-              </div>
-              <div className="flex items-center gap-2 text-white/50 text-sm">
-                <span className="text-[#e8fb76]">⚡</span>
-                <span>Setup in 10 minutes</span>
-              </div>
-              <div className="flex items-center gap-2 text-white/50 text-sm">
-                <span className="text-[#e8fb76]">💳</span>
-                <span>No credit card required</span>
-              </div>
             </div>
           </div>
 
-          {/* Right Content - Phone with Orbiting Lights */}
-          <div className={`relative flex items-center justify-center h-[600px] ${mounted ? 'animate-scale-in' : 'opacity-0'}`}>
-            {/* Canvas for orbiting lights */}
-            <canvas
-              ref={canvasRef}
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              style={{ width: '100%', height: '100%' }}
-            />
 
-            {/* Phone Mockup - Centered, Fixed Position */}
-            <div className="relative w-[280px] sm:w-[300px] z-10">
-              {/* Phone Frame */}
-              <div className="relative bg-[#1a1a1a] rounded-[3rem] p-3 shadow-2xl border border-white/10">
-                {/* Phone Screen */}
-                <div className="relative bg-gradient-to-br from-[#0a0a0a] via-[#141414] to-[#1a1a1a] rounded-[2.5rem] overflow-hidden aspect-[9/19]">
-                  {/* Status Bar */}
-                  <div className="flex items-center justify-between px-6 py-3">
-                    <span className="text-xs text-white/70">9:41</span>
-                    <div className="w-20 h-6 bg-black rounded-full" />
-                    <div className="flex items-center gap-1">
-                      <div className="w-4 h-2 bg-white/70 rounded-sm" />
-                    </div>
-                  </div>
-
-                  {/* App Content */}
-                  <div className="px-5 py-4 space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs text-white/50">← Back</div>
-                      <div className="text-sm font-medium text-white">Active Calls</div>
-                      <div className="w-6 h-6 rounded-full bg-[#e8fb76]/20" />
-                    </div>
-
-                    {/* Stats Card */}
-                    <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60 text-xs">Today's Calls</span>
-                        <span className="text-[#e8fb76] text-xs">+23%</span>
-                      </div>
-                      <div className="text-3xl font-bold text-white font-display">247</div>
-                      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-3/4 bg-gradient-to-r from-[#e8fb76] to-[#6c743f] rounded-full" />
-                      </div>
-                    </div>
-
-                    {/* Call Items */}
-                    <div className="space-y-2">
-                      {[
-                        { name: 'Sarah M.', status: 'Appointment Booked', time: '2m ago' },
-                        { name: 'John D.', status: 'Question Answered', time: '5m ago' },
-                        { name: 'Lisa K.', status: 'Follow-up Scheduled', time: '8m ago' },
-                      ].map((call, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#e8fb76]/30 to-[#6c743f]/30 flex items-center justify-center">
-                            <span className="text-xs font-medium text-white">{call.name[0]}</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm text-white truncate">{call.name}</div>
-                            <div className="text-xs text-[#e8fb76]/80">{call.status}</div>
-                          </div>
-                          <span className="text-xs text-white/40">{call.time}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Bottom Action */}
-                    <button className="w-full py-3 bg-gradient-to-r from-[#e8fb76] to-[#d4e86a] rounded-full text-[#1a1a1a] font-semibold text-sm">
-                      View All Activity
-                    </button>
-                  </div>
-                </div>
-
-                {/* Notch */}
-                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full" />
-              </div>
-
-              {/* Glow Effect */}
-              <div className="absolute -inset-16 bg-[#e8fb76]/10 rounded-full blur-3xl -z-10" />
-            </div>
-          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-dark to-transparent" />
-      
-      {/* Done For You Modal */}
-      <DoneForYouModal isOpen={showModal} onClose={() => setShowModal(false)} />
-    </section>
+      {/* DFY Modal */}
+      {showDFYModal && (
+        <DFYModal onClose={() => setShowDFYModal(false)} />
+      )}
+    </>
+  )
+}
+
+function DFYModal({ onClose }: { onClose: () => void }) {
+  const modalRef = useRef<HTMLDivElement>(null)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    businessName: '',
+    country: '',
+    address: '',
+    agentType: '',
+    otherDescription: ''
+  })
+
+  useEffect(() => {
+    gsap.fromTo(modalRef.current, 
+      { opacity: 0, scale: 0.95 }, 
+      { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' }
+    )
+  }, [])
+
+  const handleClose = () => {
+    gsap.to(modalRef.current, {
+      opacity: 0,
+      scale: 0.95,
+      duration: 0.2,
+      onComplete: onClose
+    })
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Handle form submission - will be sent to API
+    handleClose()
+  }
+
+  const agentTypes = [
+    'Appointment Setter',
+    'Follow-Up Agent',
+    'No-Show Recovery',
+    'HVAC Support',
+    'Real Estate Agent',
+    'Closer Agent',
+    'Customer Support',
+    'Other'
+  ]
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+      <div ref={modalRef} className="relative w-full max-w-lg glass-card rounded-3xl p-8 max-h-[90vh] overflow-y-auto hide-scrollbar">
+        <button
+          onClick={handleClose}
+          className="absolute top-4 right-4 p-2 text-white/40 hover:text-white transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <h2 className="text-2xl font-display font-semibold text-white mb-2">Done-For-You Request</h2>
+        <p className="text-white/50 text-sm mb-6">Our team will build your custom AI voice agent</p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-white/60 mb-1.5">Full Name</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
+                placeholder="John Doe"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-white/60 mb-1.5">Email</label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
+                placeholder="john@company.com"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-white/60 mb-1.5">Phone</label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
+                placeholder="+1 234 567 8900"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-white/60 mb-1.5">Business Name</label>
+              <input
+                type="text"
+                required
+                value={formData.businessName}
+                onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
+                placeholder="Acme Inc."
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-white/60 mb-1.5">Country</label>
+              <input
+                type="text"
+                required
+                value={formData.country}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
+                placeholder="United States"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-white/60 mb-1.5">Address</label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
+                placeholder="123 Main St"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-white/60 mb-1.5">Agent Type</label>
+            <select
+              required
+              value={formData.agentType}
+              onChange={(e) => setFormData({ ...formData, agentType: e.target.value })}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-white/20 appearance-none cursor-pointer"
+            >
+              <option value="" className="bg-gray-900">Select agent type</option>
+              {agentTypes.map((type) => (
+                <option key={type} value={type} className="bg-gray-900">{type}</option>
+              ))}
+            </select>
+          </div>
+
+          {formData.agentType === 'Other' && (
+            <div>
+              <label className="block text-sm text-white/60 mb-1.5">Describe your agent (max 100 chars)</label>
+              <input
+                type="text"
+                maxLength={100}
+                value={formData.otherDescription}
+                onChange={(e) => setFormData({ ...formData, otherDescription: e.target.value })}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
+                placeholder="Brief description of your needs..."
+              />
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="w-full py-4 bg-white text-gray-900 rounded-xl font-semibold hover:bg-white/90 transition-all mt-6"
+          >
+            Submit Request
+          </button>
+        </form>
+      </div>
+    </div>
   )
 }

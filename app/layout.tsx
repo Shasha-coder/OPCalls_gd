@@ -1,11 +1,36 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
+import { Inter, DM_Sans } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
 
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const dmSans = DM_Sans({ 
+  subsets: ['latin'],
+  variable: '--font-dm-sans',
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
-  title: 'OPCalls - Never Miss Another Call | AI Voice Agents',
-  description: 'Build your first specialized AI voice agent in under 10 minutes. 14 Days Free. Full Access.',
-  keywords: 'AI voice agent, call automation, business calls, AI receptionist, voice AI',
+  title: 'OPCalls - The Next-Gen AI Agent for Efficiency',
+  description: 'Build your specialized AI voice agent in under 10 minutes. Handle calls 24/7, book appointments, and never lose a customer again.',
+  keywords: 'AI voice agent, call automation, business calls, AI receptionist, voice AI, customer service',
+  openGraph: {
+    title: 'OPCalls - The Next-Gen AI Agent for Efficiency',
+    description: 'Build your specialized AI voice agent in under 10 minutes.',
+    type: 'website',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#3366FF',
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
@@ -14,28 +39,29 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className="bg-dark min-h-screen antialiased">
+    <html lang="en" className={`${inter.variable} ${dmSans.variable}`}>
+      <body className="font-sans min-h-screen antialiased">
         {children}
         <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,
             style: {
-              background: '#1a1a1a',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: '#fff',
+              color: '#1A2B4B',
+              border: '1px solid #E2E8F0',
               borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
             },
             success: {
               iconTheme: {
-                primary: '#e8fd79',
-                secondary: '#0a0a0a',
+                primary: '#10B981',
+                secondary: '#fff',
               },
             },
             error: {
               iconTheme: {
-                primary: '#ef4444',
+                primary: '#EF4444',
                 secondary: '#fff',
               },
             },

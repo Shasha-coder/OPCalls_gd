@@ -20,7 +20,7 @@ interface Organization {
 
 export default function AdminOrganizations() {
   const { loading: authLoading, isAdmin } = useRequireAdmin()
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,10 +32,10 @@ export default function AdminOrganizations() {
   const [actionLoading, setActionLoading] = useState(false)
   
   useEffect(() => {
-    if (session?.access_token && isAdmin) {
+    if (user && isAdmin) {
       fetchOrganizations()
     }
-  }, [session?.access_token, isAdmin, page, search, statusFilter])
+  }, [user, isAdmin, page, search, statusFilter])
   
   const fetchOrganizations = async () => {
     setLoading(true)
@@ -47,11 +47,7 @@ export default function AdminOrganizations() {
         ...(statusFilter && { status: statusFilter }),
       })
       
-      const response = await fetch(`/api/admin/organizations?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-      })
+      const response = await fetch(`/api/admin/organizations?${params}`)
       
       if (response.ok) {
         const data = await response.json()
@@ -72,7 +68,6 @@ export default function AdminOrganizations() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({ orgId, action, data }),
       })

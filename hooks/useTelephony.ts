@@ -59,13 +59,14 @@ interface HealthCheck {
 // ============================================================================
 
 export function usePhoneNumbers() {
-  const { session, orgId } = useAuthStore()
+  const { user, organization } = useAuthStore()
+  const orgId = organization?.id
   const [numbers, setNumbers] = useState<PhoneNumber[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
   const fetchNumbers = useCallback(async () => {
-    if (!orgId || !session?.access_token) {
+    if (!orgId || !user) {
       setLoading(false)
       return
     }
@@ -74,11 +75,7 @@ export function usePhoneNumbers() {
     setError(null)
     
     try {
-      const response = await fetch('/api/telephony/numbers?action=list', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch('/api/telephony/numbers?action=list')
       
       if (!response.ok) {
         throw new Error('Failed to fetch phone numbers')
@@ -102,7 +99,7 @@ export function usePhoneNumbers() {
     } finally {
       setLoading(false)
     }
-  }, [orgId, session?.access_token])
+  }, [orgId, user])
   
   useEffect(() => {
     fetchNumbers()
@@ -121,7 +118,7 @@ export function usePhoneNumbers() {
 // ============================================================================
 
 export function useNumberSearch() {
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   const [results, setResults] = useState<AvailableNumber[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -135,7 +132,7 @@ export function useNumberSearch() {
     locality?: string
     region?: string
   }) => {
-    if (!session?.access_token) {
+    if (!user) {
       setError('Not authenticated')
       return
     }
@@ -151,11 +148,7 @@ export function useNumberSearch() {
         ),
       })
       
-      const response = await fetch(`/api/telephony/numbers?${searchParams}`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch(`/api/telephony/numbers?${searchParams}`)
       
       if (!response.ok) {
         throw new Error('Search failed')
@@ -170,7 +163,7 @@ export function useNumberSearch() {
     } finally {
       setLoading(false)
     }
-  }, [session?.access_token])
+  }, [user])
   
   const clear = useCallback(() => {
     setResults([])
@@ -193,7 +186,7 @@ export function useNumberSearch() {
 // ============================================================================
 
 export function usePurchaseNumber() {
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -202,7 +195,7 @@ export function usePurchaseNumber() {
     friendlyName?: string
     agentId?: string
   }): Promise<PhoneNumber | null> => {
-    if (!session?.access_token) {
+    if (!user) {
       setError('Not authenticated')
       return null
     }
@@ -215,7 +208,6 @@ export function usePurchaseNumber() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify(params),
       })
@@ -244,7 +236,7 @@ export function usePurchaseNumber() {
     } finally {
       setLoading(false)
     }
-  }, [session?.access_token])
+  }, [user])
   
   return {
     purchase,
@@ -258,7 +250,8 @@ export function usePurchaseNumber() {
 // ============================================================================
 
 export function useProvisioningStatus() {
-  const { session, orgId } = useAuthStore()
+  const { user, organization } = useAuthStore()
+  const orgId = organization?.id
   const [status, setStatus] = useState<ProvisioningStatus | null>(null)
   const [health, setHealth] = useState<HealthCheck | null>(null)
   const [loading, setLoading] = useState(true)
@@ -266,7 +259,7 @@ export function useProvisioningStatus() {
   const [error, setError] = useState<string | null>(null)
   
   const fetchStatus = useCallback(async () => {
-    if (!orgId || !session?.access_token) {
+    if (!orgId || !user) {
       setLoading(false)
       return
     }
@@ -275,11 +268,7 @@ export function useProvisioningStatus() {
     setError(null)
     
     try {
-      const response = await fetch('/api/telephony/provision', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch('/api/telephony/provision')
       
       if (!response.ok) {
         throw new Error('Failed to fetch status')
@@ -293,17 +282,13 @@ export function useProvisioningStatus() {
     } finally {
       setLoading(false)
     }
-  }, [orgId, session?.access_token])
+  }, [orgId, user])
   
   const fetchHealth = useCallback(async () => {
-    if (!orgId || !session?.access_token) return
+    if (!orgId || !user) return
     
     try {
-      const response = await fetch('/api/telephony/provision?action=health', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch('/api/telephony/provision?action=health')
       
       if (response.ok) {
         const data = await response.json()
@@ -312,10 +297,10 @@ export function useProvisioningStatus() {
     } catch {
       // Ignore health check errors
     }
-  }, [orgId, session?.access_token])
+  }, [orgId, user])
   
   const provision = useCallback(async (): Promise<boolean> => {
-    if (!session?.access_token) {
+    if (!user) {
       setError('Not authenticated')
       return false
     }
@@ -326,9 +311,6 @@ export function useProvisioningStatus() {
     try {
       const response = await fetch('/api/telephony/provision', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
       })
       
       const data = await response.json()
@@ -348,7 +330,7 @@ export function useProvisioningStatus() {
     } finally {
       setProvisioning(false)
     }
-  }, [session?.access_token, fetchStatus])
+  }, [user, fetchStatus])
   
   useEffect(() => {
     fetchStatus()

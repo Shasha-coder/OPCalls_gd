@@ -1,135 +1,105 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, ChevronDown } from 'lucide-react'
-
-const navigation = [
-  { name: 'Solutions', href: '#solutions', hasDropdown: true },
-  { name: 'Integrations', href: '#integrations' },
-  { name: 'Resources', href: '#resources', hasDropdown: true },
-  { name: 'Pricing', href: '#pricing' },
-]
+import { useState, useEffect, useRef } from 'react'
+import gsap from 'gsap'
 
 export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    gsap.fromTo(
+      headerRef.current,
+      { y: -20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.1 }
+    )
   }, [])
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled
-          ? 'bg-dark/80 backdrop-blur-xl border-b border-white/5'
-          : 'bg-transparent'
-      }`}
-    >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <div className="relative w-10 h-10">
-              <Image
-                src="/logo.svg"
-                alt="OPCalls"
-                width={40}
-                height={40}
-                className="w-10 h-10"
-              />
-            </div>
-            <span className="font-display font-bold text-xl tracking-tight">
-              <span className="text-white">OP</span>
-              <span className="text-lime-200">CALLS</span>
-            </span>
-          </Link>
+    <header ref={headerRef} className="fixed top-4 left-4 right-4 z-50">
+      <nav className="max-w-6xl mx-auto glass-header rounded-2xl px-6 py-3 flex items-center justify-between">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/images/opcalls-logo.png"
+            alt="OPCalls"
+            width={28}
+            height={28}
+            className="brightness-0 invert opacity-90"
+          />
+          <span className="text-white text-lg font-semibold">OPCalls</span>
+        </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
-            {navigation.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="group flex items-center gap-1 text-sm text-white/70 hover:text-white transition-colors duration-300"
-              >
-                {item.name}
-                {item.hasDropdown && (
-                  <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
-                )}
-              </a>
-            ))}
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center gap-4">
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-1">
+          {['About', 'Solutions', 'Pricing', 'FAQ'].map((item) => (
             <Link
-              href="/auth/login"
-              className="text-sm text-white/70 hover:text-white transition-colors duration-300"
+              key={item}
+              href={`#${item.toLowerCase()}`}
+              className="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
             >
+              {item}
+            </Link>
+          ))}
+        </div>
+
+        {/* Auth Buttons */}
+        <div className="hidden md:flex items-center gap-3">
+          <Link
+            href="/auth/login"
+            className="px-5 py-2 text-sm font-medium text-white border border-white/20 rounded-full hover:bg-white/5 transition-all"
+          >
+            Login
+          </Link>
+          <Link
+            href="/auth/signup"
+            className="px-5 py-2 text-sm font-medium bg-white text-gray-900 rounded-full hover:bg-white/90 transition-all"
+          >
+            Sign up
+          </Link>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden w-10 h-10 flex items-center justify-center"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          <div className="w-5 h-4 flex flex-col justify-between">
+            <span className={`block h-0.5 bg-white rounded transition-all duration-300 ${mobileOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
+            <span className={`block h-0.5 bg-white rounded transition-all duration-300 ${mobileOpen ? 'opacity-0' : ''}`} />
+            <span className={`block h-0.5 bg-white rounded transition-all duration-300 ${mobileOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
+          </div>
+        </button>
+      </nav>
+
+      {/* Mobile Menu */}
+      <div className={`md:hidden mt-2 max-w-6xl mx-auto glass-header rounded-2xl transition-all duration-300 ${
+        mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
+      }`}>
+        <div className="p-4 space-y-1">
+          {['About', 'Solutions', 'Pricing', 'FAQ'].map((item) => (
+            <Link
+              key={item}
+              href={`#${item.toLowerCase()}`}
+              className="block px-4 py-3 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              {item}
+            </Link>
+          ))}
+          <div className="pt-3 mt-3 border-t border-white/10 flex gap-3">
+            <Link href="/auth/login" className="flex-1 px-4 py-3 text-sm text-white/70 rounded-xl text-center border border-white/20" onClick={() => setMobileOpen(false)}>
               Login
             </Link>
-            <Link
-              href="/auth/signup"
-              className="btn-primary text-sm py-3 px-6"
-            >
-              Get Started
+            <Link href="/auth/signup" className="flex-1 px-4 py-3 text-sm font-medium bg-white text-gray-900 rounded-xl text-center" onClick={() => setMobileOpen(false)}>
+              Sign up
             </Link>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2 text-white/70 hover:text-white transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
         </div>
-
-        {/* Mobile Menu */}
-        <div
-          className={`lg:hidden overflow-hidden transition-all duration-500 ${
-            mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <div className="py-4 space-y-4 border-t border-white/5">
-            {navigation.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="block text-white/70 hover:text-white transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.name}
-              </a>
-            ))}
-            <div className="pt-4 space-y-3 border-t border-white/5">
-              <Link
-                href="/auth/login"
-                className="block text-white/70 hover:text-white transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="btn-primary inline-block text-sm py-3 px-6"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      </div>
     </header>
   )
 }

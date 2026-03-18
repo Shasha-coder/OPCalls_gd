@@ -41,6 +41,7 @@ interface TwilioConfig {
 
 export class TwilioProvider implements TelephonyProvider {
   readonly name = 'twilio'
+  readonly type: 'twilio' | 'telnyx' | 'bandwidth' | 'signalwire' = 'twilio'
   readonly supportsSubaccounts = true
   readonly supportsSipTrunks = true
   
@@ -573,6 +574,50 @@ export class TwilioProvider implements TelephonyProvider {
       )
     } catch {
       return false
+    }
+  }
+  
+  // ==========================================================================
+  // SIP Endpoint Operations
+  // ==========================================================================
+  
+  async createSipEndpoint(params: { friendlyName: string; terminationUri: string; originationUri?: string }): Promise<{ id: string; friendlyName: string; terminationUri: string; originationUri?: string }> {
+    try {
+      const sip = await this.client.sip.domains.create({
+        domainName: params.friendlyName.toLowerCase().replace(/\s+/g, '-'),
+        friendlyName: params.friendlyName,
+      })
+      
+      return {
+        id: sip.sid,
+        friendlyName: sip.friendlyName,
+        terminationUri: params.terminationUri,
+        originationUri: params.originationUri,
+      }
+    } catch (error) {
+      throw new TelephonyError(
+        TELEPHONY_ERRORS.ENDPOINT_CREATE_FAILED,
+        `Failed to create SIP endpoint: ${this.getErrorMessage(error)}`,
+        'twilio',
+        this.isRetryable(error),
+        error
+      )
+    }
+  }
+  
+  async deleteSipEndpoint(endpointId: string): Promise<void> {
+    try {
+      await this.client.sip.domains(endpointId).remove()
+    } catch (error) {
+      if (!this.isNotFoundError(error)) {
+        throw new TelephonyError(
+          TELEPHONY_ERRORS.ENDPOINT_DELETE_FAILED,
+          `Failed to delete SIP endpoint: ${this.getErrorMessage(error)}`,
+          'twilio',
+          this.isRetryable(error),
+          error
+        )
+      }
     }
   }
   

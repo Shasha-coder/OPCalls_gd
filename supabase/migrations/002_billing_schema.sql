@@ -113,7 +113,6 @@ CREATE INDEX IF NOT EXISTS subscriptions_org_id_idx ON public.subscriptions(org_
 CREATE INDEX IF NOT EXISTS subscriptions_status_idx ON public.subscriptions(status);
 CREATE INDEX IF NOT EXISTS subscriptions_stripe_customer_idx ON public.subscriptions(stripe_customer_id);
 CREATE INDEX IF NOT EXISTS subscriptions_stripe_sub_idx ON public.subscriptions(stripe_subscription_id);
-CREATE INDEX IF NOT EXISTS subscriptions_grace_end_idx ON public.subscriptions(grace_period_end) WHERE status = 'past_due';
 
 -- ============================================================================
 -- 3. ENTITLEMENTS TABLE

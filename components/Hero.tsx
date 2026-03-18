@@ -2,88 +2,194 @@
 
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Play, X } from 'lucide-react'
 import gsap from 'gsap'
-import AgentPresetsCarousel from './AgentPresetsCarousel'
+import { PhoneMockup } from './PhoneMockup'
+import { FeatureCards } from './FeatureCards'
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
-  const announcementRef = useRef<HTMLDivElement>(null)
-  const badgeRef = useRef<HTMLDivElement>(null)
-  const headlineRef = useRef<HTMLHeadingElement>(null)
-  const subtextRef = useRef<HTMLParagraphElement>(null)
-  const ctaRef = useRef<HTMLDivElement>(null)
-  const presetsRef = useRef<HTMLDivElement>(null)
+  const headlineRef = useRef<HTMLDivElement>(null)
+  const phoneRef = useRef<HTMLDivElement>(null)
+  const featuresRef = useRef<HTMLDivElement>(null)
+  const testimonialRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
-      tl.fromTo(announcementRef.current, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 })
-        .fromTo(badgeRef.current, { y: 30, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.6 }, '-=0.3')
-        .fromTo(headlineRef.current, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.4')
-        .fromTo(subtextRef.current, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.5')
-        .fromTo(ctaRef.current, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.4')
-        .fromTo(presetsRef.current, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.5')
+      tl.fromTo(
+        headlineRef.current?.querySelectorAll('.animate-in'),
+        { y: 60, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, stagger: 0.12 }
+      )
+
+      tl.fromTo(
+        phoneRef.current,
+        { y: 80, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 1, ease: 'power2.out' },
+        '-=0.5'
+      )
+
+      tl.fromTo(
+        featuresRef.current?.querySelectorAll('.feature-item'),
+        { x: -50, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6, stagger: 0.12 },
+        '-=0.8'
+      )
+
+      tl.fromTo(
+        testimonialRef.current,
+        { x: 50, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6 },
+        '-=0.6'
+      )
+
+      gsap.to('.float-slow', {
+        y: -15,
+        duration: 4,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      })
+
+      gsap.to('.float-medium', {
+        y: -10,
+        duration: 3,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      })
     }, sectionRef)
 
     return () => ctx.revert()
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative w-full overflow-hidden bg-gradient-to-b from-blue-50 via-white to-white pt-32 pb-20">
-      {/* Announcement Bar */}
-      <div ref={announcementRef} className="flex items-center justify-center gap-3 py-2 px-4 bg-blue-50 border-b border-gray-200 mb-12">
-        <span className="bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">New</span>
-        <p className="text-sm text-gray-700">{"$20M Series A led by Atlas Peak Ventures"}</p>
-        <button className="text-gray-400 hover:text-gray-600 transition-colors ml-auto" aria-label="Dismiss">
-          <X className="w-4 h-4" />
-        </button>
+    <section ref={sectionRef} className="relative min-h-screen overflow-hidden bg-[#F5F3EF] pt-20 lg:pt-28 pb-16">
+      {/* Background watermark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+        <span className="text-[18vw] font-display font-bold text-[#E8E5DF] whitespace-nowrap tracking-tight">
+          OPCalls
+        </span>
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
-        {/* Badge */}
-        <div ref={badgeRef} className="flex justify-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-            <span className="bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">New</span>
-            <span className="text-sm font-medium text-gray-900">Get all leads in one place</span>
-            <ArrowRight className="w-4 h-4 text-gray-400" />
+      <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-[280px_1fr_280px] gap-6 lg:gap-8 items-start">
+          
+          {/* Left - Features */}
+          <div ref={featuresRef} className="hidden lg:block pt-16">
+            <FeatureCards />
+          </div>
+
+          {/* Center - Phone + Headline */}
+          <div className="flex flex-col items-center">
+            <div ref={headlineRef} className="text-center mb-8 max-w-lg">
+              <h1 className="animate-in font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-bold text-[#1E3A5F] leading-[1.1] mb-5">
+                One Platform
+                <br />
+                <span className="text-[#3366FF]">Behind Business</span>
+                <br />
+                Communication
+              </h1>
+              <p className="animate-in text-[#5A6B7D] text-base lg:text-lg leading-relaxed mb-6">
+                Powering seamless business communication from one unified platform. 
+                Stay connected, collaborate smarter, and drive success.
+              </p>
+              <div className="animate-in flex flex-col sm:flex-row gap-3 justify-center">
+                <Link href="/auth/signup" className="btn-primary text-center text-sm">
+                  Get Started Now
+                </Link>
+                <button className="btn-secondary text-sm">
+                  Try Tutorial Now
+                </button>
+              </div>
+            </div>
+
+            <div ref={phoneRef} className="relative w-full max-w-[320px]">
+              <PhoneMockup />
+            </div>
+
+            <div className="mt-8 text-center">
+              <p className="text-xs text-[#5A6B7D] mb-3 uppercase tracking-wide">Backed by 200+ Growing Businesses</p>
+              <div className="flex items-center justify-center gap-6 flex-wrap">
+                {['stripe', 'pipedrive', 'IBM', 'Uber'].map((name) => (
+                  <span key={name} className="font-display font-bold text-base text-[#1E3A5F] opacity-40 hover:opacity-70 transition-opacity">
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right - Testimonial + Preview */}
+          <div ref={testimonialRef} className="hidden lg:block pt-16">
+            <div className="space-y-6">
+              <div className="max-w-[260px]">
+                <div className="text-6xl font-serif text-[#3366FF] opacity-30 leading-none mb-2">"</div>
+                <p className="text-base text-[#1E3A5F] font-medium leading-relaxed -mt-6 mb-3">
+                  OPCalls streamlines communication and boosts efficiency—essential for scaling businesses!
+                </p>
+                <p className="text-sm text-[#5A6B7D]">
+                  <span className="font-semibold text-[#1E3A5F]">Michael T.</span> — CEO of NexsCorp
+                </p>
+              </div>
+
+              <div className="float-medium">
+                <DashboardPreview />
+              </div>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Headline */}
-        <h1 ref={headlineRef} className="font-serif text-5xl sm:text-6xl lg:text-7xl text-center text-gray-900 max-w-4xl mx-auto leading-tight tracking-tight mb-6">
-          The next-gen Agent designed for efficiency.
-        </h1>
-
-        {/* Subtext */}
-        <p ref={subtextRef} className="text-center text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed mb-12">
-          The OPCalls Customer Service Suite combines the #1 AI Agent for customer support with a next-gen Helpdesk built on a single platform.
-        </p>
-
-        {/* CTA Button */}
-        <div ref={ctaRef} className="flex justify-center mb-20">
-          <Link href="/auth/signup" className="inline-flex items-center gap-3 bg-white rounded-full px-6 py-3 shadow-md hover:shadow-lg transition-all border border-gray-200 group">
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-              <Play className="w-5 h-5 text-gray-900 fill-current" />
-            </div>
-            <div className="text-left">
-              <p className="font-semibold text-gray-900 text-sm">Get started</p>
-              <p className="text-xs text-gray-500">Build your first agent</p>
-            </div>
-          </Link>
-        </div>
-
-        {/* Agent Presets Section */}
-        <div ref={presetsRef} className="space-y-6">
-          <div className="text-center">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Popular presets</p>
-            <h2 className="text-2xl font-bold text-gray-900 mt-1">Start with a template</h2>
-          </div>
-          <AgentPresetsCarousel />
-        </div>
+      {/* Mobile Features */}
+      <div className="lg:hidden px-4 mt-12">
+        <FeatureCards />
       </div>
     </section>
+  )
+}
+
+function DashboardPreview() {
+  return (
+    <div className="space-y-3">
+      <div className="glass rounded-xl p-4 shadow-lg max-w-[240px]">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs font-semibold text-[#1E3A5F]">Call Statistics</span>
+          <span className="text-[10px] text-[#3366FF] font-medium">Reports</span>
+        </div>
+        <div className="flex gap-3 items-end">
+          <div>
+            <div className="text-xl font-bold text-[#1E3A5F]">124</div>
+            <div className="text-[10px] text-[#5A6B7D]">Total</div>
+          </div>
+          <div className="flex-1 flex items-end gap-0.5 h-10">
+            {[40, 60, 45, 70, 55, 80, 65].map((h, i) => (
+              <div key={i} className="flex-1 bg-[#3366FF] rounded-t" style={{ height: `${h}%`, opacity: 0.7 + i * 0.04 }} />
+            ))}
+          </div>
+          <div className="text-right">
+            <div className="text-sm font-bold text-[#10B981]">55.7%</div>
+            <div className="text-[10px] text-[#5A6B7D]">Success</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass rounded-xl p-4 shadow-lg max-w-[220px] ml-6">
+        <div className="text-xs font-semibold text-[#1E3A5F] mb-2">Routes</div>
+        <div className="space-y-1.5">
+          {[
+            { label: 'Converted', value: '45.1%', color: 'text-[#10B981]' },
+            { label: 'Inbound', value: '32.3%', color: 'text-[#3366FF]' },
+            { label: 'Missed', value: '12.1%', color: 'text-[#EF4444]' },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center justify-between text-[11px]">
+              <span className="text-[#5A6B7D]">{item.label}</span>
+              <span className={`font-semibold ${item.color}`}>{item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }

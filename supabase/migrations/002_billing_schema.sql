@@ -10,7 +10,7 @@
 
 CREATE TABLE IF NOT EXISTS public.plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  code TEXT UNIQUE NOT NULL, -- 'starter', 'core', 'scale', 'enterprise'
+  slug TEXT UNIQUE NOT NULL, -- 'starter', 'core', 'scale', 'enterprise'
   name TEXT NOT NULL,
   description TEXT,
   
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS public.plans (
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS plans_code_idx ON public.plans(code);
+CREATE INDEX IF NOT EXISTS plans_slug_idx ON public.plans(slug);
 CREATE INDEX IF NOT EXISTS plans_active_public_idx ON public.plans(is_active, is_public);
 
 -- ============================================================================

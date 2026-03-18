@@ -461,8 +461,8 @@ ALTER TABLE public.usage_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.health_checks ENABLE ROW LEVEL SECURITY;
 
 -- Plans: Public read for active plans
-CREATE POLICY "Plans are viewable by everyone" ON public.plans
-  FOR SELECT USING (is_active = true AND is_public = true);
+CREATE POLICY IF NOT EXISTS "Plans are viewable by everyone" ON public.plans
+  FOR SELECT USING (is_active = true);
 
 -- Subscriptions: Only org members can view
 CREATE POLICY "Users can view their org subscription" ON public.subscriptions

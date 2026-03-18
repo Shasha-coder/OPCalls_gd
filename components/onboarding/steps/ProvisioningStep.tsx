@@ -214,7 +214,7 @@ export function ProvisioningStep({ jobId, onComplete, checkStatus }: Props) {
                 <span className="text-white font-mono">{job.output.phoneNumber}</span>
               </div>
             )}
-            {job.output.agentId && (
+            {typeof job.output.agentId === 'string' && job.output.agentId && (
               <div className="flex justify-between">
                 <span className="text-slate-400">Agent Created</span>
                 <span className="text-green-400">Yes</span>

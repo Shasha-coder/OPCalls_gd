@@ -111,13 +111,21 @@ export async function createAgent(
   const voiceId = params.voiceId || template.defaultVoiceId
   const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/retell`
   
+  // Extract and type-narrow ambientSound from template config
+  const templateConfig = template.config || {}
+  const ambientSound = templateConfig.ambientSound as AgentConfig['ambientSound']
+  
   const agentConfig: AgentConfig = {
     name: `${params.businessInfo.name} - ${params.name}`,
     voiceId,
     systemPrompt,
     greetingMessage,
     webhookUrl,
-    ...template.config,
+    interruptionSensitivity: templateConfig.interruptionSensitivity,
+    responsiveness: templateConfig.responsiveness,
+    ambientSound,
+    backchannelEnabled: templateConfig.backchannelEnabled,
+    enableVoicemailDetection: templateConfig.enableVoicemailDetection,
   }
   
   let retellAgent

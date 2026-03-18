@@ -367,8 +367,8 @@ export async function previewPlanChange(
       subscription.stripe_subscription_id
     )
     
-    // Create invoice preview
-    const preview = await stripe.invoices.createPreview({
+    // Create invoice preview using retrieveUpcoming (compatible with API 2023-10-16)
+    const preview = await stripe.invoices.retrieveUpcoming({
       customer: stripeSub.customer as string,
       subscription: subscription.stripe_subscription_id,
       subscription_items: [

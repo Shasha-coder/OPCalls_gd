@@ -21,7 +21,7 @@ import { logBillingEvent } from '@/lib/billing/utils'
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2023-10-16',
 })
 
 // Initialize Supabase with service role for server-side operations

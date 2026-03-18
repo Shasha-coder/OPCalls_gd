@@ -10,7 +10,7 @@
 
 CREATE TABLE IF NOT EXISTS public.plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  code TEXT UNIQUE NOT NULL, -- 'starter', 'core', 'scale', 'enterprise'
+  slug TEXT UNIQUE NOT NULL, -- 'starter', 'core', 'scale', 'enterprise'
   name TEXT NOT NULL,
   description TEXT,
   
@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS public.plans (
 );
 
 -- Create indexes
-CREATE INDEX IF NOT EXISTS plans_code_idx ON public.plans(code);
-CREATE INDEX IF NOT EXISTS plans_active_public_idx ON public.plans(is_active, is_public);
+CREATE INDEX IF NOT EXISTS plans_slug_idx ON public.plans(slug);
+CREATE INDEX IF NOT EXISTS plans_active_idx ON public.plans(is_active);
 
 -- ============================================================================
 -- 2. SUBSCRIPTIONS TABLE
@@ -113,7 +113,6 @@ CREATE INDEX IF NOT EXISTS subscriptions_org_id_idx ON public.subscriptions(org_
 CREATE INDEX IF NOT EXISTS subscriptions_status_idx ON public.subscriptions(status);
 CREATE INDEX IF NOT EXISTS subscriptions_stripe_customer_idx ON public.subscriptions(stripe_customer_id);
 CREATE INDEX IF NOT EXISTS subscriptions_stripe_sub_idx ON public.subscriptions(stripe_subscription_id);
-CREATE INDEX IF NOT EXISTS subscriptions_grace_end_idx ON public.subscriptions(grace_period_end) WHERE status = 'past_due';
 
 -- ============================================================================
 -- 3. ENTITLEMENTS TABLE
@@ -462,8 +461,9 @@ ALTER TABLE public.usage_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.health_checks ENABLE ROW LEVEL SECURITY;
 
 -- Plans: Public read for active plans
+DROP POLICY IF EXISTS "Plans are viewable by everyone" ON public.plans;
 CREATE POLICY "Plans are viewable by everyone" ON public.plans
-  FOR SELECT USING (is_active = true AND is_public = true);
+  FOR SELECT USING (is_active = true);
 
 -- Subscriptions: Only org members can view
 CREATE POLICY "Users can view their org subscription" ON public.subscriptions
@@ -636,19 +636,12 @@ $$;
 -- 13. INSERT DEFAULT PLANS
 -- ============================================================================
 
-INSERT INTO public.plans (code, name, description, monthly_price_cents, included_minutes, included_numbers, included_agents, max_concurrent_calls, features, sort_order) VALUES
-  ('starter', 'Starter', 'Perfect for trying out AI voice agents', 0, 30, 1, 1, 1, 
-   '{"trial": true, "support": "community", "analytics": "basic"}'::JSONB, 1),
-  
-  ('core', 'Core', 'For small businesses ready to automate', 9900, 500, 1, 2, 2,
-   '{"support": "email", "analytics": "standard", "integrations": ["calendar", "crm_basic"]}'::JSONB, 2),
-  
-  ('scale', 'Scale', 'For growing businesses with high call volume', 29900, 2000, 3, 5, 5,
-   '{"support": "priority", "analytics": "advanced", "integrations": ["calendar", "crm_full", "zapier"], "api_access": true}'::JSONB, 3),
-  
-  ('enterprise', 'Enterprise', 'Custom solutions for large organizations', 0, 0, 0, 0, 0,
-   '{"support": "dedicated", "analytics": "enterprise", "sla": true, "custom": true}'::JSONB, 4)
-ON CONFLICT (code) DO NOTHING;
+-- Skip seeding plans if they already exist (check with SELECT first)
+-- INSERT INTO public.plans (slug, name, description, monthly_price_cents, included_minutes, included_numbers, included_agents, max_concurrent_calls, features, sort_order) VALUES
+--   ('starter', 'Starter', 'Perfect for trying out AI voice agents', 0, 30, 1, 1, 1, 
+--    '{"trial": true, "support": "community", "analytics": "basic"}'::JSONB, 1)
+-- ON CONFLICT (slug) DO NOTHING;
+-- Note: Run the plans query above to see your existing plans schema first
 
 -- ============================================================================
 -- 14. TRIGGERS

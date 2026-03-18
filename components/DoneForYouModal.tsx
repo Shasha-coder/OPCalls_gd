@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Check, Loader2, ArrowRight, Building2, Phone, Globe, Clock } from 'lucide-react'
+import { X, Check, Loader2, ArrowRight, Building2, Phone, Globe, Clock, ChevronDown } from 'lucide-react'
 
 interface DoneForYouModalProps {
   isOpen: boolean
@@ -278,17 +278,19 @@ export default function DoneForYouModal({ isOpen, onClose }: DoneForYouModalProp
                     <div>
                       <label className="block text-sm font-medium text-white/70 mb-2">Country</label>
                       <div className="relative">
-                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
                         <select
                           value={formData.country}
                           onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                          className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-lime-200/50 focus:outline-none appearance-none"
+                          className="w-full pl-11 pr-10 py-3 bg-[#1a1a1a] border border-white/10 rounded-xl text-white focus:border-lime-200/50 focus:outline-none appearance-none cursor-pointer hover:border-white/20 transition-colors"
+                          style={{ colorScheme: 'dark' }}
                         >
-                          <option value="United States">United States</option>
-                          <option value="Canada">Canada</option>
-                          <option value="United Kingdom">United Kingdom</option>
-                          <option value="Australia">Australia</option>
-                          <option value="Other">Other</option>
+                          <option value="United States" className="bg-[#1a1a1a] text-white py-2">United States</option>
+                          <option value="Canada" className="bg-[#1a1a1a] text-white py-2">Canada</option>
+                          <option value="United Kingdom" className="bg-[#1a1a1a] text-white py-2">United Kingdom</option>
+                          <option value="Australia" className="bg-[#1a1a1a] text-white py-2">Australia</option>
+                          <option value="Other" className="bg-[#1a1a1a] text-white py-2">Other</option>
                         </select>
                       </div>
                     </div>
@@ -309,17 +311,21 @@ export default function DoneForYouModal({ isOpen, onClose }: DoneForYouModalProp
                   
                   <div>
                     <label className="block text-sm font-medium text-white/70 mb-2">Language</label>
-                    <select
-                      value={formData.language}
-                      onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-lime-200/50 focus:outline-none appearance-none"
-                    >
-                      <option value="English">English</option>
-                      <option value="Spanish">Spanish</option>
-                      <option value="French">French</option>
-                      <option value="German">German</option>
-                      <option value="Portuguese">Portuguese</option>
-                    </select>
+                    <div className="relative">
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+                      <select
+                        value={formData.language}
+                        onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                        className="w-full px-4 pr-10 py-3 bg-[#1a1a1a] border border-white/10 rounded-xl text-white focus:border-lime-200/50 focus:outline-none appearance-none cursor-pointer hover:border-white/20 transition-colors"
+                        style={{ colorScheme: 'dark' }}
+                      >
+                        <option value="English" className="bg-[#1a1a1a] text-white py-2">English</option>
+                        <option value="Spanish" className="bg-[#1a1a1a] text-white py-2">Spanish</option>
+                        <option value="French" className="bg-[#1a1a1a] text-white py-2">French</option>
+                        <option value="German" className="bg-[#1a1a1a] text-white py-2">German</option>
+                        <option value="Portuguese" className="bg-[#1a1a1a] text-white py-2">Portuguese</option>
+                      </select>
+                    </div>
                   </div>
                   
                   <div>

@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.plans (
 
 -- Create indexes
 CREATE INDEX IF NOT EXISTS plans_slug_idx ON public.plans(slug);
-CREATE INDEX IF NOT EXISTS plans_active_public_idx ON public.plans(is_active, is_public);
+CREATE INDEX IF NOT EXISTS plans_active_idx ON public.plans(is_active);
 
 -- ============================================================================
 -- 2. SUBSCRIPTIONS TABLE

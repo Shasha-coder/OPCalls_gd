@@ -190,7 +190,18 @@ export class TwilioProvider implements TelephonyProvider {
       if (params.region) searchParams.inRegion = params.region
       if (params.postalCode) searchParams.inPostalCode = params.postalCode
       
-      const numbers = await searchRequest.list({
+      // Use type assertion to handle union type incompatibility between local/tollFree/mobile list methods
+      const listFn = searchRequest.list.bind(searchRequest) as (params: Record<string, unknown>) => Promise<Array<{
+        phoneNumber: string
+        friendlyName: string
+        locality: string
+        region: string
+        postalCode: string
+        capabilities: { voice: boolean; sms: boolean; mms: boolean }
+        addressRequirements: string
+      }>>
+      
+      const numbers = await listFn({
         ...searchParams,
         limit: params.limit || 20,
       })

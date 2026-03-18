@@ -219,11 +219,9 @@ async function handleIncomingCall(body: Record<string, string>): Promise<NextRes
     const dial = twiml.dial({
       callerId: body.To,
     })
-    dial.sip({
-      url: `sip:${agent.retell_agent_id}@${retellTerminationUri}`,
-      statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
-      statusCallback: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/twilio/status`,
-    })
+    dial.sip(
+      `sip:${agent.retell_agent_id}@${retellTerminationUri}`
+    )
   } else {
     // Fallback: simple greeting
     twiml.say('Hello! Thank you for calling. Our AI assistant will be with you shortly.')

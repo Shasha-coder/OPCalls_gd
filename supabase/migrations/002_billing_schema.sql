@@ -636,19 +636,12 @@ $$;
 -- 13. INSERT DEFAULT PLANS
 -- ============================================================================
 
-INSERT INTO public.plans (code, name, description, monthly_price_cents, included_minutes, included_numbers, included_agents, max_concurrent_calls, features, sort_order) VALUES
-  ('starter', 'Starter', 'Perfect for trying out AI voice agents', 0, 30, 1, 1, 1, 
-   '{"trial": true, "support": "community", "analytics": "basic"}'::JSONB, 1),
-  
-  ('core', 'Core', 'For small businesses ready to automate', 9900, 500, 1, 2, 2,
-   '{"support": "email", "analytics": "standard", "integrations": ["calendar", "crm_basic"]}'::JSONB, 2),
-  
-  ('scale', 'Scale', 'For growing businesses with high call volume', 29900, 2000, 3, 5, 5,
-   '{"support": "priority", "analytics": "advanced", "integrations": ["calendar", "crm_full", "zapier"], "api_access": true}'::JSONB, 3),
-  
-  ('enterprise', 'Enterprise', 'Custom solutions for large organizations', 0, 0, 0, 0, 0,
-   '{"support": "dedicated", "analytics": "enterprise", "sla": true, "custom": true}'::JSONB, 4)
-ON CONFLICT (code) DO NOTHING;
+-- Skip seeding plans if they already exist (check with SELECT first)
+-- INSERT INTO public.plans (slug, name, description, monthly_price_cents, included_minutes, included_numbers, included_agents, max_concurrent_calls, features, sort_order) VALUES
+--   ('starter', 'Starter', 'Perfect for trying out AI voice agents', 0, 30, 1, 1, 1, 
+--    '{"trial": true, "support": "community", "analytics": "basic"}'::JSONB, 1)
+-- ON CONFLICT (slug) DO NOTHING;
+-- Note: Run the plans query above to see your existing plans schema first
 
 -- ============================================================================
 -- 14. TRIGGERS

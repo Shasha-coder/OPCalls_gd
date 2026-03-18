@@ -28,7 +28,7 @@ export interface TelephonyProvider {
   searchNumbers(params: NumberSearchParams): Promise<AvailableNumber[]>
   purchaseNumber(params: PurchaseNumberParams): Promise<PurchasedNumber>
   releaseNumber(numberId: string): Promise<void>
-  updateNumber(numberId: string, updates: NumberUpdateParams): Promise<void>
+  updateNumber(numberId: string, updates: NumberUpdateParams): Promise<PurchasedNumber>
   
   // SIP/Voice Routing
   createSipEndpoint(params: SipEndpointParams): Promise<SipEndpoint>

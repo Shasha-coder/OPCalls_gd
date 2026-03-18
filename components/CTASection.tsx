@@ -32,7 +32,7 @@ export default function CTASection() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="py-24 bg-[#1E3A5F]">
+    <section ref={sectionRef} className="py-24 bg-gradient-to-b from-silver-800 to-silver-900">
       <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="cta-content text-center">
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5">
@@ -45,11 +45,11 @@ export default function CTASection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/auth/signup"
-              className="px-8 py-4 bg-[#3366FF] text-white font-semibold rounded-xl hover:bg-[#2952CC] transition-all shadow-lg hover:shadow-xl"
+              className="px-8 py-4 btn-chrome text-silver-800 font-semibold rounded-full hover:shadow-xl transition-all"
             >
               Start Free Trial
             </Link>
-            <button className="px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all">
+            <button className="px-8 py-4 bg-white/10 border border-white/20 text-white font-semibold rounded-full hover:bg-white/20 transition-all">
               Watch Demo
             </button>
           </div>

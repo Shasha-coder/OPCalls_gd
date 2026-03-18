@@ -30,31 +30,31 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#F5F3EF] border-t border-[#E8E5DF]">
+    <footer className="metal-bg border-t border-silver-300/50">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12 mb-12">
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-[#3366FF] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg icon-badge flex items-center justify-center">
                 <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z"/>
                 </svg>
               </div>
-              <span className="font-display font-bold text-lg text-[#1E3A5F]">OPCalls</span>
+              <span className="font-display font-bold text-lg text-silver-800">OPCalls</span>
             </Link>
-            <p className="text-sm text-[#5A6B7D] leading-relaxed">
+            <p className="text-sm text-silver-600 leading-relaxed">
               AI-powered voice agents that handle your business calls 24/7.
             </p>
           </div>
 
           {/* Product */}
           <div>
-            <h3 className="font-semibold text-sm text-[#1E3A5F] mb-4 uppercase tracking-wide">Product</h3>
+            <h3 className="font-semibold text-sm text-silver-800 mb-4 uppercase tracking-wide">Product</h3>
             <ul className="space-y-2.5">
               {footerLinks.product.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="text-sm text-[#5A6B7D] hover:text-[#3366FF] transition-colors">
+                  <a href={link.href} className="text-sm text-silver-600 hover:text-accent transition-colors">
                     {link.name}
                   </a>
                 </li>
@@ -64,11 +64,11 @@ export default function Footer() {
 
           {/* Solutions */}
           <div>
-            <h3 className="font-semibold text-sm text-[#1E3A5F] mb-4 uppercase tracking-wide">Solutions</h3>
+            <h3 className="font-semibold text-sm text-silver-800 mb-4 uppercase tracking-wide">Solutions</h3>
             <ul className="space-y-2.5">
               {footerLinks.solutions.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="text-sm text-[#5A6B7D] hover:text-[#3366FF] transition-colors">
+                  <a href={link.href} className="text-sm text-silver-600 hover:text-accent transition-colors">
                     {link.name}
                   </a>
                 </li>
@@ -78,11 +78,11 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <h3 className="font-semibold text-sm text-[#1E3A5F] mb-4 uppercase tracking-wide">Company</h3>
+            <h3 className="font-semibold text-sm text-silver-800 mb-4 uppercase tracking-wide">Company</h3>
             <ul className="space-y-2.5">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="text-sm text-[#5A6B7D] hover:text-[#3366FF] transition-colors">
+                  <a href={link.href} className="text-sm text-silver-600 hover:text-accent transition-colors">
                     {link.name}
                   </a>
                 </li>
@@ -92,11 +92,11 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h3 className="font-semibold text-sm text-[#1E3A5F] mb-4 uppercase tracking-wide">Legal</h3>
+            <h3 className="font-semibold text-sm text-silver-800 mb-4 uppercase tracking-wide">Legal</h3>
             <ul className="space-y-2.5">
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="text-sm text-[#5A6B7D] hover:text-[#3366FF] transition-colors">
+                  <a href={link.href} className="text-sm text-silver-600 hover:text-accent transition-colors">
                     {link.name}
                   </a>
                 </li>
@@ -106,8 +106,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-[#E8E5DF] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-[#5A6B7D]">
+        <div className="pt-8 border-t border-silver-300/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-silver-600">
             © {new Date().getFullYear()} OPCalls. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
@@ -115,7 +115,7 @@ export default function Footer() {
               <a
                 key={social}
                 href="#"
-                className="w-8 h-8 rounded-full bg-[#1E3A5F]/5 flex items-center justify-center text-[#5A6B7D] hover:text-[#3366FF] hover:bg-[#3366FF]/10 transition-all"
+                className="w-8 h-8 rounded-full glass-chrome flex items-center justify-center text-silver-600 hover:text-accent transition-all"
                 aria-label={social}
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

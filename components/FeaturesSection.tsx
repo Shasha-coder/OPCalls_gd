@@ -74,16 +74,16 @@ export default function FeaturesSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="features" className="py-24 bg-white">
+    <section ref={sectionRef} id="features" className="py-24 metal-bg">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 bg-[#3366FF]/10 text-[#3366FF] text-xs font-semibold rounded-full mb-4">
+          <span className="inline-block px-4 py-1.5 glass-chrome text-silver-700 text-xs font-semibold rounded-full mb-4">
             FEATURES
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1E3A5F] mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-metallic mb-4">
             Everything you need to scale
           </h2>
-          <p className="text-[#5A6B7D] text-lg max-w-2xl mx-auto">
+          <p className="text-silver-600 text-lg max-w-2xl mx-auto">
             Powerful features designed to help you handle more calls, convert more leads, and grow your business.
           </p>
         </div>
@@ -92,15 +92,15 @@ export default function FeaturesSection() {
           {FEATURES.map((feature, index) => (
             <div
               key={index}
-              className="feature-box group p-6 rounded-2xl bg-[#F5F3EF] hover:bg-white border border-transparent hover:border-[#E8E5DF] hover:shadow-lg transition-all duration-300"
+              className="feature-box group p-6 rounded-2xl glass-chrome hover:shadow-xl transition-all duration-300"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#3366FF] flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl icon-badge flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform">
                 {ICONS[feature.icon]}
               </div>
-              <h3 className="font-display font-semibold text-lg text-[#1E3A5F] mb-2">
+              <h3 className="font-display font-semibold text-lg text-silver-800 mb-2">
                 {feature.title}
               </h3>
-              <p className="text-[#5A6B7D] text-sm leading-relaxed">
+              <p className="text-silver-600 text-sm leading-relaxed">
                 {feature.description}
               </p>
             </div>

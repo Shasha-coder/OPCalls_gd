@@ -104,7 +104,8 @@ interface UseBillingReturn {
 // ============================================================================
 
 export function useBilling(): UseBillingReturn {
-  const { session, orgId } = useAuthStore()
+  const { user, organization } = useAuthStore()
+  const orgId = organization?.id
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [entitlements, setEntitlements] = useState<Entitlements | null>(null)
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -114,7 +115,7 @@ export function useBilling(): UseBillingReturn {
   
   // Fetch billing data
   const fetchBilling = useCallback(async () => {
-    if (!orgId || !session?.access_token) {
+    if (!orgId || !user) {
       setLoading(false)
       return
     }
@@ -123,11 +124,7 @@ export function useBilling(): UseBillingReturn {
     setError(null)
     
     try {
-      const response = await fetch(`/api/billing/subscription?orgId=${orgId}`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch(`/api/billing/subscription?orgId=${orgId}`)
       
       if (!response.ok) {
         throw new Error('Failed to fetch billing data')
@@ -145,7 +142,7 @@ export function useBilling(): UseBillingReturn {
     } finally {
       setLoading(false)
     }
-  }, [orgId, session?.access_token])
+  }, [orgId, user])
   
   // Load on mount and when orgId changes
   useEffect(() => {
@@ -157,7 +154,7 @@ export function useBilling(): UseBillingReturn {
     planCode: string, 
     billingInterval: 'month' | 'year' = 'month'
   ) => {
-    if (!orgId || !session?.access_token) {
+    if (!orgId || !user) {
       throw new Error('Not authenticated')
     }
     
@@ -165,7 +162,6 @@ export function useBilling(): UseBillingReturn {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({
         orgId,
@@ -181,11 +177,11 @@ export function useBilling(): UseBillingReturn {
     
     const { url } = await response.json()
     window.location.href = url
-  }, [orgId, session?.access_token])
+  }, [orgId, user])
   
   // Open customer portal
   const openPortal = useCallback(async () => {
-    if (!orgId || !session?.access_token) {
+    if (!orgId || !user) {
       throw new Error('Not authenticated')
     }
     
@@ -193,7 +189,6 @@ export function useBilling(): UseBillingReturn {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({ orgId }),
     })
@@ -205,7 +200,7 @@ export function useBilling(): UseBillingReturn {
     
     const { url } = await response.json()
     window.location.href = url
-  }, [orgId, session?.access_token])
+  }, [orgId, user])
   
   return {
     subscription,

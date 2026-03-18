@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Inter, DM_Sans } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
 
@@ -9,9 +9,10 @@ const inter = Inter({
   display: 'swap',
 })
 
-const playfair = Playfair_Display({ 
+const dmSans = DM_Sans({ 
   subsets: ['latin'],
-  variable: '--font-playfair',
+  variable: '--font-dm-sans',
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 })
 
@@ -38,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${inter.variable} ${dmSans.variable}`}>
       <body className="font-sans min-h-screen antialiased">
         {children}
         <Toaster

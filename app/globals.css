@@ -1,46 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* Primary - Deep Navy Blue */
+  /* Primary Colors */
   --primary: #1E3A5F;
   --primary-light: #2D5A8A;
-  --primary-dark: #0F1F33;
-  
-  /* Accent - Vibrant Blue */
   --accent: #3366FF;
   --accent-light: #5580FF;
-  --accent-soft: rgba(51, 102, 255, 0.1);
   
-  /* Background - Warm Cream/Beige */
+  /* Background */
   --bg-primary: #F5F3EF;
   --bg-secondary: #EBE8E2;
   --bg-card: #FFFFFF;
-  --bg-glass: rgba(255, 255, 255, 0.7);
   
   /* Text */
   --text-primary: #1E3A5F;
   --text-secondary: #5A6B7D;
   --text-muted: #8A95A5;
   
-  /* Status Colors */
+  /* Status */
   --success: #10B981;
   --warning: #F59E0B;
   --error: #EF4444;
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(30, 58, 95, 0.06);
-  --shadow-md: 0 4px 12px rgba(30, 58, 95, 0.08);
-  --shadow-lg: 0 12px 40px rgba(30, 58, 95, 0.12);
-  --shadow-xl: 0 25px 60px rgba(30, 58, 95, 0.15);
-  --shadow-phone: 0 50px 100px -20px rgba(30, 58, 95, 0.25);
-  
-  /* Glass */
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.5);
 }
 
 * {
@@ -54,58 +36,65 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* Typography */
 .font-display {
-  font-family: 'DM Sans', 'Inter', sans-serif;
+  font-family: var(--font-dm-sans), var(--font-inter), sans-serif;
 }
 
 /* Glass Morphism */
 .glass {
-  background: var(--glass-bg);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-}
-
-.glass-subtle {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .glass-dark {
-  background: rgba(30, 58, 95, 0.85);
+  background: rgba(30, 58, 95, 0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Premium Buttons */
+/* Feature Card */
+.feature-card {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid rgba(30, 58, 95, 0.06);
+  box-shadow: 0 1px 3px rgba(30, 58, 95, 0.04);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+  box-shadow: 0 12px 40px rgba(30, 58, 95, 0.12);
+  transform: translateY(-4px);
+  border-color: rgba(51, 102, 255, 0.15);
+}
+
+/* Buttons */
 .btn-primary {
   background: var(--accent);
   color: white;
   font-weight: 600;
   padding: 14px 28px;
-  border-radius: 12px;
+  border-radius: 14px;
   border: none;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 14px rgba(51, 102, 255, 0.4);
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(51, 102, 255, 0.35);
 }
 
 .btn-primary:hover {
   background: var(--accent-light);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(51, 102, 255, 0.5);
+  box-shadow: 0 8px 25px rgba(51, 102, 255, 0.45);
 }
 
 .btn-secondary {
@@ -113,175 +102,18 @@ body {
   color: var(--text-primary);
   font-weight: 500;
   padding: 14px 28px;
-  border-radius: 12px;
-  border: 1px solid rgba(30, 58, 95, 0.15);
+  border-radius: 14px;
+  border: 1.5px solid rgba(30, 58, 95, 0.12);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .btn-secondary:hover {
-  background: rgba(30, 58, 95, 0.05);
-  border-color: rgba(30, 58, 95, 0.25);
+  background: rgba(30, 58, 95, 0.04);
+  border-color: rgba(30, 58, 95, 0.2);
 }
 
-/* Feature Card */
-.feature-card {
-  background: var(--bg-card);
-  border-radius: 20px;
-  padding: 24px;
-  border: 1px solid rgba(30, 58, 95, 0.08);
-  box-shadow: var(--shadow-sm);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.feature-card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-4px);
-  border-color: rgba(51, 102, 255, 0.2);
-}
-
-/* Phone Mockup */
-.phone-frame {
-  background: linear-gradient(145deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-  border-radius: 50px;
-  padding: 12px;
-  box-shadow: 
-    var(--shadow-phone),
-    inset 0 1px 1px rgba(255, 255, 255, 0.1),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.3);
-}
-
-.phone-screen {
-  background: white;
-  border-radius: 40px;
-  overflow: hidden;
-  position: relative;
-}
-
-.phone-notch {
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 24px;
-  background: #1a1a1a;
-  border-radius: 12px;
-  z-index: 10;
-}
-
-/* Preset Card in Phone */
-.preset-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 16px;
-  border: 1px solid rgba(30, 58, 95, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.preset-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 8px 30px rgba(30, 58, 95, 0.15);
-}
-
-.preset-card.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(51, 102, 255, 0.2);
-}
-
-/* Infinite Scroll */
-@keyframes scroll-up {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-50%); }
-}
-
-@keyframes scroll-down {
-  0% { transform: translateY(-50%); }
-  100% { transform: translateY(0); }
-}
-
-.animate-scroll-up {
-  animation: scroll-up 30s linear infinite;
-}
-
-.animate-scroll-down {
-  animation: scroll-down 30s linear infinite;
-}
-
-.animate-scroll-up:hover,
-.animate-scroll-down:hover {
-  animation-play-state: paused;
-}
-
-/* Logo Marquee */
-.logo-marquee {
-  display: flex;
-  gap: 64px;
-  align-items: center;
-}
-
-.logo-marquee img,
-.logo-marquee svg {
-  height: 28px;
-  opacity: 0.5;
-  filter: grayscale(100%);
-  transition: all 0.4s ease;
-}
-
-.logo-marquee img:hover,
-.logo-marquee svg:hover {
-  opacity: 1;
-  filter: grayscale(0%);
-}
-
-/* Testimonial Quote */
-.quote-mark {
-  font-size: 80px;
-  font-family: Georgia, serif;
-  color: var(--accent);
-  opacity: 0.3;
-  line-height: 1;
-}
-
-/* Dashboard Preview */
-.dashboard-preview {
-  background: white;
-  border-radius: 16px;
-  box-shadow: var(--shadow-xl);
-  border: 1px solid rgba(30, 58, 95, 0.08);
-  overflow: hidden;
-}
-
-/* Stats Card */
-.stats-card {
-  background: var(--bg-card);
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid rgba(30, 58, 95, 0.08);
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(30, 58, 95, 0.2);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(30, 58, 95, 0.3);
-}
-
-/* Hide scrollbar for touch */
+/* Hide Scrollbar */
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -291,9 +123,28 @@ body {
   display: none;
 }
 
+/* Float Animations */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes float-medium {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+}
+
+.float-medium {
+  animation: float-medium 3s ease-in-out infinite;
+}
+
 /* Selection */
 ::selection {
-  background: rgba(51, 102, 255, 0.2);
+  background: rgba(51, 102, 255, 0.15);
   color: var(--text-primary);
 }
 
@@ -305,27 +156,20 @@ body {
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
-/* Mobile Touch */
-@media (hover: none) {
-  .feature-card:hover,
-  .preset-card:hover {
-    transform: none;
-    box-shadow: var(--shadow-sm);
-  }
-}
-
-/* Responsive Typography */
+/* Mobile optimizations */
 @media (max-width: 640px) {
   html {
-    font-size: 14px;
+    font-size: 15px;
+  }
+  
+  .feature-card:hover {
+    transform: none;
   }
 }

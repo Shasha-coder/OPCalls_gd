@@ -128,8 +128,7 @@ function DFYModal({ onClose }: { onClose: () => void }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log('DFY Request:', formData)
+    // Handle form submission - will be sent to API
     handleClose()
   }
 

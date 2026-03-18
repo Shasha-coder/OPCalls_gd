@@ -17,32 +17,27 @@ export default function Header() {
   }, [])
 
   return (
-    <header ref={headerRef} className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-8 py-4">
-      <nav className="max-w-7xl mx-auto flex items-center justify-between">
+    <header ref={headerRef} className="fixed top-4 left-4 right-4 z-50">
+      <nav className="max-w-6xl mx-auto glass-header rounded-2xl px-6 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-white text-xl font-semibold tracking-tight">OPCalls</span>
+          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </div>
+          <span className="text-white text-lg font-semibold">OPCalls</span>
         </Link>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-1">
-          {[
-            { name: 'About', hasDropdown: false },
-            { name: 'Solutions', hasDropdown: true },
-            { name: 'Pricing', hasDropdown: false },
-            { name: 'FAQ', hasDropdown: false },
-          ].map((item) => (
+          {['About', 'Solutions', 'Pricing', 'FAQ'].map((item) => (
             <Link
-              key={item.name}
-              href={`#${item.name.toLowerCase()}`}
-              className="flex items-center gap-1 px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
+              key={item}
+              href={`#${item.toLowerCase()}`}
+              className="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
             >
-              {item.name}
-              {item.hasDropdown && (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              )}
+              {item}
             </Link>
           ))}
         </div>
@@ -51,13 +46,13 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-3">
           <Link
             href="/auth/login"
-            className="px-5 py-2.5 text-sm font-medium text-white btn-outline rounded-full"
+            className="px-5 py-2 text-sm font-medium text-white border border-white/20 rounded-full hover:bg-white/5 transition-all"
           >
             Login
           </Link>
           <Link
             href="/auth/signup"
-            className="px-5 py-2.5 text-sm font-medium btn-light rounded-full"
+            className="px-5 py-2 text-sm font-medium bg-white text-gray-900 rounded-full hover:bg-white/90 transition-all"
           >
             Sign up
           </Link>
@@ -78,7 +73,7 @@ export default function Header() {
       </nav>
 
       {/* Mobile Menu */}
-      <div className={`md:hidden absolute top-full left-4 right-4 mt-2 glass-card rounded-2xl transition-all duration-300 ${
+      <div className={`md:hidden mt-2 max-w-6xl mx-auto glass-header rounded-2xl transition-all duration-300 ${
         mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
       }`}>
         <div className="p-4 space-y-1">
@@ -92,11 +87,11 @@ export default function Header() {
               {item}
             </Link>
           ))}
-          <div className="pt-3 mt-3 border-t border-white/10 space-y-2">
-            <Link href="/auth/login" className="block px-4 py-3 text-sm text-white/70 rounded-xl text-center" onClick={() => setMobileOpen(false)}>
+          <div className="pt-3 mt-3 border-t border-white/10 flex gap-3">
+            <Link href="/auth/login" className="flex-1 px-4 py-3 text-sm text-white/70 rounded-xl text-center border border-white/20" onClick={() => setMobileOpen(false)}>
               Login
             </Link>
-            <Link href="/auth/signup" className="block px-4 py-3 text-sm font-medium btn-light rounded-xl text-center" onClick={() => setMobileOpen(false)}>
+            <Link href="/auth/signup" className="flex-1 px-4 py-3 text-sm font-medium bg-white text-gray-900 rounded-xl text-center" onClick={() => setMobileOpen(false)}>
               Sign up
             </Link>
           </div>

@@ -297,7 +297,7 @@ const addPhoneNumberSteps: WorkflowStep[] = [
     retryable: true,
     maxRetries: 2,
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as AddPhoneNumberInput
+      const input = ctx.inputParams as unknown as AddPhoneNumberInput
       
       // If specific number provided, skip search
       if (input.phoneNumber) {
@@ -381,9 +381,9 @@ const addPhoneNumberSteps: WorkflowStep[] = [
     retryable: true,
     maxRetries: 2,
     dependsOn: ['purchase_phone_number'],
-    skipIf: (ctx: StepContext) => !(ctx.inputParams as AddPhoneNumberInput).agentId,
+    skipIf: (ctx: StepContext) => !(ctx.inputParams as unknown as AddPhoneNumberInput).agentId,
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as AddPhoneNumberInput
+      const input = ctx.inputParams as unknown as AddPhoneNumberInput
       const purchaseResult = ctx.previousStepResults['purchase_phone_number']
       const phoneNumberId = purchaseResult?.data?.phoneNumberId as string
       
@@ -423,7 +423,7 @@ const addAgentSteps: WorkflowStep[] = [
     retryable: true,
     maxRetries: 3,
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as AddAgentInput
+      const input = ctx.inputParams as unknown as AddAgentInput
       
       // Get org info for business details
       const { createClient } = await import('@supabase/supabase-js')
@@ -480,9 +480,9 @@ const addAgentSteps: WorkflowStep[] = [
     retryable: true,
     maxRetries: 2,
     dependsOn: ['create_agent'],
-    skipIf: (ctx: StepContext) => !(ctx.inputParams as AddAgentInput).phoneNumberId,
+    skipIf: (ctx: StepContext) => !(ctx.inputParams as unknown as AddAgentInput).phoneNumberId,
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as AddAgentInput
+      const input = ctx.inputParams as unknown as AddAgentInput
       const agentResult = ctx.previousStepResults['create_agent']
       const agentId = agentResult?.data?.agentId as string
       
@@ -522,7 +522,7 @@ const bindAgentSteps: WorkflowStep[] = [
     retryable: true,
     maxRetries: 3,
     handler: async (ctx: StepContext): Promise<StepHandlerResult> => {
-      const input = ctx.inputParams as BindAgentInput
+      const input = ctx.inputParams as unknown as BindAgentInput
       
       const result = await bindPhoneToAgent(
         ctx.orgId,

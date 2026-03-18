@@ -88,7 +88,7 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <h3 className="font-semibold text-white mb-1">{agent.name}</h3>
-                  <p className="text-sm text-white/40 line-clamp-2">{agent.system_prompt?.slice(0, 60) || 'No description'}...</p>
+                  <p className="text-sm text-white/40 line-clamp-2">{agent.prompt?.slice(0, 60) || 'No description'}...</p>
                   <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/10">
                     <div className="text-center">
                       <div className="text-sm font-bold text-white">{agent.total_calls || 0}</div>

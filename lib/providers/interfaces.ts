@@ -96,7 +96,7 @@ export interface NumberCapabilities {
   fax?: boolean
 }
 
-export type NumberStatus = 'active' | 'pending' | 'suspended' | 'released'
+export type NumberStatus = 'pending' | 'active' | 'suspended' | 'released' | 'failed'
 
 export interface PurchasedNumber {
   sid: string

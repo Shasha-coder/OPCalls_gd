@@ -77,7 +77,7 @@ interface OnboardingStepData {
 // ============================================================================
 
 export function useProvisioningJob(jobId: string | null) {
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   const [job, setJob] = useState<ProvisioningJob | null>(null)
   const [steps, setSteps] = useState<ProvisioningStep[]>([])
   const [progress, setProgress] = useState(0)
@@ -86,17 +86,13 @@ export function useProvisioningJob(jobId: string | null) {
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
   
   const fetchJob = useCallback(async () => {
-    if (!jobId || !session?.access_token) {
+    if (!jobId || !user) {
       setLoading(false)
       return
     }
     
     try {
-      const response = await fetch(`/api/provisioning/jobs?jobId=${jobId}`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch(`/api/provisioning/jobs?jobId=${jobId}`)
       
       if (!response.ok) {
         throw new Error('Failed to fetch job')
@@ -121,7 +117,7 @@ export function useProvisioningJob(jobId: string | null) {
     } finally {
       setLoading(false)
     }
-  }, [jobId, session?.access_token])
+  }, [jobId, user])
   
   // Initial fetch and polling
   useEffect(() => {
@@ -140,14 +136,13 @@ export function useProvisioningJob(jobId: string | null) {
   }, [jobId, fetchJob])
   
   const retry = useCallback(async () => {
-    if (!jobId || !session?.access_token) return false
+    if (!jobId || !user) return false
     
     try {
       const response = await fetch('/api/provisioning/jobs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ action: 'retry', jobId }),
       })
@@ -161,17 +156,16 @@ export function useProvisioningJob(jobId: string | null) {
     } catch {
       return false
     }
-  }, [jobId, session?.access_token, fetchJob])
+  }, [jobId, user, fetchJob])
   
   const cancel = useCallback(async () => {
-    if (!jobId || !session?.access_token) return false
+    if (!jobId || !user) return false
     
     try {
       const response = await fetch('/api/provisioning/jobs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ action: 'cancel', jobId }),
       })
@@ -184,7 +178,7 @@ export function useProvisioningJob(jobId: string | null) {
     } catch {
       return false
     }
-  }, [jobId, session?.access_token, fetchJob])
+  }, [jobId, user, fetchJob])
   
   return {
     job,
@@ -203,7 +197,7 @@ export function useProvisioningJob(jobId: string | null) {
 // ============================================================================
 
 export function useStartJob() {
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -211,7 +205,7 @@ export function useStartJob() {
     jobType: string,
     inputParams: Record<string, unknown>
   ): Promise<string | null> => {
-    if (!session?.access_token) {
+    if (!user) {
       setError('Not authenticated')
       return null
     }
@@ -224,7 +218,6 @@ export function useStartJob() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ jobType, inputParams }),
       })
@@ -243,7 +236,7 @@ export function useStartJob() {
     } finally {
       setLoading(false)
     }
-  }, [session?.access_token])
+  }, [user])
   
   return { startJob, loading, error }
 }
@@ -253,7 +246,8 @@ export function useStartJob() {
 // ============================================================================
 
 export function useOnboarding() {
-  const { session, orgId } = useAuthStore()
+  const { user, organization } = useAuthStore()
+  const orgId = organization?.id
   const [state, setState] = useState<OnboardingState | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -261,17 +255,13 @@ export function useOnboarding() {
   
   // Fetch onboarding state
   const fetchState = useCallback(async () => {
-    if (!orgId || !session?.access_token) {
+    if (!orgId || !user) {
       setLoading(false)
       return
     }
     
     try {
-      const response = await fetch('/api/provisioning/onboarding', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch('/api/provisioning/onboarding')
       
       if (!response.ok) {
         throw new Error('Failed to fetch onboarding state')
@@ -285,7 +275,7 @@ export function useOnboarding() {
     } finally {
       setLoading(false)
     }
-  }, [orgId, session?.access_token])
+  }, [orgId, user])
   
   useEffect(() => {
     fetchState()
@@ -297,7 +287,7 @@ export function useOnboarding() {
     stepName: string,
     stepData: Partial<OnboardingStepData>
   ): Promise<boolean> => {
-    if (!session?.access_token) return false
+    if (!user) return false
     
     setSaving(true)
     
@@ -306,7 +296,6 @@ export function useOnboarding() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ step, stepName, stepData }),
       })
@@ -326,11 +315,11 @@ export function useOnboarding() {
     } finally {
       setSaving(false)
     }
-  }, [session?.access_token])
+  }, [user])
   
   // Start provisioning
   const startProvisioning = useCallback(async (): Promise<string | null> => {
-    if (!session?.access_token) return null
+    if (!user) return null
     
     setSaving(true)
     
@@ -339,7 +328,6 @@ export function useOnboarding() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ action: 'start-provisioning' }),
       })
@@ -362,7 +350,7 @@ export function useOnboarding() {
     } finally {
       setSaving(false)
     }
-  }, [session?.access_token])
+  }, [user])
   
   // Check provisioning status
   const checkProvisioning = useCallback(async (): Promise<{
@@ -370,16 +358,12 @@ export function useOnboarding() {
     progress?: number
     error?: string
   }> => {
-    if (!session?.access_token) {
+    if (!user) {
       return { status: 'error', error: 'Not authenticated' }
     }
     
     try {
-      const response = await fetch('/api/provisioning/onboarding?action=check-provisioning', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch('/api/provisioning/onboarding?action=check-provisioning')
       
       if (!response.ok) {
         throw new Error('Failed to check status')
@@ -397,7 +381,7 @@ export function useOnboarding() {
     } catch (err) {
       return { status: 'error', error: err instanceof Error ? err.message : 'Unknown error' }
     }
-  }, [session?.access_token])
+  }, [user])
   
   return {
     state,

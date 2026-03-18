@@ -78,13 +78,14 @@ interface CreateAgentParams {
 // ============================================================================
 
 export function useAgents() {
-  const { session, orgId } = useAuthStore()
+  const { user, organization } = useAuthStore()
+  const orgId = organization?.id
   const [agents, setAgents] = useState<Agent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
   const fetchAgents = useCallback(async () => {
-    if (!orgId || !session?.access_token) {
+    if (!orgId || !user) {
       setLoading(false)
       return
     }
@@ -93,11 +94,7 @@ export function useAgents() {
     setError(null)
     
     try {
-      const response = await fetch('/api/ai/agents', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch('/api/ai/agents')
       
       if (!response.ok) {
         throw new Error('Failed to fetch agents')
@@ -111,7 +108,7 @@ export function useAgents() {
     } finally {
       setLoading(false)
     }
-  }, [orgId, session?.access_token])
+  }, [orgId, user])
   
   useEffect(() => {
     fetchAgents()
@@ -130,12 +127,12 @@ export function useAgents() {
 // ============================================================================
 
 export function useCreateAgent() {
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
   const createAgent = useCallback(async (params: CreateAgentParams): Promise<Agent | null> => {
-    if (!session?.access_token) {
+    if (!user) {
       setError('Not authenticated')
       return null
     }
@@ -148,7 +145,6 @@ export function useCreateAgent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify(params),
       })
@@ -167,7 +163,7 @@ export function useCreateAgent() {
     } finally {
       setLoading(false)
     }
-  }, [session?.access_token])
+  }, [user])
   
   return {
     createAgent,
@@ -181,23 +177,19 @@ export function useCreateAgent() {
 // ============================================================================
 
 export function useVoices() {
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   const [voices, setVoices] = useState<Voice[]>([])
   const [loading, setLoading] = useState(true)
   
   useEffect(() => {
     async function fetchVoices() {
-      if (!session?.access_token) {
+      if (!user) {
         setLoading(false)
         return
       }
       
       try {
-        const response = await fetch('/api/ai/agents?action=voices', {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-        })
+        const response = await fetch('/api/ai/agents?action=voices')
         
         if (response.ok) {
           const data = await response.json()
@@ -211,7 +203,7 @@ export function useVoices() {
     }
     
     fetchVoices()
-  }, [session?.access_token])
+  }, [user])
   
   return { voices, loading }
 }
@@ -221,13 +213,13 @@ export function useVoices() {
 // ============================================================================
 
 export function usePromptTemplates(vertical?: string) {
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   const [templates, setTemplates] = useState<PromptTemplate[]>([])
   const [loading, setLoading] = useState(true)
   
   useEffect(() => {
     async function fetchTemplates() {
-      if (!session?.access_token) {
+      if (!user) {
         setLoading(false)
         return
       }
@@ -236,11 +228,7 @@ export function usePromptTemplates(vertical?: string) {
         const params = new URLSearchParams({ action: 'templates' })
         if (vertical) params.append('vertical', vertical)
         
-        const response = await fetch(`/api/ai/agents?${params}`, {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-        })
+        const response = await fetch(`/api/ai/agents?${params}`)
         
         if (response.ok) {
           const data = await response.json()
@@ -254,7 +242,7 @@ export function usePromptTemplates(vertical?: string) {
     }
     
     fetchTemplates()
-  }, [session?.access_token, vertical])
+  }, [user, vertical])
   
   return { templates, loading }
 }
@@ -264,13 +252,14 @@ export function usePromptTemplates(vertical?: string) {
 // ============================================================================
 
 export function useBindings() {
-  const { session, orgId } = useAuthStore()
+  const { user, organization } = useAuthStore()
+  const orgId = organization?.id
   const [bindings, setBindings] = useState<Binding[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
   const fetchBindings = useCallback(async () => {
-    if (!orgId || !session?.access_token) {
+    if (!orgId || !user) {
       setLoading(false)
       return
     }
@@ -279,11 +268,7 @@ export function useBindings() {
     setError(null)
     
     try {
-      const response = await fetch('/api/ai/bindings', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      })
+      const response = await fetch('/api/ai/bindings')
       
       if (!response.ok) {
         throw new Error('Failed to fetch bindings')
@@ -297,7 +282,7 @@ export function useBindings() {
     } finally {
       setLoading(false)
     }
-  }, [orgId, session?.access_token])
+  }, [orgId, user])
   
   useEffect(() => {
     fetchBindings()
@@ -316,7 +301,7 @@ export function useBindings() {
 // ============================================================================
 
 export function useBindAgent() {
-  const { session } = useAuthStore()
+  const { user } = useAuthStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -325,7 +310,7 @@ export function useBindAgent() {
     agentId: string,
     bindingType: 'inbound' | 'outbound' | 'both' = 'inbound'
   ): Promise<Binding | null> => {
-    if (!session?.access_token) {
+    if (!user) {
       setError('Not authenticated')
       return null
     }
@@ -338,7 +323,6 @@ export function useBindAgent() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ phoneNumberId, agentId, bindingType }),
       })
@@ -357,10 +341,10 @@ export function useBindAgent() {
     } finally {
       setLoading(false)
     }
-  }, [session?.access_token])
+  }, [user])
   
   const unbind = useCallback(async (phoneNumberId: string): Promise<boolean> => {
-    if (!session?.access_token) {
+    if (!user) {
       setError('Not authenticated')
       return false
     }
@@ -371,9 +355,6 @@ export function useBindAgent() {
     try {
       const response = await fetch(`/api/ai/bindings?phoneNumberId=${phoneNumberId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
       })
       
       if (!response.ok) {
@@ -389,7 +370,7 @@ export function useBindAgent() {
     } finally {
       setLoading(false)
     }
-  }, [session?.access_token])
+  }, [user])
   
   return {
     bind,

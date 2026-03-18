@@ -208,16 +208,16 @@ export function ProvisioningStep({ jobId, onComplete, checkStatus }: Props) {
         <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
           <h4 className="text-sm font-medium text-slate-300 mb-3">Your Setup Details</h4>
           <div className="space-y-2 text-sm">
-            {job.output.phoneNumber && (
+            {typeof job.output.phoneNumber === 'string' && job.output.phoneNumber && (
               <div className="flex justify-between">
                 <span className="text-slate-400">Phone Number</span>
-                <span className="text-white font-mono">{job.output.phoneNumber as string}</span>
+                <span className="text-white font-mono">{job.output.phoneNumber}</span>
               </div>
             )}
             {job.output.agentId && (
               <div className="flex justify-between">
                 <span className="text-slate-400">Agent Created</span>
-                <span className="text-green-400">✓</span>
+                <span className="text-green-400">Yes</span>
               </div>
             )}
           </div>

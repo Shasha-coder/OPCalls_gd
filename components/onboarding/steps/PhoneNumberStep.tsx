@@ -39,7 +39,7 @@ export function PhoneNumberStep({ data, onComplete, onBack, saving }: Props) {
   })
   const [searchTriggered, setSearchTriggered] = useState(false)
   
-  const { numbers, loading: searching, error: searchError, search } = useNumberSearch()
+  const { results: numbers, loading: searching, error: searchError, search } = useNumberSearch()
   
   // Auto-search when area code is entered
   useEffect(() => {

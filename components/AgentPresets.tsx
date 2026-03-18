@@ -121,7 +121,7 @@ export default function AgentPresets() {
             <div className="grid lg:grid-cols-2 min-h-[480px]">
               {/* Left - Agent List */}
               <div className="p-6 border-b lg:border-b-0 lg:border-r border-white/10">
-                <div className="space-y-2 max-h-[420px] overflow-y-auto">
+                <div className="space-y-2 max-h-[420px] overflow-y-auto hide-scrollbar">
                   {filteredAgents.map((agent) => (
                     <button
                       key={agent.id}

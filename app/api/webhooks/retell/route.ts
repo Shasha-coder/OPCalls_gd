@@ -215,35 +215,23 @@ async function handleCallEnded(callData: RetellCallData): Promise<void> {
       })
       .eq('id', call.agent_id)
     
-    // Alternative: use raw SQL increment
-    await supabase.rpc('exec_sql', {
-      query: `
-        UPDATE agents 
-        SET total_calls = total_calls + 1,
-            total_minutes = total_minutes + ${durationMinutes},
-            updated_at = NOW()
-        WHERE id = '${call.agent_id}'
-      `
-    }).catch(() => {
-      // Fallback if rpc doesn't exist
-      supabase
+    // Update agent stats using fetch-then-update pattern
+    const { data: agentData } = await supabase
+      .from('agents')
+      .select('total_calls, total_minutes')
+      .eq('id', call.agent_id)
+      .single()
+    
+    if (agentData) {
+      await supabase
         .from('agents')
-        .select('total_calls, total_minutes')
-        .eq('id', call.agent_id)
-        .single()
-        .then(({ data }) => {
-          if (data) {
-            supabase
-              .from('agents')
-              .update({
-                total_calls: (data.total_calls || 0) + 1,
-                total_minutes: (data.total_minutes || 0) + durationMinutes,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('id', call.agent_id)
-          }
+        .update({
+          total_calls: (agentData.total_calls || 0) + 1,
+          total_minutes: (agentData.total_minutes || 0) + durationMinutes,
+          updated_at: new Date().toISOString(),
         })
-    })
+        .eq('id', call.agent_id)
+    }
   }
   
   // Update org minutes

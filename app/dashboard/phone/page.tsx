@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Phone, Search, MapPin, Check, ArrowRight, Globe, Zap, Star } from 'lucide-react'
+import {
+  PhoneIcon, SearchIcon, LocationIcon, CheckIcon, ArrowRightIcon,
+  GlobeIcon, SparklesIcon, StarIcon, AgentIcon
+} from '@/components/ui/Icons'
 import gsap from 'gsap'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth'
@@ -107,9 +110,9 @@ export default function GetNumberPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime-200/10 border border-lime-200/20 mb-4">
-            <Phone className="w-4 h-4 text-lime-200" />
-            <span className="text-sm text-lime-200 font-medium">Get a Phone Number</span>
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1a1a1a] border border-lime-300/30 mb-4">
+            <PhoneIcon className="w-4 h-4 text-lime-300" />
+            <span className="text-sm text-lime-300 font-medium">Get a Phone Number</span>
           </div>
           <h1 className="text-3xl font-display font-bold text-white mb-2">
             Connect Your Agent
@@ -127,15 +130,15 @@ export default function GetNumberPage() {
             { num: 3, label: 'Activate' },
           ].map((s, i) => (
             <div key={s.num} className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step >= i ? 'bg-lime-200 text-dark' : 'bg-white/10 text-white/50'
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
+                step >= i ? 'bg-[#1a1a1a] border border-lime-300/40 text-lime-300' : 'bg-white/5 border border-white/10 text-white/40'
               }`}>
-                {step > i ? <Check className="w-4 h-4" /> : s.num}
+                {step > i ? <CheckIcon className="w-4 h-4" /> : s.num}
               </div>
-              <span className={`ml-2 text-sm hidden sm:block ${step >= i ? 'text-white' : 'text-white/50'}`}>
+              <span className={`ml-2 text-sm hidden sm:block transition-colors ${step >= i ? 'text-white' : 'text-white/40'}`}>
                 {s.label}
               </span>
-              {i < 2 && <div className={`w-8 h-0.5 mx-2 ${step > i ? 'bg-lime-200' : 'bg-white/10'}`} />}
+              {i < 2 && <div className={`w-12 h-px mx-3 transition-colors ${step > i ? 'bg-lime-300/40' : 'bg-white/10'}`} />}
             </div>
           ))}
         </div>
@@ -145,19 +148,23 @@ export default function GetNumberPage() {
           {step === 0 && (
             <>
               {/* Number Type Toggle */}
-              <div className="flex gap-2 p-1 bg-white/5 rounded-xl mb-6 max-w-xs">
+              <div className="flex gap-2 p-1 bg-[#111] rounded-full mb-6 max-w-xs border border-white/5">
                 <button
                   onClick={() => setNumberType('local')}
-                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
-                    numberType === 'local' ? 'bg-lime-200 text-dark' : 'text-white/60 hover:text-white'
+                  className={`flex-1 py-2.5 px-5 rounded-full text-sm font-medium transition-all duration-200 ${
+                    numberType === 'local' 
+                      ? 'bg-[#1a1a1a] border border-lime-300/40 text-lime-300' 
+                      : 'text-white/50 hover:text-white'
                   }`}
                 >
                   Local Numbers
                 </button>
                 <button
                   onClick={() => setNumberType('tollfree')}
-                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
-                    numberType === 'tollfree' ? 'bg-lime-200 text-dark' : 'text-white/60 hover:text-white'
+                  className={`flex-1 py-2.5 px-5 rounded-full text-sm font-medium transition-all duration-200 ${
+                    numberType === 'tollfree' 
+                      ? 'bg-[#1a1a1a] border border-lime-300/40 text-lime-300' 
+                      : 'text-white/50 hover:text-white'
                   }`}
                 >
                   Toll-Free
@@ -166,13 +173,13 @@ export default function GetNumberPage() {
 
               {/* Search */}
               <div className="relative mb-6">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by city, state, or area code..."
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-lime-200/50"
+                  className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-full text-white placeholder:text-white/30 focus:outline-none focus:border-lime-300/30 transition-colors"
                 />
               </div>
 
@@ -182,37 +189,37 @@ export default function GetNumberPage() {
                   <button
                     key={num.number}
                     onClick={() => setSelectedNumber(num)}
-                    className={`number-card p-4 rounded-xl border text-left transition-all relative ${
+                    className={`number-card p-5 rounded-2xl border text-left transition-all duration-200 relative ${
                       selectedNumber?.number === num.number
-                        ? 'bg-lime-200/10 border-lime-200/40'
-                        : 'bg-white/5 border-white/10 hover:bg-white/10'
+                        ? 'bg-[#1a1a1a] border-lime-300/40'
+                        : 'bg-[#111] border-white/5 hover:border-white/15'
                     }`}
                   >
                     {num.popular && (
-                      <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-lime-200 text-dark text-xs font-medium rounded-full flex items-center gap-1">
-                        <Star className="w-3 h-3" /> Popular
+                      <div className="absolute -top-2.5 -right-2 px-2.5 py-1 bg-[#1a1a1a] border border-lime-300/40 text-lime-300 text-xs font-medium rounded-full flex items-center gap-1">
+                        <StarIcon className="w-3 h-3" /> Popular
                       </div>
                     )}
                     <div className="text-lg font-mono text-white mb-2">{num.number}</div>
-                    <div className="flex items-center gap-2 text-sm text-white/50">
-                      <MapPin className="w-4 h-4" />
+                    <div className="flex items-center gap-2 text-sm text-white/40">
+                      <LocationIcon className="w-4 h-4" />
                       {num.city}, {num.state}
                     </div>
-                    <div className="mt-3 text-lime-200 font-medium">${num.price}/mo</div>
+                    <div className="mt-3 text-lime-300 font-medium">${num.price}/mo</div>
                     {selectedNumber?.number === num.number && (
-                      <div className="absolute top-4 right-4 w-5 h-5 rounded-full bg-lime-200 flex items-center justify-center">
-                        <Check className="w-3 h-3 text-dark" />
+                      <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-[#1a1a1a] border border-lime-300/40 flex items-center justify-center">
+                        <CheckIcon className="w-3.5 h-3.5 text-lime-300" />
                       </div>
                     )}
                   </button>
                 ))}
               </div>
 
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 disabled={!selectedNumber}
                 onClick={() => setStep(1)}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
+                rightIcon={<ArrowRightIcon className="w-4 h-4" />}
               >
                 Continue with {selectedNumber?.number || 'Selected Number'}
               </Button>
@@ -225,7 +232,7 @@ export default function GetNumberPage() {
               <h2 className="text-xl font-display font-semibold text-white mb-2">
                 Which agent should answer this number?
               </h2>
-              <p className="text-white/60 mb-6">
+              <p className="text-white/50 mb-6">
                 Connect this phone number to one of your AI agents
               </p>
 
@@ -234,32 +241,32 @@ export default function GetNumberPage() {
                   <button
                     key={agent.id}
                     onClick={() => setSelectedAgent(agent.id)}
-                    className={`w-full p-4 rounded-xl border text-left transition-all flex items-center gap-4 ${
+                    className={`w-full p-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-4 ${
                       selectedAgent === agent.id
-                        ? 'bg-lime-200/10 border-lime-200/40'
-                        : 'bg-white/5 border-white/10 hover:bg-white/10'
+                        ? 'bg-[#1a1a1a] border-lime-300/40'
+                        : 'bg-[#111] border-white/5 hover:border-white/15'
                     }`}
                   >
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-lime-200 to-olive flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-dark" />
+                    <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-lime-300/30 flex items-center justify-center">
+                      <AgentIcon className="w-5 h-5 text-lime-300" />
                     </div>
                     <div className="flex-1">
-                      <div className={`font-medium ${selectedAgent === agent.id ? 'text-lime-200' : 'text-white'}`}>
+                      <div className={`font-medium ${selectedAgent === agent.id ? 'text-lime-300' : 'text-white'}`}>
                         {agent.name}
                       </div>
-                      <div className="text-sm text-white/50 capitalize">{agent.industry} • {agent.type}</div>
+                      <div className="text-sm text-white/40 capitalize">{agent.industry} - {agent.type}</div>
                     </div>
                     {selectedAgent === agent.id && (
-                      <Check className="w-5 h-5 text-lime-200" />
+                      <CheckIcon className="w-5 h-5 text-lime-300" />
                     )}
                   </button>
                 ))}
 
                 {agents.length === 0 && (
-                  <div className="p-8 text-center bg-white/5 rounded-xl border border-white/10">
-                    <Zap className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                    <p className="text-white/60 mb-4">No agents yet</p>
-                    <Button variant="secondary" onClick={() => router.push('/dashboard/agents/builder')}>
+                  <div className="p-8 text-center bg-[#111] rounded-2xl border border-white/5">
+                    <SparklesIcon className="w-10 h-10 text-white/20 mx-auto mb-3" />
+                    <p className="text-white/50 mb-4">No agents yet</p>
+                    <Button variant="secondary" onClick={() => router.push('/dashboard/agents/new')}>
                       Create Your First Agent
                     </Button>
                   </div>
@@ -268,11 +275,11 @@ export default function GetNumberPage() {
 
               <div className="flex gap-4">
                 <Button variant="ghost" onClick={() => setStep(0)}>Back</Button>
-                <Button 
+                <Button
                   className="flex-1"
                   disabled={!selectedAgent}
                   onClick={() => setStep(2)}
-                  rightIcon={<ArrowRight className="w-4 h-4" />}
+                  rightIcon={<ArrowRightIcon className="w-4 h-4" />}
                 >
                   Continue
                 </Button>
@@ -288,23 +295,23 @@ export default function GetNumberPage() {
               </h2>
 
               <div className="space-y-4 mb-8">
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="text-xs text-white/50 mb-1">Phone Number</div>
-                  <div className="text-xl font-mono text-lime-200">{selectedNumber?.number}</div>
-                  <div className="text-sm text-white/50 mt-1">{selectedNumber?.city}, {selectedNumber?.state}</div>
+                <div className="p-5 rounded-2xl bg-[#111] border border-white/5">
+                  <div className="text-xs text-white/40 mb-1">Phone Number</div>
+                  <div className="text-xl font-mono text-lime-300">{selectedNumber?.number}</div>
+                  <div className="text-sm text-white/40 mt-1">{selectedNumber?.city}, {selectedNumber?.state}</div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="text-xs text-white/50 mb-1">Connected Agent</div>
+                <div className="p-5 rounded-2xl bg-[#111] border border-white/5">
+                  <div className="text-xs text-white/40 mb-1">Connected Agent</div>
                   <div className="text-white font-medium">{agents.find(a => a.id === selectedAgent)?.name}</div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-lime-200/10 border border-lime-200/20">
+                <div className="p-5 rounded-2xl bg-[#1a1a1a] border border-lime-300/30">
                   <div className="flex items-center justify-between">
-                    <span className="text-white/70">Monthly Cost</span>
-                    <span className="text-2xl font-display font-bold text-lime-200">${selectedNumber?.price}/mo</span>
+                    <span className="text-white/60">Monthly Cost</span>
+                    <span className="text-2xl font-display font-bold text-lime-300">${selectedNumber?.price}/mo</span>
                   </div>
-                  <p className="text-xs text-white/50 mt-2">
+                  <p className="text-xs text-white/40 mt-2">
                     Includes unlimited inbound calls. Cancel anytime.
                   </p>
                 </div>
@@ -312,11 +319,11 @@ export default function GetNumberPage() {
 
               <div className="flex gap-4">
                 <Button variant="ghost" onClick={() => setStep(1)}>Back</Button>
-                <Button 
+                <Button
                   className="flex-1"
                   onClick={handlePurchase}
                   isLoading={isLoading}
-                  rightIcon={<Zap className="w-4 h-4" />}
+                  rightIcon={<SparklesIcon className="w-4 h-4" />}
                 >
                   Activate Number
                 </Button>

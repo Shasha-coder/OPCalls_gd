@@ -86,10 +86,12 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
     onComplete(formData)
   }
   
-  const inputClasses = "w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-200"
-  const selectClasses = "w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-white/20 focus:bg-white/[0.05] appearance-none cursor-pointer transition-all duration-200"
+  const inputClasses = "w-full px-4 py-3.5 bg-[#161616] border border-white/[0.08] rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-[#1a1a1a] transition-all duration-200"
+  const selectClasses = "w-full px-4 py-3.5 bg-[#161616] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-white/20 focus:bg-[#1a1a1a] appearance-none cursor-pointer transition-all duration-200 pr-10"
   const labelClasses = "block text-sm text-white/50 mb-2 font-medium"
   const errorInputClasses = "w-full px-4 py-3.5 bg-red-500/5 border border-red-500/30 rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-red-500/50 transition-all duration-200"
+  
+  const optionStyle = { background: '#1a1a1a', color: '#fff', padding: '12px' }
   
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -126,9 +128,9 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
             className={errors.industry ? errorInputClasses : selectClasses}
             style={{ colorScheme: 'dark' }}
           >
-            <option value="" style={{ background: '#111', color: 'rgba(255,255,255,0.5)' }}>Select your industry</option>
+            <option value="" style={{ ...optionStyle, color: 'rgba(255,255,255,0.4)' }}>Select your industry</option>
             {INDUSTRIES.map(ind => (
-              <option key={ind.value} value={ind.value} style={{ background: '#111', color: '#fff', padding: '12px' }}>{ind.label}</option>
+              <option key={ind.value} value={ind.value} style={optionStyle}>{ind.label}</option>
             ))}
           </select>
           <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -175,7 +177,7 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
             style={{ colorScheme: 'dark' }}
           >
             {TIMEZONES.map(tz => (
-              <option key={tz.value} value={tz.value} style={{ background: '#111', color: '#fff' }}>{tz.label}</option>
+              <option key={tz.value} value={tz.value} style={optionStyle}>{tz.label}</option>
             ))}
           </select>
           <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">

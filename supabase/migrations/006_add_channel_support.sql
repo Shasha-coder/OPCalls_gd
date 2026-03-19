@@ -10,9 +10,16 @@ EXCEPTION
   WHEN duplicate_object THEN null;
 END $$;
 
--- Add channel column to agents table (if not exists)
+-- Add channel column to agents table (if not exists) - for backwards compatibility
 DO $$ BEGIN
   ALTER TABLE agents ADD COLUMN channel agent_channel NOT NULL DEFAULT 'inbound';
+EXCEPTION
+  WHEN duplicate_column THEN null;
+END $$;
+
+-- Add capabilities array column (unified agent with all capabilities)
+DO $$ BEGIN
+  ALTER TABLE agents ADD COLUMN capabilities TEXT[] DEFAULT ARRAY['inbound', 'outbound', 'sms'];
 EXCEPTION
   WHEN duplicate_column THEN null;
 END $$;

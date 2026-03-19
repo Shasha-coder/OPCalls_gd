@@ -204,11 +204,17 @@ export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }
           </div>
         </div>
 
+        {/* Capabilities */}
+        <div className="flex items-center gap-1.5 mb-4">
+          <span className="px-2 py-1 rounded-full bg-lime-300/10 border border-lime-300/20 text-[10px] text-lime-300">Calls</span>
+          <span className="px-2 py-1 rounded-full bg-lime-300/10 border border-lime-300/20 text-[10px] text-lime-300">SMS</span>
+        </div>
+
         {/* Languages & Industry */}
         <div className="flex items-center justify-between pt-4 border-t border-white/5">
           <div className="flex items-center gap-2">
             {agent.languages?.slice(0, 3).map((lang) => (
-              <span key={lang} className="px-2 py-1 rounded-lg bg-white/5 text-xs text-white/60">
+              <span key={lang} className="px-2 py-1 rounded-full bg-white/5 text-xs text-white/60">
                 {lang.toUpperCase()}
               </span>
             ))}
@@ -217,7 +223,7 @@ export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }
             )}
           </div>
           <div className="flex items-center gap-2 text-xs text-white/40">
-            <Zap className="w-3.5 h-3.5 text-lime-200" />
+            <Zap className="w-3.5 h-3.5 text-lime-300" />
             <span className="capitalize">{agent.industry}</span>
           </div>
         </div>

@@ -10,7 +10,7 @@ import { cn, getInitials } from '@/lib/utils'
 import {
   HomeIcon, AgentIcon, PhoneIcon, CallHistoryIcon, AnalyticsIcon,
   SettingsIcon, SearchIcon, BellIcon, ChevronDownIcon, SignOutIcon,
-  MenuIcon, CloseIcon,
+  MenuIcon, CloseIcon, StarIcon,
 } from '@/components/ui/Icons'
 
 const navigation = [
@@ -19,6 +19,7 @@ const navigation = [
   { name: 'Phone Numbers', href: '/dashboard/phone',     Icon: PhoneIcon },
   { name: 'Call History',  href: '/dashboard/calls',     Icon: CallHistoryIcon },
   { name: 'Analytics',     href: '/dashboard/analytics', Icon: AnalyticsIcon },
+  { name: 'Pricing',       href: '/dashboard/pricing',   Icon: StarIcon },
   { name: 'Settings',      href: '/dashboard/settings',  Icon: SettingsIcon },
 ]
 

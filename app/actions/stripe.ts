@@ -1,15 +1,16 @@
 'use server'
 
 import { stripe } from '@/lib/stripe'
-import { PHONE_PRODUCTS, type PhoneProduct } from '@/lib/products'
+import { PLANS } from '@/lib/products'
 
-export async function startCheckoutSession(productId: string, metadata?: Record<string, string>) {
-  const product = PHONE_PRODUCTS.find((p) => p.id === productId)
-  if (!product) {
-    throw new Error(`Product with id "${productId}" not found`)
+// Kept for future use — allows creating embedded checkout sessions
+// if needed. Currently the app uses direct Stripe payment links.
+export async function startCheckoutSession(planId: string, metadata?: Record<string, string>) {
+  const plan = PLANS.find((p) => p.id === planId)
+  if (!plan) {
+    throw new Error(`Plan with id "${planId}" not found`)
   }
 
-  // Create Checkout Sessions from body params.
   const session = await stripe.checkout.sessions.create({
     ui_mode: 'embedded',
     redirect_on_completion: 'never',
@@ -18,18 +19,16 @@ export async function startCheckoutSession(productId: string, metadata?: Record<
         price_data: {
           currency: 'usd',
           product_data: {
-            name: product.name,
-            description: product.description,
+            name: plan.name,
+            description: `OPCalls ${plan.name} Plan`,
           },
-          unit_amount: product.priceInCents,
-          recurring: product.recurring ? {
-            interval: 'month',
-          } : undefined,
+          unit_amount: plan.monthlyPriceCents,
+          recurring: { interval: 'month' },
         },
         quantity: 1,
       },
     ],
-    mode: product.recurring ? 'subscription' : 'payment',
+    mode: 'subscription',
     metadata: metadata || {},
   })
 

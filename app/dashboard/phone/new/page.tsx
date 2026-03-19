@@ -1,374 +1,126 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { useAuthStore } from '@/store/auth'
-import { Button } from '@/components/ui/Button'
-import toast from 'react-hot-toast'
-import { 
-  PhoneIcon, SearchIcon, CheckIcon, ArrowLeftIcon, 
-  ArrowRightIcon, AgentIcon, LockIcon, ExternalLinkIcon
-} from '@/components/ui/Icons'
-import { PHONE_PRODUCTS, formatPrice, type PhoneProduct } from '@/lib/products'
+import { PLANS, formatPrice } from '@/lib/products'
+import { CheckIcon, ArrowRightIcon, ArrowLeftIcon, LockIcon, ExternalLinkIcon } from '@/components/ui/Icons'
 
-const generateMockNumbers = (areaCode: string, country: string, type: 'local' | 'toll-free') => {
-  const numbers = []
-  const count = type === 'toll-free' ? 4 : 6
-  
-  for (let i = 0; i < count; i++) {
-    const suffix = Math.floor(1000 + Math.random() * 9000)
-    const mid = Math.floor(100 + Math.random() * 900)
-    numbers.push({
-      id: `num-${i}-${Date.now()}`,
-      number: country === 'US' || country === 'CA' 
-        ? `+1 (${areaCode}) ${mid}-${suffix}`
-        : country === 'UK'
-        ? `+44 ${areaCode} ${mid} ${suffix}`
-        : `+61 ${areaCode} ${mid} ${suffix}`,
-      type,
-      capabilities: ['voice', 'sms'],
-    })
-  }
-  return numbers
-}
-
-const countries = [
-  { code: 'US', name: 'United States', prefix: '+1' },
-  { code: 'CA', name: 'Canada', prefix: '+1' },
-  { code: 'UK', name: 'United Kingdom', prefix: '+44' },
-]
-
-type Step = 'search' | 'select' | 'assign' | 'checkout' | 'success'
-
-export default function BuyPhoneNumberPage() {
+export default function GetNumberPage() {
   const router = useRouter()
-  const { profile, agents, refreshAgents } = useAuthStore()
-  
-  const [step, setStep] = useState<Step>('search')
-  const [country, setCountry] = useState('US')
-  const [numberType, setNumberType] = useState<'local' | 'toll-free'>('local')
-  const [areaCode, setAreaCode] = useState('')
-  const [availableNumbers, setAvailableNumbers] = useState<any[]>([])
-  const [selectedNumber, setSelectedNumber] = useState<any>(null)
-  const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-
-  useEffect(() => {
-    refreshAgents()
-  }, [])
-
-  const getProduct = (): PhoneProduct | undefined => {
-    return PHONE_PRODUCTS.find(p => p.country === country && p.type === numberType)
-  }
-
-  const handleSearch = () => {
-    if (!areaCode) {
-      toast.error('Please enter an area code')
-      return
-    }
-    
-    const numbers = generateMockNumbers(areaCode, country, numberType)
-    setAvailableNumbers(numbers)
-    setSelectedNumber(null)
-    setStep('select')
-  }
-
-  const handleSelectNumber = (number: any) => {
-    setSelectedNumber(number)
-    setStep('assign')
-  }
-
-  const handleProceedToCheckout = () => {
-    const product = getProduct()
-    if (!product?.stripeLink) {
-      toast.error('Payment link not available')
-      return
-    }
-
-    // Add metadata to Stripe link
-    const metadataParams = new URLSearchParams({
-      prefilled_email: profile?.email || '',
-      client_reference_id: profile?.id || '',
-      success_url: `${window.location.origin}/dashboard/phone?purchased=true`,
-    })
-
-    // Redirect to Stripe payment link
-    window.location.href = `${product.stripeLink}?${metadataParams.toString()}`
-  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-[#0a0a0a] border-b border-[#474b37] px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="p-2 hover:bg-[#262720] rounded-lg transition-colors"
-            >
-              <ArrowLeftIcon className="w-5 h-5 text-white/60" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Get a Phone Number</h1>
-              <p className="text-sm text-white/50">Step {step === 'search' ? '1' : step === 'select' ? '2' : step === 'assign' ? '3' : '4'} of 4</p>
-            </div>
+        <div className="max-w-5xl mx-auto flex items-center gap-3">
+          <button
+            onClick={() => router.back()}
+            className="p-2 hover:bg-[#262720] rounded-lg transition-colors"
+          >
+            <ArrowLeftIcon className="w-5 h-5 text-white/60" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-white">Get a Phone Number</h1>
+            <p className="text-sm text-white/50">Your dedicated number is included in every plan</p>
           </div>
-          <LockIcon className="w-5 h-5 text-[#e7f69e]" />
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* Step: Search */}
-        {step === 'search' && (
-          <div className="space-y-8">
-            <div className="bg-[#262720] border border-[#474b37] rounded-2xl p-8 space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-white mb-3">Country</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {countries.map(c => (
-                    <button
-                      key={c.code}
-                      onClick={() => setCountry(c.code)}
-                      className={`p-4 rounded-xl border transition-all ${
-                        country === c.code
-                          ? 'bg-[#1a1b18] border-[#e7f69e]'
-                          : 'bg-[#1a1b18] border-[#3a3d32] hover:border-[#474b37]'
-                      }`}
-                    >
-                      <div className="text-sm font-medium text-white">{c.name}</div>
-                      <div className="text-xs text-white/50">{c.prefix}</div>
-                    </button>
-                  ))}
+      <div className="max-w-5xl mx-auto px-6 py-12 space-y-8">
+        {/* Explanation banner */}
+        <div className="bg-[#262720] border border-[#474b37] rounded-2xl p-6 flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#1a1b18] border border-[#474b37] flex items-center justify-center flex-shrink-0">
+            <span className="text-[#e7f69e] text-lg font-bold">#</span>
+          </div>
+          <div>
+            <h2 className="text-white font-semibold mb-1">No separate number purchase needed</h2>
+            <p className="text-sm text-white/60 leading-relaxed">
+              Each plan includes one or more dedicated professional phone numbers. 
+              Pick a plan below — your number is provisioned automatically after payment.
+              Optionally, add our team's setup service to have everything configured for you.
+            </p>
+          </div>
+        </div>
+
+        {/* Plan Cards */}
+        <div className="grid md:grid-cols-3 gap-5">
+          {PLANS.map((plan) => (
+            <div
+              key={plan.id}
+              className={`relative flex flex-col rounded-2xl border transition-all ${
+                plan.badge
+                  ? 'bg-[#262720] border-[#e7f69e]'
+                  : 'bg-[#262720] border-[#474b37] hover:border-[#5c6147]'
+              }`}
+            >
+              {plan.badge && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="bg-[#e7f69e] text-[#1a1b18] text-xs font-semibold px-3 py-1 rounded-full">
+                    {plan.badge}
+                  </span>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <label className="block text-sm font-medium text-white mb-3">Number Type</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {(['local', 'toll-free'] as const).map(type => (
-                    <button
-                      key={type}
-                      onClick={() => setNumberType(type)}
-                      className={`p-4 rounded-xl border transition-all ${
-                        numberType === type
-                          ? 'bg-[#1a1b18] border-[#e7f69e]'
-                          : 'bg-[#1a1b18] border-[#3a3d32] hover:border-[#474b37]'
-                      }`}
-                    >
-                      <div className="text-sm font-medium text-white capitalize">{type} Number</div>
-                      <div className="text-xs text-white/50 mt-1">
-                        {type === 'local' ? 'Your area code' : 'No area code needed'}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-3">Area Code</label>
-                <input
-                  type="text"
-                  value={areaCode}
-                  onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                  placeholder="e.g., 212, 415, 917"
-                  className="w-full px-4 py-3 bg-[#1a1b18] border border-[#3a3d32] rounded-xl text-white placeholder-white/30 focus:border-[#e7f69e] focus:outline-none transition-colors"
-                />
-              </div>
-
-              <Button
-                onClick={handleSearch}
-                variant="secondary"
-                size="lg"
-                rightIcon={<ArrowRightIcon className="w-4 h-4" />}
-                className="w-full"
-              >
-                Search Numbers
-              </Button>
-            </div>
-
-            {/* Pricing info */}
-            <div className="bg-[#262720] border border-[#474b37] rounded-2xl p-6">
-              <div className="flex items-start gap-3">
-                <PhoneIcon className="w-5 h-5 text-[#e7f69e] flex-shrink-0 mt-1" />
+              <div className="p-6 flex flex-col flex-1 space-y-5">
                 <div>
-                  <h3 className="font-medium text-white mb-2">Pricing</h3>
-                  <p className="text-sm text-white/60">
-                    {`${numberType === 'local' ? 'Local' : 'Toll-free'} ${country} numbers: ${formatPrice((getProduct()?.priceInCents || 0))} per month`}
+                  <h3 className="text-lg font-semibold text-white mb-3">{plan.name}</h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-white">{formatPrice(plan.monthlyPriceCents)}</span>
+                    <span className="text-white/50 text-sm">/mo</span>
+                  </div>
+                  <p className="text-xs text-white/40 mt-1">
+                    {plan.numbers} number{plan.numbers > 1 ? 's' : ''} · {plan.minutes.toLocaleString()} min · {plan.sms.toLocaleString()} SMS
                   </p>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Step: Select Number */}
-        {step === 'select' && selectedNumber === null && (
-          <div className="space-y-6">
-            <button
-              onClick={() => setStep('search')}
-              className="flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors"
-            >
-              <ArrowLeftIcon className="w-4 h-4" />
-              Back to search
-            </button>
-
-            <div className="space-y-3">
-              {availableNumbers.map(number => (
-                <button
-                  key={number.id}
-                  onClick={() => handleSelectNumber(number)}
-                  className="w-full p-6 bg-[#262720] border border-[#3a3d32] rounded-xl hover:border-[#e7f69e] hover:bg-[#1a1b18] transition-all text-left group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <PhoneIcon className="w-5 h-5 text-[#e7f69e] group-hover:scale-110 transition-transform" />
-                      <div>
-                        <div className="text-lg font-medium text-white">{number.number}</div>
-                        <div className="text-xs text-white/50">Available now</div>
-                      </div>
-                    </div>
-                    <ArrowRightIcon className="w-5 h-5 text-white/30 group-hover:text-[#e7f69e] transition-colors" />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Step: Assign Agent */}
-        {step === 'assign' && selectedNumber && (
-          <div className="space-y-8">
-            <div className="bg-[#262720] border border-[#474b37] rounded-2xl p-8">
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-white mb-2">Selected Number</h2>
-                <div className="flex items-center gap-3 p-4 bg-[#1a1b18] border border-[#3a3d32] rounded-xl">
-                  <PhoneIcon className="w-5 h-5 text-[#e7f69e]" />
-                  <div className="text-lg font-medium text-white">{selectedNumber.number}</div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-3">Assign to Agent (Optional)</label>
-                <div className="space-y-3">
-                  <button
-                    onClick={() => setSelectedAgent(null)}
-                    className={`w-full p-4 rounded-xl border transition-all text-left ${
-                      selectedAgent === null
-                        ? 'bg-[#1a1b18] border-[#e7f69e]'
-                        : 'bg-[#1a1b18] border-[#3a3d32] hover:border-[#474b37]'
-                    }`}
-                  >
-                    <div className="text-sm font-medium text-white">Assign Later</div>
-                    <div className="text-xs text-white/50 mt-1">Configure after purchase</div>
-                  </button>
-
-                  {agents.map(agent => (
-                    <button
-                      key={agent.id}
-                      onClick={() => setSelectedAgent(agent.id)}
-                      className={`w-full p-4 rounded-xl border transition-all text-left ${
-                        selectedAgent === agent.id
-                          ? 'bg-[#1a1b18] border-[#e7f69e]'
-                          : 'bg-[#1a1b18] border-[#3a3d32] hover:border-[#474b37]'
-                      }`}
-                    >
-                      <div className="text-sm font-medium text-white">{agent.name}</div>
-                      <div className="text-xs text-white/50 mt-1">{agent.industry}</div>
-                    </button>
+                <ul className="space-y-2.5 flex-1">
+                  {plan.features.slice(0, 4).map((f, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <CheckIcon className="w-4 h-4 text-[#e7f69e] flex-shrink-0 mt-0.5" />
+                      <span className="text-xs text-white/60 leading-relaxed">{f}</span>
+                    </li>
                   ))}
-                </div>
-              </div>
-            </div>
+                </ul>
 
-            <Button
-              onClick={() => setStep('checkout')}
-              variant="secondary"
-              size="lg"
-              rightIcon={<ArrowRightIcon className="w-4 h-4" />}
-              className="w-full"
-            >
-              Continue to Payment
-            </Button>
-          </div>
-        )}
-
-        {/* Step: Checkout */}
-        {step === 'checkout' && selectedNumber && (
-          <div className="space-y-6">
-            <div className="bg-[#262720] border border-[#474b37] rounded-2xl p-8 space-y-6">
-              <h2 className="text-xl font-bold text-white">Order Summary</h2>
-
-              <div className="space-y-4 pb-6 border-b border-[#3a3d32]">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="text-white font-medium">{selectedNumber.number}</div>
-                    <div className="text-sm text-white/50 mt-1">{country} {numberType} number</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-white font-medium">{formatPrice((getProduct()?.priceInCents || 0) * 12)}</div>
-                    <div className="text-xs text-white/50 mt-1">per year</div>
-                  </div>
+                {/* Optional setup fee */}
+                <div className="rounded-xl border border-[#3a3d32] bg-[#1a1b18] p-3">
+                  <p className="text-xs text-white/50 mb-2">
+                    Need setup by our team?{' '}
+                    <a
+                      href={plan.setupFeeStripeLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#e7f69e] hover:underline"
+                    >
+                      Add setup — {formatPrice(plan.setupFeeCents)} one-time
+                    </a>
+                  </p>
+                  <p className="text-xs text-white/30">{plan.setupFeeDescription}</p>
                 </div>
 
-                {selectedAgent && agents.find(a => a.id === selectedAgent) && (
-                  <div className="flex justify-between items-start pt-4">
-                    <div>
-                      <div className="text-white font-medium flex items-center gap-2">
-                        <AgentIcon className="w-4 h-4 text-[#e7f69e]" />
-                        {agents.find(a => a.id === selectedAgent)?.name}
-                      </div>
-                      <div className="text-sm text-white/50 mt-1">Assigned agent</div>
-                    </div>
-                  </div>
-                )}
+                {/* CTA */}
+                <a
+                  href={plan.monthlyStripeLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-full font-medium text-sm border-2 transition-all ${
+                    plan.badge
+                      ? 'bg-[#e7f69e] border-[#e7f69e] text-[#1a1b18] hover:bg-[#d4e38c]'
+                      : 'bg-transparent border-[#474b37] text-[#e7f69e] hover:border-[#e7f69e]'
+                  }`}
+                >
+                  Subscribe & Get Number
+                  <ExternalLinkIcon className="w-3.5 h-3.5" />
+                </a>
               </div>
-
-              <div className="bg-[#1a1b18] rounded-xl p-4 flex items-start gap-3">
-                <LockIcon className="w-5 h-5 text-[#e7f69e] flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-white/70">
-                  You'll be securely redirected to Stripe to complete your payment. Your credit card information is never shared with us.
-                </div>
-              </div>
-
-              <Button
-                onClick={handleProceedToCheckout}
-                variant="secondary"
-                size="lg"
-                rightIcon={<ExternalLinkIcon className="w-4 h-4" />}
-                className="w-full"
-              >
-                Complete Payment on Stripe
-              </Button>
-
-              <button
-                onClick={() => setStep('assign')}
-                className="w-full py-3 text-white/60 hover:text-white transition-colors"
-              >
-                Back
-              </button>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
 
-        {/* Step: Success */}
-        {step === 'success' && (
-          <div className="text-center space-y-6">
-            <div className="w-16 h-16 bg-[#262720] border border-[#474b37] rounded-full flex items-center justify-center mx-auto">
-              <CheckIcon className="w-8 h-8 text-[#e7f69e]" />
-            </div>
-            <h2 className="text-2xl font-bold text-white">Payment Received!</h2>
-            <p className="text-white/60">Your phone number has been activated. Check your email for receipt and next steps.</p>
-            <Button
-              onClick={() => router.push('/dashboard/phone')}
-              variant="secondary"
-              size="lg"
-              className="mx-auto"
-            >
-              Back to Phone Numbers
-            </Button>
-          </div>
-        )}
+        {/* Security note */}
+        <div className="flex items-center justify-center gap-2 text-white/40 text-sm">
+          <LockIcon className="w-4 h-4" />
+          <span>Payments secured by Stripe. Cancel anytime.</span>
+        </div>
       </div>
     </div>
   )

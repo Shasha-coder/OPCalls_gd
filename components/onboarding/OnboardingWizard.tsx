@@ -25,6 +25,7 @@ export interface OnboardingData {
   businessInfo?: {
     name: string
     industry: string
+    industryOther?: string
     phone?: string
     address?: string
     website?: string

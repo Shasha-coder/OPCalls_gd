@@ -130,11 +130,11 @@ export function BusinessHoursStep({ data, onComplete, onBack, saving }: Props) {
                 <select
                   value={hours[day.key].open}
                   onChange={(e) => updateTime(day.key, 'open', e.target.value)}
-                  className="px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 transition-all duration-200"
+                  className="px-3 py-2 bg-[#1a1a1a] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 focus:bg-[#1e1e1e] transition-all duration-200"
                   style={{ colorScheme: 'dark' }}
                 >
                   {TIME_OPTIONS.map(t => (
-                    <option key={t.value} value={t.value} style={{ background: '#111', color: '#fff' }}>{t.label}</option>
+                    <option key={t.value} value={t.value} style={{ background: '#2a2a2a', color: '#fff' }}>{t.label}</option>
                   ))}
                 </select>
                 
@@ -143,11 +143,11 @@ export function BusinessHoursStep({ data, onComplete, onBack, saving }: Props) {
                 <select
                   value={hours[day.key].close}
                   onChange={(e) => updateTime(day.key, 'close', e.target.value)}
-                  className="px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 transition-all duration-200"
+                  className="px-3 py-2 bg-[#1a1a1a] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 focus:bg-[#1e1e1e] transition-all duration-200"
                   style={{ colorScheme: 'dark' }}
                 >
                   {TIME_OPTIONS.map(t => (
-                    <option key={t.value} value={t.value} style={{ background: '#111', color: '#fff' }}>{t.label}</option>
+                    <option key={t.value} value={t.value} style={{ background: '#2a2a2a', color: '#fff' }}>{t.label}</option>
                   ))}
                 </select>
                 

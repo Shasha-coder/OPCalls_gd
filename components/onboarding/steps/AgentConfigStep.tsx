@@ -110,8 +110,8 @@ export function AgentConfigStep({ data, businessName, industry, onComplete, onBa
           value={formData.name}
           onChange={(e) => handleChange('name', e.target.value)}
           placeholder="My AI Receptionist"
-          className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 ${
-            errors.name ? 'border-red-500/50' : 'border-white/10'
+          className={`w-full px-4 py-3.5 bg-[#1a1a1a] border rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-[#1e1e1e] transition-all duration-200 ${
+            errors.name ? 'border-red-500/30' : 'border-white/[0.08]'
           }`}
         />
         {errors.name && <p className="mt-1.5 text-sm text-red-400">{errors.name}</p>}
@@ -160,7 +160,7 @@ export function AgentConfigStep({ data, businessName, industry, onComplete, onBa
               onChange={(e) => handleChange('customInstructions', e.target.value)}
               placeholder="Add any specific instructions for your AI agent..."
               rows={4}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 resize-none"
+              className="w-full px-4 py-3.5 bg-[#1a1a1a] border border-white/[0.08] rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-[#1e1e1e] transition-all duration-200 resize-none"
             />
             <p className="mt-2 text-xs text-white/40">
               Examples: "Always ask for patient's date of birth", "Mention we offer free estimates"

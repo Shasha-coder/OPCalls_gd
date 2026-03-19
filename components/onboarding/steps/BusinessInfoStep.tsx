@@ -1,14 +1,12 @@
-/**
- * Business Info Step - Matching Landing Page Design
- */
-
 'use client'
 
 import { useState } from 'react'
+import { Dropdown } from '@/components/ui/Dropdown'
 
 interface BusinessInfoData {
   name: string
   industry: string
+  industryOther?: string
   phone?: string
   address?: string
   website?: string
@@ -34,7 +32,7 @@ const INDUSTRIES = [
   { value: 'fitness', label: 'Fitness / Gym' },
   { value: 'restaurant', label: 'Restaurant / Food Service' },
   { value: 'auto', label: 'Auto Services' },
-  { value: 'other', label: 'Other' },
+  { value: 'other', label: 'Other (Specify below)' },
 ]
 
 const TIMEZONES = [
@@ -47,10 +45,11 @@ const TIMEZONES = [
   { value: 'America/Anchorage', label: 'Alaska (AKT)' },
 ]
 
-export function BusinessInfoStep({ data, onComplete, saving }: Props) {
+export function BusinessInfoStep({ data, onComplete }: Props) {
   const [formData, setFormData] = useState<BusinessInfoData>({
     name: data?.name || '',
     industry: data?.industry || '',
+    industryOther: data?.industryOther || '',
     phone: data?.phone || '',
     address: data?.address || '',
     website: data?.website || '',
@@ -78,6 +77,10 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
       newErrors.industry = 'Please select an industry'
     }
     
+    if (formData.industry === 'other' && !formData.industryOther?.trim()) {
+      newErrors.industryOther = 'Please specify your industry'
+    }
+    
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
@@ -86,12 +89,9 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
     onComplete(formData)
   }
   
-  const inputClasses = "w-full px-4 py-3.5 bg-[#161616] border border-white/[0.08] rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-[#1a1a1a] transition-all duration-200"
-  const selectClasses = "w-full px-4 py-3.5 bg-[#161616] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-white/20 focus:bg-[#1a1a1a] appearance-none cursor-pointer transition-all duration-200 pr-10"
+  const inputClasses = "w-full px-4 py-3.5 bg-[#1a1a1a] border border-white/[0.08] rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-[#1e1e1e] transition-all duration-200"
   const labelClasses = "block text-sm text-white/50 mb-2 font-medium"
   const errorInputClasses = "w-full px-4 py-3.5 bg-red-500/5 border border-red-500/30 rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-red-500/50 transition-all duration-200"
-  
-  const optionStyle = { background: '#1a1a1a', color: '#fff', padding: '12px' }
   
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -119,28 +119,39 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
       {/* Industry */}
       <div>
         <label className={labelClasses}>
-          Industry <span className="text-red-400/80">*</span>
+          Industry <span className="text-red-400">*</span>
         </label>
-        <div className="relative">
-          <select
-            value={formData.industry}
-            onChange={(e) => handleChange('industry', e.target.value)}
-            className={errors.industry ? errorInputClasses : selectClasses}
-            style={{ colorScheme: 'dark' }}
-          >
-            <option value="" style={{ ...optionStyle, color: 'rgba(255,255,255,0.4)' }}>Select your industry</option>
-            {INDUSTRIES.map(ind => (
-              <option key={ind.value} value={ind.value} style={optionStyle}>{ind.label}</option>
-            ))}
-          </select>
-          <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
+        <Dropdown
+          value={formData.industry}
+          onChange={(value) => handleChange('industry', value)}
+          options={INDUSTRIES}
+          placeholder="Select your industry"
+          error={!!errors.industry}
+        />
         {errors.industry && (
           <p className="mt-1.5 text-sm text-red-400">{errors.industry}</p>
         )}
       </div>
+      
+      {/* Other Industry (shown when "Other" is selected) */}
+      {formData.industry === 'other' && (
+        <div className="animate-in slide-in-from-top-2 duration-200">
+          <label className={labelClasses}>
+            Specify Your Industry <span className="text-red-400">*</span>
+          </label>
+          <input
+            type="text"
+            value={formData.industryOther}
+            onChange={(e) => handleChange('industryOther', e.target.value)}
+            placeholder="e.g., Accounting, Consulting, etc."
+            className={errors.industryOther ? errorInputClasses : inputClasses}
+            autoFocus
+          />
+          {errors.industryOther && (
+            <p className="mt-1.5 text-sm text-red-400">{errors.industryOther}</p>
+          )}
+        </div>
+      )}
       
       {/* Phone */}
       <div>
@@ -169,21 +180,12 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
       {/* Timezone */}
       <div>
         <label className={labelClasses}>Timezone</label>
-        <div className="relative">
-          <select
-            value={formData.timezone}
-            onChange={(e) => handleChange('timezone', e.target.value)}
-            className={selectClasses}
-            style={{ colorScheme: 'dark' }}
-          >
-            {TIMEZONES.map(tz => (
-              <option key={tz.value} value={tz.value} style={optionStyle}>{tz.label}</option>
-            ))}
-          </select>
-          <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
+        <Dropdown
+          value={formData.timezone || 'America/New_York'}
+          onChange={(value) => handleChange('timezone', value)}
+          options={TIMEZONES}
+          placeholder="Select timezone"
+        />
       </div>
       
       {/* Submit */}

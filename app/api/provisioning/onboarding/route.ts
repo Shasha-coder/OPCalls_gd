@@ -17,40 +17,68 @@ import {
 // Auth Helper
 // ============================================================================
 
-async function getAuthenticatedOrg(request: NextRequest): Promise<{
+async function getAuthenticatedOrg(request: NextRequest, createIfMissing = false): Promise<{
   orgId: string | null
+  userId: string | null
   error?: string
 }> {
   const authHeader = request.headers.get('authorization')
   
   if (!authHeader?.startsWith('Bearer ')) {
-    return { orgId: null, error: 'Missing authorization' }
+    return { orgId: null, userId: null, error: 'Missing authorization' }
   }
   
   const token = authHeader.replace('Bearer ', '')
   
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
   
   const { data: { user }, error } = await supabase.auth.getUser(token)
   
   if (error || !user) {
-    return { orgId: null, error: 'Invalid token' }
+    return { orgId: null, userId: null, error: 'Invalid token' }
   }
   
   const { data: profile } = await supabase
     .from('profiles')
-    .select('org_id')
+    .select('org_id, first_name')
     .eq('id', user.id)
     .single()
   
   if (!profile?.org_id) {
-    return { orgId: null, error: 'No organization found' }
+    if (!createIfMissing) {
+      return { orgId: null, userId: user.id, error: 'No organization found' }
+    }
+    
+    // Create organization on-the-fly during provisioning
+    const orgName = profile?.first_name ? `${profile.first_name}'s Organization` : 'My Organization'
+    const { data: newOrg, error: orgError } = await supabase
+      .from('organizations')
+      .insert({
+        name: orgName,
+        subscription_tier: 'free',
+        onboarding_complete: false,
+        onboarding_step: 1,
+      })
+      .select()
+      .single()
+    
+    if (orgError || !newOrg) {
+      return { orgId: null, userId: user.id, error: 'Failed to create organization' }
+    }
+    
+    // Link user to organization
+    await supabase
+      .from('profiles')
+      .update({ org_id: newOrg.id })
+      .eq('id', user.id)
+    
+    return { orgId: newOrg.id, userId: user.id }
   }
   
-  return { orgId: profile.org_id }
+  return { orgId: profile.org_id, userId: user.id }
 }
 
 // ============================================================================
@@ -59,10 +87,10 @@ async function getAuthenticatedOrg(request: NextRequest): Promise<{
 
 export async function GET(request: NextRequest) {
   try {
-    const { orgId, error } = await getAuthenticatedOrg(request)
+    const { orgId, error } = await getAuthenticatedOrg(request, true)
     
     if (!orgId) {
-      return NextResponse.json({ error }, { status: 401 })
+      return NextResponse.json({ error: error || 'Authentication failed' }, { status: 401 })
     }
     
     const action = request.nextUrl.searchParams.get('action')
@@ -103,10 +131,10 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { orgId, error } = await getAuthenticatedOrg(request)
+    const { orgId, error } = await getAuthenticatedOrg(request, true)
     
     if (!orgId) {
-      return NextResponse.json({ error }, { status: 401 })
+      return NextResponse.json({ error: error || 'Authentication failed' }, { status: 401 })
     }
     
     const body = await request.json()
@@ -146,10 +174,10 @@ export async function PATCH(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { orgId, error } = await getAuthenticatedOrg(request)
+    const { orgId, error } = await getAuthenticatedOrg(request, true)
     
     if (!orgId) {
-      return NextResponse.json({ error }, { status: 401 })
+      return NextResponse.json({ error: error || 'Authentication failed' }, { status: 401 })
     }
     
     const body = await request.json()

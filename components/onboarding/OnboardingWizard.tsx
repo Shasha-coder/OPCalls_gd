@@ -25,6 +25,7 @@ export interface OnboardingData {
   businessInfo?: {
     name: string
     industry: string
+    industryOther?: string
     phone?: string
     address?: string
     website?: string
@@ -99,11 +100,27 @@ export function OnboardingWizard() {
     setCurrentStep(prev => Math.max(prev - 1, 1))
   }
   
+  const [provisioningError, setProvisioningError] = useState<string | null>(null)
+  const [isStarting, setIsStarting] = useState(false)
+  
   const handleStartProvisioning = async () => {
-    const newJobId = await startOnboardingProvisioning()
-    if (newJobId) {
-      setJobId(newJobId)
-      setCurrentStep(6)
+    setProvisioningError(null)
+    setIsStarting(true)
+    
+    try {
+      const newJobId = await startOnboardingProvisioning()
+      
+      if (newJobId) {
+        setJobId(newJobId)
+        setCurrentStep(6)
+      } else {
+        // If no jobId but also no error, go to dashboard
+        router.push('/dashboard?welcome=true')
+      }
+    } catch (err) {
+      setProvisioningError(err instanceof Error ? err.message : 'Failed to start setup')
+    } finally {
+      setIsStarting(false)
     }
   }
   
@@ -235,7 +252,8 @@ export function OnboardingWizard() {
               data={data}
               onConfirm={handleStartProvisioning}
               onBack={handleBack}
-              saving={onboardingSaving}
+              saving={isStarting}
+              error={provisioningError}
             />
           )}
           

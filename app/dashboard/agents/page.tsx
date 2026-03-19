@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { Plus, Search, Filter, Bot } from 'lucide-react'
 import gsap from 'gsap'
 import { useAuthStore } from '@/store/auth'
 import { AgentCard } from '@/components/dashboard/AgentCard'
@@ -10,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 import type { Agent } from '@/types/database'
+import { PlusIcon, SearchIcon, AgentIcon } from '@/components/ui/Icons'
 
 export default function AgentsPage() {
   const { agents, refreshAgents, profile } = useAuthStore()
@@ -82,7 +82,7 @@ export default function AgentsPage() {
           </p>
         </div>
         <Link href="/dashboard/agents/new">
-          <Button rightIcon={<Plus className="w-4 h-4" />}>
+          <Button rightIcon={<PlusIcon className="w-4 h-4" />}>
             Create Agent
           </Button>
         </Link>
@@ -91,13 +91,13 @@ export default function AgentsPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
           <input
             type="text"
             placeholder="Search agents..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
+            className="w-full pl-12 pr-4 py-3 bg-[#262720] border border-[#474b37] rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-[#e7f69e]"
           />
         </div>
         <div className="flex gap-2">
@@ -107,8 +107,8 @@ export default function AgentsPage() {
               onClick={() => setFilter(f)}
               className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 filter === f
-                  ? 'bg-white/10 text-white border border-white/30'
-                  : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10'
+                  ? 'bg-[#262720] text-[#e7f69e] border border-[#474b37]'
+                  : 'bg-[#262720] text-white/60 border border-[#3a3d32] hover:border-[#474b37]'
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -131,8 +131,10 @@ export default function AgentsPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 rounded-2xl p-12 text-center">
-          <Bot className="w-16 h-16 text-white/20 mx-auto mb-4" />
+        <div className="bg-[#262720] border border-[#474b37] rounded-2xl p-12 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-[#1a1b18] border border-[#3a3d32] flex items-center justify-center mx-auto mb-4">
+            <AgentIcon className="w-8 h-8 text-[#e7f69e]" />
+          </div>
           <h3 className="text-lg font-display font-semibold text-white mb-2">
             {searchQuery || filter !== 'all' ? 'No agents found' : 'No agents yet'}
           </h3>
@@ -143,7 +145,7 @@ export default function AgentsPage() {
           </p>
           {!searchQuery && filter === 'all' && (
             <Link href="/dashboard/agents/new">
-              <Button rightIcon={<Plus className="w-4 h-4" />}>
+              <Button rightIcon={<PlusIcon className="w-4 h-4" />}>
                 Create Agent
               </Button>
             </Link>

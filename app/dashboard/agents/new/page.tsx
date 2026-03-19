@@ -18,9 +18,18 @@ const voiceOptions = [
   { id: 'calm',         name: 'Calm',         description: 'Soothing and reassuring',  Icon: VoiceCalmIcon },
 ]
 
+// Industry options must match the database enum: 'hvac', 'dental', 'medspa', 'legal', 'realty', 'plumbing', 'electrical', 'clinic', 'salon', 'other'
 const industryOptions = [
-  'Healthcare', 'Real Estate', 'Legal', 'Home Services', 
-  'Automotive', 'Hospitality', 'Retail', 'Other'
+  { label: 'HVAC Services', value: 'hvac' },
+  { label: 'Dental Practice', value: 'dental' },
+  { label: 'Medical Spa', value: 'medspa' },
+  { label: 'Legal Services', value: 'legal' },
+  { label: 'Real Estate', value: 'realty' },
+  { label: 'Plumbing Services', value: 'plumbing' },
+  { label: 'Electrical Services', value: 'electrical' },
+  { label: 'Medical Clinic', value: 'clinic' },
+  { label: 'Salon & Spa', value: 'salon' },
+  { label: 'Other', value: 'other' },
 ]
 
 const languageOptions = [
@@ -82,7 +91,7 @@ export default function NewAgentPage() {
             owner_id: user.id,
             name: `${formData.name}'s Organization`,
             email: user.email || '',
-            industry: formData.industry.toLowerCase() || 'other',
+            industry: formData.industry || 'other', // Already lowercase from industryOptions
           })
           .select()
           .single()
@@ -112,7 +121,7 @@ export default function NewAgentPage() {
           org_id: orgId,
           name: formData.name,
           type: formData.agentType,
-          industry: formData.industry.toLowerCase() || 'other',
+          industry: formData.industry || 'other', // Already lowercase from industryOptions
           retell_agent_id: tempRetellId,
           primary_language: formData.primaryLanguage,
           languages: formData.languages,
@@ -231,16 +240,16 @@ export default function NewAgentPage() {
             <div className="grid grid-cols-2 gap-3">
               {industryOptions.map((industry) => (
                 <button
-                  key={industry}
-                  onClick={() => setFormData({ ...formData, industry })}
+                  key={industry.value}
+                  onClick={() => setFormData({ ...formData, industry: industry.value })}
                   className={`p-4 rounded-xl border text-left transition-all ${
-                    formData.industry === industry
+                    formData.industry === industry.value
                       ? 'bg-[#262720] border-[#474b37]'
                       : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
                   }`}
                 >
-                  <span className={formData.industry === industry ? 'text-[#e7f69e]' : 'text-white/60'}>
-                    {industry}
+                  <span className={formData.industry === industry.value ? 'text-[#e7f69e]' : 'text-white/60'}>
+                    {industry.label}
                   </span>
                 </button>
               ))}

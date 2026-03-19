@@ -5,16 +5,20 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/Button'
+import Checkout from '@/components/checkout'
 import toast from 'react-hot-toast'
 import { 
   PhoneIcon, SearchIcon, CheckIcon, ArrowLeftIcon, 
-  ArrowRightIcon, AgentIcon 
+  ArrowRightIcon, AgentIcon, LockIcon
 } from '@/components/ui/Icons'
+import { getProductByCountryAndType, formatPrice, type PhoneProduct } from '@/lib/products'
 
 // Mock available numbers - in production this would come from Twilio/Vonage API
-const generateMockNumbers = (areaCode: string, country: string) => {
+const generateMockNumbers = (areaCode: string, country: string, type: 'local' | 'toll-free') => {
   const numbers = []
-  for (let i = 0; i < 8; i++) {
+  const count = type === 'toll-free' ? 4 : 6
+  
+  for (let i = 0; i < count; i++) {
     const suffix = Math.floor(1000 + Math.random() * 9000)
     const mid = Math.floor(100 + Math.random() * 900)
     numbers.push({
@@ -24,8 +28,7 @@ const generateMockNumbers = (areaCode: string, country: string) => {
         : country === 'UK'
         ? `+44 ${areaCode} ${mid} ${suffix}`
         : `+61 ${areaCode} ${mid} ${suffix}`,
-      type: i % 3 === 0 ? 'toll-free' : 'local',
-      monthlyRate: i % 3 === 0 ? 15.00 : 5.00,
+      type,
       capabilities: ['voice', 'sms'],
     })
   }
@@ -33,17 +36,16 @@ const generateMockNumbers = (areaCode: string, country: string) => {
 }
 
 const countries = [
-  { code: 'US', name: 'United States', flag: '🇺🇸', prefix: '+1' },
-  { code: 'CA', name: 'Canada', flag: '🇨🇦', prefix: '+1' },
-  { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', prefix: '+44' },
-  { code: 'AU', name: 'Australia', flag: '🇦🇺', prefix: '+61' },
+  { code: 'US', name: 'United States', flag: 'US', prefix: '+1' },
+  { code: 'CA', name: 'Canada', flag: 'CA', prefix: '+1' },
+  { code: 'UK', name: 'United Kingdom', flag: 'UK', prefix: '+44' },
 ]
 
-type Step = 'search' | 'select' | 'assign' | 'confirm' | 'success'
+type Step = 'search' | 'select' | 'assign' | 'payment' | 'success'
 
 export default function BuyPhoneNumberPage() {
   const router = useRouter()
-  const { profile, agents } = useAuthStore()
+  const { profile, agents, refreshAgents } = useAuthStore()
   
   const [step, setStep] = useState<Step>('search')
   const [country, setCountry] = useState('US')
@@ -53,8 +55,18 @@ export default function BuyPhoneNumberPage() {
   const [selectedNumber, setSelectedNumber] = useState<any>(null)
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
   const [isSearching, setIsSearching] = useState(false)
-  const [isPurchasing, setIsPurchasing] = useState(false)
-  const [purchasedNumber, setPurchasedNumber] = useState<any>(null)
+  const [product, setProduct] = useState<PhoneProduct | null>(null)
+
+  // Get the product based on country and type
+  useEffect(() => {
+    const p = getProductByCountryAndType(country, numberType)
+    setProduct(p || null)
+  }, [country, numberType])
+
+  // Refresh agents on mount
+  useEffect(() => {
+    refreshAgents()
+  }, [])
 
   const searchNumbers = async () => {
     if (!areaCode || areaCode.length < 3) {
@@ -63,13 +75,11 @@ export default function BuyPhoneNumberPage() {
     }
     
     setIsSearching(true)
-    // Simulate API delay
+    // Simulate API delay - in production this calls Twilio/Vonage API
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    const numbers = generateMockNumbers(areaCode, country)
-    setAvailableNumbers(numbers.filter(n => 
-      numberType === 'toll-free' ? n.type === 'toll-free' : n.type === 'local'
-    ))
+    const numbers = generateMockNumbers(areaCode, country, numberType)
+    setAvailableNumbers(numbers)
     setIsSearching(false)
     setStep('select')
   }
@@ -81,28 +91,25 @@ export default function BuyPhoneNumberPage() {
 
   const handleAssignAgent = (agentId: string | null) => {
     setSelectedAgent(agentId)
-    setStep('confirm')
+    setStep('payment')
   }
 
-  const handlePurchase = async () => {
-    setIsPurchasing(true)
+  const handlePaymentComplete = async () => {
+    // After successful payment, save the phone number to database
     const supabase = createClient()
-
+    
     try {
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        toast.error('Please sign in first')
+        toast.error('Session expired. Please sign in again.')
         router.push('/auth/login')
-        setIsPurchasing(false)
         return
       }
 
-      // Get or create organization
       let orgId = profile?.org_id
       
+      // Create organization if needed
       if (!orgId) {
-        // Create organization with all required fields
         const { data: newOrg, error: orgError } = await supabase
           .from('organizations')
           .insert({
@@ -115,13 +122,10 @@ export default function BuyPhoneNumberPage() {
           .single()
 
         if (orgError || !newOrg) {
-          console.error('[v0] Org creation error:', orgError)
-          toast.error('Failed to setup organization: ' + (orgError?.message || 'Unknown error'))
-          setIsPurchasing(false)
+          toast.error('Failed to setup organization')
           return
         }
 
-        // Link to profile
         await supabase
           .from('profiles')
           .update({ org_id: newOrg.id })
@@ -130,45 +134,36 @@ export default function BuyPhoneNumberPage() {
         orgId = newOrg.id
       }
 
-      // Insert phone number with proper schema fields
-      const { data, error } = await supabase
+      // Insert phone number record
+      const { error } = await supabase
         .from('phone_numbers')
         .insert({
           org_id: orgId,
-          retell_phone_number: selectedNumber.number.replace(/\D/g, ''), // E.164 format
+          retell_phone_number: selectedNumber.number.replace(/\D/g, ''),
           pretty_number: selectedNumber.number,
           area_code: parseInt(areaCode) || null,
           country: country,
           agent_id: selectedAgent,
           is_active: true,
         })
-        .select()
-        .single()
 
       if (error) {
-        console.error('[v0] Phone insert error:', error)
-        toast.error('Failed to purchase number: ' + error.message)
-        setIsPurchasing(false)
+        toast.error('Failed to save phone number')
         return
       }
 
-      // Success!
-      setPurchasedNumber(data)
       setStep('success')
       toast.success('Phone number purchased successfully!')
       
-    } catch (err: any) {
-      console.error('[v0] Unexpected error:', err)
-      toast.error('An error occurred: ' + (err?.message || 'Please try again'))
+    } catch (err) {
+      toast.error('An error occurred')
     }
-    
-    setIsPurchasing(false)
   }
 
   const goBack = () => {
     if (step === 'select') setStep('search')
     else if (step === 'assign') setStep('select')
-    else if (step === 'confirm') setStep('assign')
+    else if (step === 'payment') setStep('assign')
   }
 
   return (
@@ -189,7 +184,7 @@ export default function BuyPhoneNumberPage() {
           {step === 'search' && 'Search for available phone numbers in your area'}
           {step === 'select' && 'Choose a number from the available options'}
           {step === 'assign' && 'Assign this number to an AI agent (optional)'}
-          {step === 'confirm' && 'Review and confirm your purchase'}
+          {step === 'payment' && 'Complete your purchase securely with Stripe'}
           {step === 'success' && 'Your new phone number is ready to use'}
         </p>
       </div>
@@ -197,8 +192,8 @@ export default function BuyPhoneNumberPage() {
       {/* Progress Steps */}
       {step !== 'success' && (
         <div className="flex items-center gap-2 mb-8">
-          {['Search', 'Select', 'Assign', 'Confirm'].map((s, i) => {
-            const stepMap: Record<string, number> = { search: 0, select: 1, assign: 2, confirm: 3 }
+          {['Search', 'Select', 'Assign', 'Payment'].map((s, i) => {
+            const stepMap: Record<string, number> = { search: 0, select: 1, assign: 2, payment: 3 }
             const currentIndex = stepMap[step]
             const isActive = i <= currentIndex
             const isCurrent = i === currentIndex
@@ -231,18 +226,18 @@ export default function BuyPhoneNumberPage() {
             {/* Country Selection */}
             <div>
               <label className="block text-sm font-medium text-white/70 mb-3">Country</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 {countries.map((c) => (
                   <button
                     key={c.code}
                     onClick={() => setCountry(c.code)}
-                    className={`p-4 rounded-xl border text-left transition-all ${
+                    className={`p-4 rounded-xl border text-center transition-all ${
                       country === c.code
                         ? 'bg-[#1a1b18] border-[#e7f69e] text-white'
                         : 'bg-[#1a1b18] border-[#3a3d32] text-white/70 hover:border-[#474b37]'
                     }`}
                   >
-                    <span className="text-2xl mb-2 block">{c.flag}</span>
+                    <span className="text-lg font-bold mb-1 block">{c.flag}</span>
                     <span className="text-sm font-medium block">{c.name}</span>
                     <span className="text-xs text-white/40">{c.prefix}</span>
                   </button>
@@ -263,7 +258,9 @@ export default function BuyPhoneNumberPage() {
                   }`}
                 >
                   <span className="font-medium block mb-1">Local Number</span>
-                  <span className="text-xs text-white/40">$5/month - Best for local presence</span>
+                  <span className="text-xs text-white/40">
+                    {formatPrice(getProductByCountryAndType(country, 'local')?.priceInCents || 500)}/month
+                  </span>
                 </button>
                 <button
                   onClick={() => setNumberType('toll-free')}
@@ -274,7 +271,9 @@ export default function BuyPhoneNumberPage() {
                   }`}
                 >
                   <span className="font-medium block mb-1">Toll-Free Number</span>
-                  <span className="text-xs text-white/40">$15/month - Free calls for customers</span>
+                  <span className="text-xs text-white/40">
+                    {formatPrice(getProductByCountryAndType(country, 'toll-free')?.priceInCents || 1500)}/month
+                  </span>
                 </button>
               </div>
             </div>
@@ -332,7 +331,9 @@ export default function BuyPhoneNumberPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-[#e7f69e] font-medium block">${num.monthlyRate}/mo</span>
+                    <span className="text-[#e7f69e] font-medium block">
+                      {product ? formatPrice(product.priceInCents) : '$5.00'}/mo
+                    </span>
                     <span className="text-white/40 text-xs">Voice + SMS</span>
                   </div>
                 </button>
@@ -348,6 +349,9 @@ export default function BuyPhoneNumberPage() {
               <div className="flex items-center gap-3">
                 <PhoneIcon className="w-5 h-5 text-[#e7f69e]" />
                 <span className="text-white font-mono">{selectedNumber?.number}</span>
+                <span className="ml-auto text-[#e7f69e] font-medium">
+                  {product ? formatPrice(product.priceInCents) : '$5.00'}/mo
+                </span>
               </div>
             </div>
 
@@ -356,7 +360,7 @@ export default function BuyPhoneNumberPage() {
                 Assign to Agent (Optional)
               </label>
               <p className="text-sm text-white/40 mb-4">
-                You can assign this number to an AI agent now, or do it later from the phone numbers page.
+                You can assign this number to an AI agent now, or do it later.
               </p>
               
               <div className="space-y-3">
@@ -402,62 +406,55 @@ export default function BuyPhoneNumberPage() {
                 )}
               </div>
             </div>
-
-            <Button
-              onClick={() => handleAssignAgent(selectedAgent)}
-              className="w-full"
-              rightIcon={<ArrowRightIcon className="w-4 h-4" />}
-            >
-              Continue to Review
-            </Button>
           </div>
         )}
 
-        {/* CONFIRM STEP */}
-        {step === 'confirm' && (
+        {/* PAYMENT STEP - Real Stripe Checkout */}
+        {step === 'payment' && product && (
           <div className="space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-display font-semibold text-white">Order Summary</h3>
-              
-              <div className="p-4 rounded-xl bg-[#1a1b18] border border-[#3a3d32] space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-white/50">Phone Number</span>
-                  <span className="text-white font-mono">{selectedNumber?.number}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/50">Type</span>
-                  <span className="text-white capitalize">{selectedNumber?.type}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/50">Assigned Agent</span>
-                  <span className="text-white">
-                    {selectedAgent 
-                      ? agents.find(a => a.id === selectedAgent)?.name 
-                      : 'To be assigned later'}
-                  </span>
-                </div>
-                <div className="border-t border-[#3a3d32] my-3" />
-                <div className="flex justify-between">
-                  <span className="text-white/50">Monthly Cost</span>
-                  <span className="text-[#e7f69e] font-semibold">${selectedNumber?.monthlyRate}/month</span>
-                </div>
+            {/* Order Summary */}
+            <div className="p-4 rounded-xl bg-[#1a1b18] border border-[#3a3d32] space-y-3 mb-6">
+              <h3 className="text-white font-medium mb-4">Order Summary</h3>
+              <div className="flex justify-between">
+                <span className="text-white/50">Phone Number</span>
+                <span className="text-white font-mono">{selectedNumber?.number}</span>
               </div>
-
-              <div className="p-4 rounded-xl bg-[#e7f69e]/10 border border-[#e7f69e]/20">
-                <p className="text-[#e7f69e] text-sm">
-                  A confirmation email with your receipt will be sent to your registered email address.
-                </p>
+              <div className="flex justify-between">
+                <span className="text-white/50">Type</span>
+                <span className="text-white capitalize">{product.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/50">Assigned Agent</span>
+                <span className="text-white">
+                  {selectedAgent 
+                    ? agents.find(a => a.id === selectedAgent)?.name 
+                    : 'To be assigned later'}
+                </span>
+              </div>
+              <div className="border-t border-[#3a3d32] my-3" />
+              <div className="flex justify-between">
+                <span className="text-white font-medium">Monthly Subscription</span>
+                <span className="text-[#e7f69e] font-semibold">{formatPrice(product.priceInCents)}/month</span>
               </div>
             </div>
 
-            <Button
-              onClick={handlePurchase}
-              isLoading={isPurchasing}
-              className="w-full"
-              variant="secondary"
-            >
-              Confirm Purchase
-            </Button>
+            {/* Security Badge */}
+            <div className="flex items-center justify-center gap-2 text-white/40 text-sm mb-4">
+              <LockIcon className="w-4 h-4" />
+              <span>Secured by Stripe</span>
+            </div>
+
+            {/* Stripe Embedded Checkout */}
+            <Checkout 
+              productId={product.id}
+              metadata={{
+                phone_number: selectedNumber?.number || '',
+                country: country,
+                number_type: numberType,
+                agent_id: selectedAgent || '',
+              }}
+              onComplete={handlePaymentComplete}
+            />
           </div>
         )}
 
@@ -488,20 +485,18 @@ export default function BuyPhoneNumberPage() {
 
             <div className="flex gap-3">
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => router.push('/dashboard/phone')}
                 className="flex-1"
               >
                 View All Numbers
               </Button>
-              {!selectedAgent && (
-                <Button
-                  onClick={() => router.push('/dashboard/agents')}
-                  className="flex-1"
-                >
-                  Assign an Agent
-                </Button>
-              )}
+              <Button
+                onClick={() => router.push('/dashboard/agents')}
+                className="flex-1"
+              >
+                Manage Agents
+              </Button>
             </div>
           </div>
         )}

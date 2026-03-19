@@ -19,6 +19,7 @@ export default function AgentsPage() {
   const headerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    console.log('[v0] AgentsPage mounted, agents in store:', agents.length)
     const ctx = gsap.context(() => {
       gsap.fromTo(
         headerRef.current,
@@ -27,6 +28,11 @@ export default function AgentsPage() {
       )
     })
     return () => ctx.revert()
+  }, [])
+
+  useEffect(() => {
+    console.log('[v0] Refreshing agents on page load/focus')
+    refreshAgents()
   }, [])
 
   const handleToggleStatus = async (agent: Agent) => {

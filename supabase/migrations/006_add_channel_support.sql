@@ -51,6 +51,7 @@ CREATE INDEX IF NOT EXISTS idx_sms_messages_created ON sms_messages(created_at D
 -- RLS for sms_messages
 ALTER TABLE sms_messages ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can view their org's SMS messages"
+DROP POLICY IF EXISTS "Users can view their org's SMS messages" ON sms_messages;
+CREATE POLICY "Users can view their org's SMS messages"
   ON sms_messages FOR SELECT
   USING (org_id IN (SELECT org_id FROM profiles WHERE id = auth.uid()));

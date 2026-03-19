@@ -40,7 +40,6 @@ export default function NewAgentPage() {
   
   const [formData, setFormData] = useState({
     name: '',
-    channel: 'inbound' as 'inbound' | 'outbound' | 'sms',
     agentType: 'receptionist' as 'receptionist' | 'booking' | 'followup' | 'support' | 'afterhours' | 'missed_call',
     industry: '',
     voice: 'professional',
@@ -74,7 +73,8 @@ export default function NewAgentPage() {
         org_id: profile.org_id,
         name: formData.name,
         type: formData.agentType,
-        channel: formData.channel,
+        // Unified agent: supports all channels (inbound, outbound, sms)
+        capabilities: ['inbound', 'outbound', 'sms'],
         industry: formData.industry.toLowerCase(),
         primary_language: formData.primaryLanguage,
         languages: formData.languages,
@@ -150,38 +150,20 @@ export default function NewAgentPage() {
               leftIcon={<Phone className="w-5 h-5" />}
             />
 
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-3">
-                Communication Channel
-              </label>
-              <div className="grid grid-cols-3 gap-3">
-                {['inbound', 'outbound', 'sms'].map((ch) => (
-                  <button
-                    key={ch}
-                    onClick={() => setFormData({ ...formData, channel: ch as any })}
-                    className={`p-4 rounded-xl border text-center transition-all ${
-                      formData.channel === ch
-                        ? 'bg-white/10 border-white/30'
-                        : 'bg-white/5 border-white/10 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className="text-lg mb-1">
-                      {ch === 'inbound' && '📞'}
-                      {ch === 'outbound' && '☎️'}
-                      {ch === 'sms' && '💬'}
-                    </div>
-                    <div className={`text-sm font-medium capitalize ${
-                      formData.channel === ch ? 'text-white' : 'text-white/60'
-                    }`}>
-                      {ch}
-                    </div>
-                    <div className="text-xs text-white/50 mt-0.5">
-                      {ch === 'inbound' && 'Receive calls'}
-                      {ch === 'outbound' && 'Make calls'}
-                      {ch === 'sms' && 'Handle SMS'}
-                    </div>
-                  </button>
-                ))}
+            {/* Capabilities badge - unified agent */}
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+              <p className="text-sm text-white/60 mb-3">Your agent will be able to:</p>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-300/10 border border-lime-300/30 text-lime-300 text-xs font-medium">
+                  <Phone className="w-3 h-3" /> Receive Calls
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-300/10 border border-lime-300/30 text-lime-300 text-xs font-medium">
+                  <Phone className="w-3 h-3" /> Make Calls
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-300/10 border border-lime-300/30 text-lime-300 text-xs font-medium">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                  Handle SMS
+                </span>
               </div>
             </div>
           </div>

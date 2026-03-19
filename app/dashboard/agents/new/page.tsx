@@ -120,7 +120,7 @@ export default function NewAgentPage() {
           <div
             key={s}
             className={`h-1.5 flex-1 rounded-full transition-all ${
-              s <= step ? 'bg-white/40' : 'bg-white/10'
+              s <= step ? 'bg-[#e7f69e]' : 'bg-white/10'
             }`}
           />
         ))}
@@ -131,9 +131,9 @@ export default function NewAgentPage() {
         {step === 0 && (
           <div className="space-y-8">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
-                <SparklesIcon />
-                <span className="text-sm text-white/60 font-medium">Step 1 of 4</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#262720] border border-[#474b37] mb-4">
+                <MicIcon className="w-4 h-4 text-[#e7f69e]" />
+                <span className="text-sm text-[#e7f69e] font-medium">Step 3 of 4</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
                 Let's name your agent
@@ -155,13 +155,13 @@ export default function NewAgentPage() {
             <div className="p-4 rounded-xl bg-white/5 border border-white/10">
               <p className="text-sm text-white/60 mb-3">Your agent will be able to:</p>
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-300/10 border border-lime-300/30 text-lime-300 text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#262720] border border-[#474b37] text-[#e7f69e] text-xs font-medium">
                   <PhoneInboundIcon className="w-3 h-3" /> Receive Calls
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-300/10 border border-lime-300/30 text-lime-300 text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#262720] border border-[#474b37] text-[#e7f69e] text-xs font-medium">
                   <PhoneOutboundIcon className="w-3 h-3" /> Make Calls
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-300/10 border border-lime-300/30 text-lime-300 text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#262720] border border-[#474b37] text-[#e7f69e] text-xs font-medium">
                   <SmsIcon className="w-3 h-3" /> Handle SMS
                 </span>
               </div>
@@ -192,11 +192,11 @@ export default function NewAgentPage() {
                   onClick={() => setFormData({ ...formData, industry })}
                   className={`p-4 rounded-xl border text-left transition-all ${
                     formData.industry === industry
-                      ? 'bg-white/10 border-white/30'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      ? 'bg-[#262720] border-[#474b37]'
+                      : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
                   }`}
                 >
-                  <span className={formData.industry === industry ? 'text-white' : 'text-white/60'}>
+                  <span className={formData.industry === industry ? 'text-[#e7f69e]' : 'text-white/60'}>
                     {industry}
                   </span>
                 </button>
@@ -228,11 +228,11 @@ export default function NewAgentPage() {
                   onClick={() => setFormData({ ...formData, voice: voice.id })}
                   className={`p-6 rounded-2xl border text-center transition-all ${
                     formData.voice === voice.id
-                      ? 'bg-white/10 border-white/30 scale-105'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      ? 'bg-[#262720] border-[#474b37] scale-105'
+                      : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
                   }`}
                 >
-                  <div className={`flex justify-center mb-3 ${formData.voice === voice.id ? 'text-lime-300' : 'text-white/40'}`}>
+                  <div className={`flex justify-center mb-3 ${formData.voice === voice.id ? 'text-[#e7f69e]' : 'text-white/40'}`}>
                     <voice.Icon className="w-7 h-7" />
                   </div>
                   <span className={`font-medium block mb-1 ${
@@ -251,9 +251,9 @@ export default function NewAgentPage() {
         {step === 3 && (
           <div className="space-y-8">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
-                <GlobeIcon />
-                <span className="text-sm text-white/60 font-medium">Final Step</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#262720] border border-[#474b37] mb-4">
+                <GlobeIcon className="w-4 h-4 text-[#e7f69e]" />
+                <span className="text-sm text-[#e7f69e] font-medium">Final Step</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
                 Select languages
@@ -279,15 +279,15 @@ export default function NewAgentPage() {
                   }}
                   className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between ${
                     formData.languages.includes(lang.code)
-                      ? 'bg-white/10 border-white/30'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      ? 'bg-[#262720] border-[#474b37]'
+                      : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
                   }`}
                 >
-                  <span className={formData.languages.includes(lang.code) ? 'text-white' : 'text-white/60'}>
+                  <span className={formData.languages.includes(lang.code) ? 'text-[#e7f69e]' : 'text-white/60'}>
                     {lang.name}
                   </span>
                   {formData.languages.includes(lang.code) && (
-                    <CheckIcon className="w-5 h-5 text-white" />
+                    <CheckIcon className="w-5 h-5 text-[#e7f69e]" />
                   )}
                 </button>
               ))}

@@ -53,12 +53,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Sidebar */}
       <aside className={cn(
-        'fixed inset-y-0 left-0 z-50 w-64 glass-card border-r border-white/10 transform transition-transform duration-200 ease-out lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-50 w-64 glass-card border-r border-[#474b37] transform transition-transform duration-200 ease-out lg:translate-x-0',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-between px-5 h-16 border-b border-white/10">
+          <div className="flex items-center justify-between px-5 h-16 border-b border-[#474b37]">
             <Link href="/dashboard" className="flex items-center gap-2.5">
               <Image
                 src="/favicon.png"
@@ -78,8 +78,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Organization */}
-          <div className="px-4 py-3 border-b border-white/10">
-            <button className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+          <div className="px-4 py-3 border-b border-[#474b37]">
+            <button className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-[#262720] hover:bg-[#2d3127] transition-colors border border-[#474b37]">
               <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
                 <span className="text-sm font-semibold text-white">
                   {organization?.name?.[0] || 'O'}
@@ -108,8 +108,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-white text-gray-900'
-                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                      ? 'bg-[#e7f69e] text-[#262720]'
+                      : 'text-white/60 hover:text-white hover:bg-[#262720]'
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -121,8 +121,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </nav>
 
           {/* User menu */}
-          <div className="p-3 border-t border-white/10">
-            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5">
+          <div className="p-3 border-t border-[#474b37]">
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[#262720] border border-[#474b37]">
               <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
                 <span className="text-sm font-semibold text-white">
                   {profile ? getInitials(`${profile.first_name || ''} ${profile.last_name || ''}`) : 'U'}
@@ -151,7 +151,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-6 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/10">
+        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-6 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-[#474b37]">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -161,7 +161,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
 
             {/* Search */}
-            <div className="hidden sm:flex items-center gap-2.5 px-4 py-2 bg-white/5 rounded-xl border border-white/10 w-64 lg:w-80">
+            <div className="hidden sm:flex items-center gap-2.5 px-4 py-2 bg-[#262720] rounded-xl border border-[#474b37] w-64 lg:w-80">
               <SearchIcon className="w-4 h-4 text-white/40" />
               <input
                 type="text"
@@ -179,7 +179,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <ThemeToggleButton />
 
             {/* Notifications */}
-            <button className="relative p-2 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+            <button className="relative p-2 rounded-xl bg-[#262720] text-[#e7f69e] hover:bg-[#2d3127] hover:border-[#474b37] border border-[#474b37] transition-colors">
               <BellIcon />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
             </button>

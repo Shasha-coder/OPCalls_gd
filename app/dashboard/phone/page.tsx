@@ -110,9 +110,9 @@ export default function GetNumberPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1a1a1a] border border-lime-300/30 mb-4">
-            <PhoneIcon className="w-4 h-4 text-lime-300" />
-            <span className="text-sm text-lime-300 font-medium">Get a Phone Number</span>
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#262720] border border-[#474b37] mb-4">
+            <PhoneIcon className="w-4 h-4 text-[#e7f69e]" />
+            <span className="text-sm text-[#e7f69e] font-medium">Get a Phone Number</span>
           </div>
           <h1 className="text-3xl font-display font-bold text-white mb-2">
             Connect Your Agent
@@ -131,29 +131,29 @@ export default function GetNumberPage() {
           ].map((s, i) => (
             <div key={s.num} className="flex items-center">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
-                step >= i ? 'bg-[#1a1a1a] border border-lime-300/40 text-lime-300' : 'bg-white/5 border border-white/10 text-white/40'
+                step >= i ? 'bg-[#262720] border border-[#474b37] text-[#e7f69e]' : 'bg-white/5 border border-white/10 text-white/40'
               }`}>
                 {step > i ? <CheckIcon className="w-4 h-4" /> : s.num}
               </div>
               <span className={`ml-2 text-sm hidden sm:block transition-colors ${step >= i ? 'text-white' : 'text-white/40'}`}>
                 {s.label}
               </span>
-              {i < 2 && <div className={`w-12 h-px mx-3 transition-colors ${step > i ? 'bg-lime-300/40' : 'bg-white/10'}`} />}
+              {i < 2 && <div className={`w-12 h-px mx-3 transition-colors ${step > i ? 'bg-[#474b37]' : 'bg-white/10'}`} />}
             </div>
           ))}
         </div>
 
-        <div ref={containerRef} className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl border border-white/10 rounded-3xl p-6 lg:p-8">
+        <div ref={containerRef} className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl border border-[#474b37] rounded-3xl p-6 lg:p-8">
           {/* Step 0: Choose Number */}
           {step === 0 && (
             <>
               {/* Number Type Toggle */}
-              <div className="flex gap-2 p-1 bg-[#111] rounded-full mb-6 max-w-xs border border-white/5">
+              <div className="flex gap-2 p-1 bg-[#262720] rounded-full mb-6 max-w-xs border border-[#474b37]">
                 <button
                   onClick={() => setNumberType('local')}
                   className={`flex-1 py-2.5 px-5 rounded-full text-sm font-medium transition-all duration-200 ${
                     numberType === 'local' 
-                      ? 'bg-[#1a1a1a] border border-lime-300/40 text-lime-300' 
+                      ? 'bg-[#262720] border border-[#474b37] text-[#e7f69e]' 
                       : 'text-white/50 hover:text-white'
                   }`}
                 >
@@ -163,7 +163,7 @@ export default function GetNumberPage() {
                   onClick={() => setNumberType('tollfree')}
                   className={`flex-1 py-2.5 px-5 rounded-full text-sm font-medium transition-all duration-200 ${
                     numberType === 'tollfree' 
-                      ? 'bg-[#1a1a1a] border border-lime-300/40 text-lime-300' 
+                      ? 'bg-[#262720] border border-[#474b37] text-[#e7f69e]' 
                       : 'text-white/50 hover:text-white'
                   }`}
                 >
@@ -179,7 +179,7 @@ export default function GetNumberPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by city, state, or area code..."
-                  className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-full text-white placeholder:text-white/30 focus:outline-none focus:border-lime-300/30 transition-colors"
+                  className="w-full pl-12 pr-4 py-3.5 bg-[#262720] border border-[#474b37] rounded-full text-white placeholder:text-white/30 focus:outline-none focus:border-[#e7f69e] transition-colors"
                 />
               </div>
 
@@ -191,12 +191,12 @@ export default function GetNumberPage() {
                     onClick={() => setSelectedNumber(num)}
                     className={`number-card p-5 rounded-2xl border text-left transition-all duration-200 relative ${
                       selectedNumber?.number === num.number
-                        ? 'bg-[#1a1a1a] border-lime-300/40'
-                        : 'bg-[#111] border-white/5 hover:border-white/15'
+                        ? 'bg-[#262720] border-[#474b37]'
+                        : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
                     }`}
                   >
                     {num.popular && (
-                      <div className="absolute -top-2.5 -right-2 px-2.5 py-1 bg-[#1a1a1a] border border-lime-300/40 text-lime-300 text-xs font-medium rounded-full flex items-center gap-1">
+                      <div className="absolute -top-2.5 -right-2 px-2.5 py-1 bg-[#262720] border border-[#474b37] text-[#e7f69e] text-xs font-medium rounded-full flex items-center gap-1">
                         <StarIcon className="w-3 h-3" /> Popular
                       </div>
                     )}
@@ -205,10 +205,10 @@ export default function GetNumberPage() {
                       <LocationIcon className="w-4 h-4" />
                       {num.city}, {num.state}
                     </div>
-                    <div className="mt-3 text-lime-300 font-medium">${num.price}/mo</div>
+                    <div className="mt-3 text-[#e7f69e] font-medium">${num.price}/mo</div>
                     {selectedNumber?.number === num.number && (
-                      <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-[#1a1a1a] border border-lime-300/40 flex items-center justify-center">
-                        <CheckIcon className="w-3.5 h-3.5 text-lime-300" />
+                      <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-[#262720] border border-[#474b37] flex items-center justify-center">
+                        <CheckIcon className="w-3.5 h-3.5 text-[#e7f69e]" />
                       </div>
                     )}
                   </button>
@@ -243,27 +243,27 @@ export default function GetNumberPage() {
                     onClick={() => setSelectedAgent(agent.id)}
                     className={`w-full p-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-4 ${
                       selectedAgent === agent.id
-                        ? 'bg-[#1a1a1a] border-lime-300/40'
-                        : 'bg-[#111] border-white/5 hover:border-white/15'
+                        ? 'bg-[#262720] border-[#474b37]'
+                        : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
                     }`}
                   >
-                    <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-lime-300/30 flex items-center justify-center">
-                      <AgentIcon className="w-5 h-5 text-lime-300" />
+                    <div className="w-12 h-12 rounded-xl bg-[#262720] border border-[#474b37] flex items-center justify-center">
+                      <AgentIcon className="w-5 h-5 text-[#e7f69e]" />
                     </div>
                     <div className="flex-1">
-                      <div className={`font-medium ${selectedAgent === agent.id ? 'text-lime-300' : 'text-white'}`}>
+                      <div className={`font-medium ${selectedAgent === agent.id ? 'text-[#e7f69e]' : 'text-white'}`}>
                         {agent.name}
                       </div>
                       <div className="text-sm text-white/40 capitalize">{agent.industry} - {agent.type}</div>
                     </div>
                     {selectedAgent === agent.id && (
-                      <CheckIcon className="w-5 h-5 text-lime-300" />
+                      <CheckIcon className="w-5 h-5 text-[#e7f69e]" />
                     )}
                   </button>
                 ))}
 
                 {agents.length === 0 && (
-                  <div className="p-8 text-center bg-[#111] rounded-2xl border border-white/5">
+                  <div className="p-8 text-center bg-[#262720] rounded-2xl border border-[#474b37]">
                     <SparklesIcon className="w-10 h-10 text-white/20 mx-auto mb-3" />
                     <p className="text-white/50 mb-4">No agents yet</p>
                     <Button variant="secondary" onClick={() => router.push('/dashboard/agents/new')}>
@@ -295,21 +295,21 @@ export default function GetNumberPage() {
               </h2>
 
               <div className="space-y-4 mb-8">
-                <div className="p-5 rounded-2xl bg-[#111] border border-white/5">
+                <div className="p-5 rounded-2xl bg-[#262720] border border-[#474b37]">
                   <div className="text-xs text-white/40 mb-1">Phone Number</div>
-                  <div className="text-xl font-mono text-lime-300">{selectedNumber?.number}</div>
+                  <div className="text-xl font-mono text-[#e7f69e]">{selectedNumber?.number}</div>
                   <div className="text-sm text-white/40 mt-1">{selectedNumber?.city}, {selectedNumber?.state}</div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#111] border border-white/5">
+                <div className="p-5 rounded-2xl bg-[#262720] border border-[#474b37]">
                   <div className="text-xs text-white/40 mb-1">Connected Agent</div>
                   <div className="text-white font-medium">{agents.find(a => a.id === selectedAgent)?.name}</div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#1a1a1a] border border-lime-300/30">
+                <div className="p-5 rounded-2xl bg-[#262720] border border-[#474b37]">
                   <div className="flex items-center justify-between">
                     <span className="text-white/60">Monthly Cost</span>
-                    <span className="text-2xl font-display font-bold text-lime-300">${selectedNumber?.price}/mo</span>
+                    <span className="text-2xl font-display font-bold text-[#e7f69e]">${selectedNumber?.price}/mo</span>
                   </div>
                   <p className="text-xs text-white/40 mt-2">
                     Includes unlimited inbound calls. Cancel anytime.

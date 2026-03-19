@@ -5,12 +5,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/auth'
+import { useTheme } from '@/providers/ThemeProvider'
 import { cn, getInitials } from '@/lib/utils'
 
 const navigation = [
   { name: 'Overview', href: '/dashboard', icon: 'home' },
   { name: 'Agents', href: '/dashboard/agents', icon: 'bot' },
-  { name: 'Agent Builder', href: '/dashboard/agents/builder', icon: 'wand' },
   { name: 'Phone Numbers', href: '/dashboard/phone', icon: 'phone' },
   { name: 'Call History', href: '/dashboard/calls', icon: 'history' },
   { name: 'Analytics', href: '/dashboard/analytics', icon: 'chart' },
@@ -31,6 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname()
   const router = useRouter()
   const { user, profile, organization, signOut, initialize, isInitialized } = useAuthStore()
+  const { theme, toggleTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="min-h-screen dark-bg">
+    <div className="min-h-screen dark-bg dark:dark-bg light:bg-white light:text-gray-900">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -190,15 +191,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Create Agent */}
-            <Link href="/dashboard/agents/new">
-              <button className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white text-gray-900 font-medium text-sm rounded-xl hover:bg-white/90 transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 5v14M5 12h14"/>
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {theme === 'dark' ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                  <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                 </svg>
-                New Agent
-              </button>
-            </Link>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+              )}
+            </button>
 
             {/* Notifications */}
             <button className="relative p-2 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors">

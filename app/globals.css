@@ -4,6 +4,34 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Dark mode (default) */
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #141414;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --toast-bg: #1a1a1a;
+    --toast-text: #ffffff;
+    --toast-border: rgba(255, 255, 255, 0.1);
+    --toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  html.light {
+    /* Light mode */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+    --text-primary: #1a2b4b;
+    --text-secondary: rgba(26, 43, 75, 0.6);
+    --border-color: rgba(26, 43, 75, 0.08);
+    --toast-bg: #ffffff;
+    --toast-text: #1a2b4b;
+    --toast-border: #e2e8f0;
+    --toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -11,6 +39,9 @@
   body {
     @apply antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 

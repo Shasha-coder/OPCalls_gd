@@ -40,7 +40,7 @@ export default function NewAgentPage() {
   
   const [formData, setFormData] = useState({
     name: '',
-    type: 'inbound' as 'inbound' | 'outbound',
+    type: 'inbound' as 'inbound' | 'outbound' | 'sms',
     industry: '',
     voice: 'professional',
     primaryLanguage: 'en-US',
@@ -152,24 +152,31 @@ export default function NewAgentPage() {
               <label className="block text-sm font-medium text-white/80 mb-3">
                 Agent Type
               </label>
-              <div className="grid grid-cols-2 gap-4">
-                {['inbound', 'outbound'].map((type) => (
+              <div className="grid grid-cols-3 gap-3">
+                {['inbound', 'outbound', 'sms'].map((type) => (
                   <button
                     key={type}
                     onClick={() => setFormData({ ...formData, type: type as any })}
-                    className={`p-5 rounded-xl border text-left transition-all ${
+                    className={`p-4 rounded-xl border text-center transition-all ${
                       formData.type === type
                         ? 'bg-lime-200/10 border-lime-200/40'
                         : 'bg-white/5 border-white/10 hover:bg-white/10'
                     }`}
                   >
-                    <div className={`text-lg font-medium capitalize ${
+                    <div className="text-lg mb-1">
+                      {type === 'inbound' && '📞'}
+                      {type === 'outbound' && '☎️'}
+                      {type === 'sms' && '💬'}
+                    </div>
+                    <div className={`text-sm font-medium capitalize ${
                       formData.type === type ? 'text-lime-200' : 'text-white'
                     }`}>
                       {type}
                     </div>
-                    <div className="text-sm text-white/50 mt-1">
-                      {type === 'inbound' ? 'Answer incoming calls' : 'Make outbound calls'}
+                    <div className="text-xs text-white/50 mt-0.5">
+                      {type === 'inbound' && 'Receive calls'}
+                      {type === 'outbound' && 'Make calls'}
+                      {type === 'sms' && 'Handle SMS'}
                     </div>
                   </button>
                 ))}

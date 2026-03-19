@@ -40,7 +40,8 @@ export default function NewAgentPage() {
   
   const [formData, setFormData] = useState({
     name: '',
-    type: 'inbound' as 'inbound' | 'outbound' | 'sms',
+    channel: 'inbound' as 'inbound' | 'outbound' | 'sms',
+    agentType: 'receptionist' as 'receptionist' | 'booking' | 'followup' | 'support' | 'afterhours' | 'missed_call',
     industry: '',
     voice: 'professional',
     primaryLanguage: 'en-US',
@@ -72,7 +73,8 @@ export default function NewAgentPage() {
       .insert({
         org_id: profile.org_id,
         name: formData.name,
-        type: formData.type,
+        type: formData.agentType,
+        channel: formData.channel,
         industry: formData.industry.toLowerCase(),
         primary_language: formData.primaryLanguage,
         languages: formData.languages,
@@ -150,33 +152,33 @@ export default function NewAgentPage() {
 
             <div>
               <label className="block text-sm font-medium text-white/80 mb-3">
-                Agent Type
+                Communication Channel
               </label>
               <div className="grid grid-cols-3 gap-3">
-                {['inbound', 'outbound', 'sms'].map((type) => (
+                {['inbound', 'outbound', 'sms'].map((ch) => (
                   <button
-                    key={type}
-                    onClick={() => setFormData({ ...formData, type: type as any })}
+                    key={ch}
+                    onClick={() => setFormData({ ...formData, channel: ch as any })}
                     className={`p-4 rounded-xl border text-center transition-all ${
-                      formData.type === type
+                      formData.channel === ch
                         ? 'bg-lime-200/10 border-lime-200/40'
                         : 'bg-white/5 border-white/10 hover:bg-white/10'
                     }`}
                   >
                     <div className="text-lg mb-1">
-                      {type === 'inbound' && '📞'}
-                      {type === 'outbound' && '☎️'}
-                      {type === 'sms' && '💬'}
+                      {ch === 'inbound' && '📞'}
+                      {ch === 'outbound' && '☎️'}
+                      {ch === 'sms' && '💬'}
                     </div>
                     <div className={`text-sm font-medium capitalize ${
-                      formData.type === type ? 'text-lime-200' : 'text-white'
+                      formData.channel === ch ? 'text-lime-200' : 'text-white'
                     }`}>
-                      {type}
+                      {ch}
                     </div>
                     <div className="text-xs text-white/50 mt-0.5">
-                      {type === 'inbound' && 'Receive calls'}
-                      {type === 'outbound' && 'Make calls'}
-                      {type === 'sms' && 'Handle SMS'}
+                      {ch === 'inbound' && 'Receive calls'}
+                      {ch === 'outbound' && 'Make calls'}
+                      {ch === 'sms' && 'Handle SMS'}
                     </div>
                   </button>
                 ))}

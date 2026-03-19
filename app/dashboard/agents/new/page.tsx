@@ -40,7 +40,8 @@ export default function NewAgentPage() {
   
   const [formData, setFormData] = useState({
     name: '',
-    type: 'inbound' as 'inbound' | 'outbound',
+    channel: 'inbound' as 'inbound' | 'outbound' | 'sms',
+    agentType: 'receptionist' as 'receptionist' | 'booking' | 'followup' | 'support' | 'afterhours' | 'missed_call',
     industry: '',
     voice: 'professional',
     primaryLanguage: 'en-US',
@@ -72,7 +73,8 @@ export default function NewAgentPage() {
       .insert({
         org_id: profile.org_id,
         name: formData.name,
-        type: formData.type,
+        type: formData.agentType,
+        channel: formData.channel,
         industry: formData.industry.toLowerCase(),
         primary_language: formData.primaryLanguage,
         languages: formData.languages,
@@ -117,7 +119,7 @@ export default function NewAgentPage() {
           <div
             key={s}
             className={`h-1.5 flex-1 rounded-full transition-all ${
-              s <= step ? 'bg-lime-200' : 'bg-white/10'
+              s <= step ? 'bg-white/40' : 'bg-white/10'
             }`}
           />
         ))}
@@ -128,9 +130,9 @@ export default function NewAgentPage() {
         {step === 0 && (
           <div className="space-y-8">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime-200/10 border border-lime-200/20 mb-4">
-                <Sparkles className="w-4 h-4 text-lime-200" />
-                <span className="text-sm text-lime-200 font-medium">Step 1 of 4</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
+                <Sparkles className="w-4 h-4 text-white/60" />
+                <span className="text-sm text-white/60 font-medium">Step 1 of 4</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
                 Let's name your agent
@@ -150,26 +152,33 @@ export default function NewAgentPage() {
 
             <div>
               <label className="block text-sm font-medium text-white/80 mb-3">
-                Agent Type
+                Communication Channel
               </label>
-              <div className="grid grid-cols-2 gap-4">
-                {['inbound', 'outbound'].map((type) => (
+              <div className="grid grid-cols-3 gap-3">
+                {['inbound', 'outbound', 'sms'].map((ch) => (
                   <button
-                    key={type}
-                    onClick={() => setFormData({ ...formData, type: type as any })}
-                    className={`p-5 rounded-xl border text-left transition-all ${
-                      formData.type === type
-                        ? 'bg-lime-200/10 border-lime-200/40'
+                    key={ch}
+                    onClick={() => setFormData({ ...formData, channel: ch as any })}
+                    className={`p-4 rounded-xl border text-center transition-all ${
+                      formData.channel === ch
+                        ? 'bg-white/10 border-white/30'
                         : 'bg-white/5 border-white/10 hover:bg-white/10'
                     }`}
                   >
-                    <div className={`text-lg font-medium capitalize ${
-                      formData.type === type ? 'text-lime-200' : 'text-white'
-                    }`}>
-                      {type}
+                    <div className="text-lg mb-1">
+                      {ch === 'inbound' && '📞'}
+                      {ch === 'outbound' && '☎️'}
+                      {ch === 'sms' && '💬'}
                     </div>
-                    <div className="text-sm text-white/50 mt-1">
-                      {type === 'inbound' ? 'Answer incoming calls' : 'Make outbound calls'}
+                    <div className={`text-sm font-medium capitalize ${
+                      formData.channel === ch ? 'text-white' : 'text-white/60'
+                    }`}>
+                      {ch}
+                    </div>
+                    <div className="text-xs text-white/50 mt-0.5">
+                      {ch === 'inbound' && 'Receive calls'}
+                      {ch === 'outbound' && 'Make calls'}
+                      {ch === 'sms' && 'Handle SMS'}
                     </div>
                   </button>
                 ))}
@@ -182,9 +191,9 @@ export default function NewAgentPage() {
         {step === 1 && (
           <div className="space-y-8">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime-200/10 border border-lime-200/20 mb-4">
-                <Zap className="w-4 h-4 text-lime-200" />
-                <span className="text-sm text-lime-200 font-medium">Step 2 of 4</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
+                <Zap className="w-4 h-4 text-white/60" />
+                <span className="text-sm text-white/60 font-medium">Step 2 of 4</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
                 What industry are you in?
@@ -201,11 +210,11 @@ export default function NewAgentPage() {
                   onClick={() => setFormData({ ...formData, industry })}
                   className={`p-4 rounded-xl border text-left transition-all ${
                     formData.industry === industry
-                      ? 'bg-lime-200/10 border-lime-200/40'
+                      ? 'bg-white/10 border-white/30'
                       : 'bg-white/5 border-white/10 hover:bg-white/10'
                   }`}
                 >
-                  <span className={formData.industry === industry ? 'text-lime-200' : 'text-white'}>
+                  <span className={formData.industry === industry ? 'text-white' : 'text-white/60'}>
                     {industry}
                   </span>
                 </button>
@@ -218,9 +227,9 @@ export default function NewAgentPage() {
         {step === 2 && (
           <div className="space-y-8">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime-200/10 border border-lime-200/20 mb-4">
-                <Mic className="w-4 h-4 text-lime-200" />
-                <span className="text-sm text-lime-200 font-medium">Step 3 of 4</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
+                <Mic className="w-4 h-4 text-white/60" />
+                <span className="text-sm text-white/60 font-medium">Step 3 of 4</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
                 Choose a voice style
@@ -237,13 +246,13 @@ export default function NewAgentPage() {
                   onClick={() => setFormData({ ...formData, voice: voice.id })}
                   className={`p-6 rounded-2xl border text-center transition-all ${
                     formData.voice === voice.id
-                      ? 'bg-lime-200/10 border-lime-200/40 scale-105'
+                      ? 'bg-white/10 border-white/30 scale-105'
                       : 'bg-white/5 border-white/10 hover:bg-white/10'
                   }`}
                 >
                   <span className="text-3xl mb-3 block">{voice.icon}</span>
                   <span className={`font-medium block mb-1 ${
-                    formData.voice === voice.id ? 'text-lime-200' : 'text-white'
+                    formData.voice === voice.id ? 'text-white' : 'text-white/60'
                   }`}>
                     {voice.name}
                   </span>
@@ -258,9 +267,9 @@ export default function NewAgentPage() {
         {step === 3 && (
           <div className="space-y-8">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime-200/10 border border-lime-200/20 mb-4">
-                <Globe className="w-4 h-4 text-lime-200" />
-                <span className="text-sm text-lime-200 font-medium">Final Step</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
+                <Globe className="w-4 h-4 text-white/60" />
+                <span className="text-sm text-white/60 font-medium">Final Step</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
                 Select languages
@@ -286,15 +295,15 @@ export default function NewAgentPage() {
                   }}
                   className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between ${
                     formData.languages.includes(lang.code)
-                      ? 'bg-lime-200/10 border-lime-200/40'
+                      ? 'bg-white/10 border-white/30'
                       : 'bg-white/5 border-white/10 hover:bg-white/10'
                   }`}
                 >
-                  <span className={formData.languages.includes(lang.code) ? 'text-lime-200' : 'text-white'}>
+                  <span className={formData.languages.includes(lang.code) ? 'text-white' : 'text-white/60'}>
                     {lang.name}
                   </span>
                   {formData.languages.includes(lang.code) && (
-                    <Check className="w-5 h-5 text-lime-200" />
+                    <Check className="w-5 h-5 text-white" />
                   )}
                 </button>
               ))}

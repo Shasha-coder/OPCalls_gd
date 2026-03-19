@@ -60,7 +60,8 @@ export default function NewAgentPage() {
 
   const handleCreate = async () => {
     if (!profile?.org_id) {
-      toast.error('Organization not found')
+      toast.error('Please complete onboarding first')
+      router.push('/onboarding')
       return
     }
 

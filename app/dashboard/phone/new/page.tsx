@@ -89,29 +89,34 @@ export default function BuyPhoneNumberPage() {
     const supabase = createClient()
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('Please sign in first')
+        router.push('/auth/login')
+        setIsPurchasing(false)
+        return
+      }
+
       // Get or create organization
       let orgId = profile?.org_id
       
       if (!orgId) {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-          toast.error('Please sign in first')
-          router.push('/auth/login')
-          return
-        }
-
-        // Create organization
+        // Create organization with all required fields
         const { data: newOrg, error: orgError } = await supabase
           .from('organizations')
           .insert({
+            owner_id: user.id,
             name: 'My Organization',
-            subscription_tier: 'free',
+            email: user.email || '',
+            industry: 'other',
           })
           .select()
           .single()
 
         if (orgError || !newOrg) {
-          toast.error('Failed to setup organization')
+          console.error('[v0] Org creation error:', orgError)
+          toast.error('Failed to setup organization: ' + (orgError?.message || 'Unknown error'))
           setIsPurchasing(false)
           return
         }
@@ -125,35 +130,36 @@ export default function BuyPhoneNumberPage() {
         orgId = newOrg.id
       }
 
-      // Insert phone number
+      // Insert phone number with proper schema fields
       const { data, error } = await supabase
         .from('phone_numbers')
         .insert({
           org_id: orgId,
-          number: selectedNumber.number,
+          retell_phone_number: selectedNumber.number.replace(/\D/g, ''), // E.164 format
+          pretty_number: selectedNumber.number,
+          area_code: parseInt(areaCode) || null,
           country: country,
-          status: selectedAgent ? 'active' : 'pending_agent',
           agent_id: selectedAgent,
-          monthly_cost: selectedNumber.monthlyRate,
+          is_active: true,
         })
         .select()
         .single()
 
       if (error) {
+        console.error('[v0] Phone insert error:', error)
         toast.error('Failed to purchase number: ' + error.message)
         setIsPurchasing(false)
         return
       }
 
-      // Send email notification (mock - in production use Resend/SendGrid)
-      // await sendPurchaseConfirmationEmail(profile?.email, selectedNumber)
-      
+      // Success!
       setPurchasedNumber(data)
       setStep('success')
       toast.success('Phone number purchased successfully!')
       
-    } catch (err) {
-      toast.error('An error occurred. Please try again.')
+    } catch (err: any) {
+      console.error('[v0] Unexpected error:', err)
+      toast.error('An error occurred: ' + (err?.message || 'Please try again'))
     }
     
     setIsPurchasing(false)

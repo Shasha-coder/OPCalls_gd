@@ -59,51 +59,79 @@ export default function NewAgentPage() {
   }, [step])
 
   const handleCreate = async () => {
-    console.log('[v0] Starting agent creation...')
-    console.log('[v0] Profile:', profile)
-    console.log('[v0] Org ID:', profile?.org_id)
-    
-    if (!profile?.org_id) {
-      toast.error('Please complete onboarding first')
-      router.push('/onboarding')
-      return
-    }
-
     setIsLoading(true)
     const supabase = createClient()
 
-    const insertData = {
-      org_id: profile.org_id,
-      name: formData.name,
-      type: formData.agentType,
-      capabilities: ['inbound', 'outbound', 'sms'],
-      industry: formData.industry.toLowerCase(),
-      primary_language: formData.primaryLanguage,
-      languages: formData.languages,
-      voice: formData.voice,
-      is_active: false,
-    }
-    
-    console.log('[v0] Inserting agent data:', insertData)
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('Please sign in first')
+        router.push('/auth/login')
+        setIsLoading(false)
+        return
+      }
 
-    const { data, error } = await supabase
-      .from('agents')
-      .insert(insertData)
-      .select()
-      .single()
+      let orgId = profile?.org_id
 
-    console.log('[v0] Insert result - data:', data)
-    console.log('[v0] Insert result - error:', error)
+      // If no organization exists, create one automatically
+      if (!orgId) {
+        const { data: newOrg, error: orgError } = await supabase
+          .from('organizations')
+          .insert({
+            owner_id: user.id,
+            name: `${formData.name}'s Organization`,
+            email: user.email || '',
+            industry: formData.industry.toLowerCase() || 'other',
+          })
+          .select()
+          .single()
 
-    if (error) {
-      toast.error('Failed to create agent: ' + error.message)
-      console.error('[v0] Agent creation error:', error)
-    } else {
-      toast.success('Agent created successfully!')
-      console.log('[v0] Agent created with ID:', data.id)
-      await refreshAgents()
-      console.log('[v0] Agents refreshed, navigating to:', `/dashboard/agents/${data.id}`)
-      router.push(`/dashboard/agents/${data.id}`)
+        if (orgError || !newOrg) {
+          console.error('[v0] Org creation error:', orgError)
+          toast.error('Failed to setup organization: ' + (orgError?.message || 'Unknown error'))
+          setIsLoading(false)
+          return
+        }
+
+        // Link organization to user profile
+        await supabase
+          .from('profiles')
+          .update({ org_id: newOrg.id })
+          .eq('id', user.id)
+
+        orgId = newOrg.id
+      }
+
+      // Generate a temporary retell_agent_id (will be replaced when connected to Retell)
+      const tempRetellId = `temp_${Date.now()}_${Math.random().toString(36).substring(7)}`
+
+      const { data, error } = await supabase
+        .from('agents')
+        .insert({
+          org_id: orgId,
+          name: formData.name,
+          type: formData.agentType,
+          industry: formData.industry.toLowerCase() || 'other',
+          retell_agent_id: tempRetellId,
+          primary_language: formData.primaryLanguage,
+          languages: formData.languages,
+          is_active: false,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('[v0] Agent creation error:', error)
+        toast.error('Failed to create agent: ' + error.message)
+      } else {
+        toast.success('Agent created successfully!')
+        await refreshAgents()
+        router.push(`/dashboard/agents/${data.id}`)
+      }
+    } catch (err: any) {
+      console.error('[v0] Unexpected error:', err)
+      toast.error('An error occurred: ' + (err?.message || 'Please try again'))
     }
 
     setIsLoading(false)

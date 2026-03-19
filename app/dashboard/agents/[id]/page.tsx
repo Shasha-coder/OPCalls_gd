@@ -97,10 +97,12 @@ export default function AgentConfigPage() {
     setIsAutoProvisioning(true)
     try {
       // Build business context from organization data
+      // Access settings object for additional org info
+      const orgSettings = organization.settings || {}
       const businessContext = `Organization: ${organization.name}
-Website: ${organization.website || 'Not provided'}
-Phone: ${organization.phone_number || 'Not provided'}
-Industry: ${organization.industry || 'Not specified'}
+Website: ${orgSettings.website || 'Not provided'}
+Phone: ${orgSettings.phone || 'Not provided'}
+Industry: ${orgSettings.industry || 'Not specified'}
 Subscription: ${organization.subscription_tier}
 
 This agent represents the above organization and should use this context when:

@@ -1,358 +1,240 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import {
-  PhoneIcon, SearchIcon, LocationIcon, CheckIcon, ArrowRightIcon,
-  GlobeIcon, SparklesIcon, StarIcon, AgentIcon
-} from '@/components/ui/Icons'
 import gsap from 'gsap'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
+import { PlusIcon, SearchIcon, PhoneIcon, AgentIcon } from '@/components/ui/Icons'
 
 interface PhoneNumber {
+  id: string
   number: string
-  areaCode: string
-  city: string
-  state: string
-  price: number
-  popular?: boolean
+  country: string
+  status: 'active' | 'pending_agent' | 'inactive'
+  agent_id: string | null
+  monthly_cost: number
+  created_at: string
 }
 
-// Simulated phone numbers - in production this would come from Twilio/Retell API
-const availableNumbers: PhoneNumber[] = [
-  { number: '+1 (555) 123-4567', areaCode: '555', city: 'New York', state: 'NY', price: 2 },
-  { number: '+1 (555) 234-5678', areaCode: '555', city: 'Los Angeles', state: 'CA', price: 2 },
-  { number: '+1 (555) 345-6789', areaCode: '555', city: 'Chicago', state: 'IL', price: 2 },
-  { number: '+1 (555) 456-7890', areaCode: '555', city: 'Houston', state: 'TX', price: 2 },
-  { number: '+1 (555) 567-8901', areaCode: '555', city: 'Miami', state: 'FL', price: 2 },
-  { number: '+1 (555) 678-9012', areaCode: '555', city: 'Seattle', state: 'WA', price: 2 },
-]
-
-const tollFreeNumbers: PhoneNumber[] = [
-  { number: '+1 (800) 555-0123', areaCode: '800', city: 'Toll-Free', state: 'US', price: 5, popular: true },
-  { number: '+1 (888) 555-0456', areaCode: '888', city: 'Toll-Free', state: 'US', price: 5 },
-  { number: '+1 (877) 555-0789', areaCode: '877', city: 'Toll-Free', state: 'US', price: 5 },
-]
-
-export default function GetNumberPage() {
+export default function PhoneNumbersPage() {
   const router = useRouter()
-  const { profile, agents } = useAuthStore()
+  const { profile, agents, refreshAgents } = useAuthStore()
+  const [numbers, setNumbers] = useState<PhoneNumber[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedNumber, setSelectedNumber] = useState<PhoneNumber | null>(null)
-  const [selectedAgent, setSelectedAgent] = useState<string>('')
-  const [numberType, setNumberType] = useState<'local' | 'tollfree'>('local')
-  const [isLoading, setIsLoading] = useState(false)
-  const [step, setStep] = useState(0)
-
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [filter, setFilter] = useState<'all' | 'active' | 'unassigned'>('all')
+  const [isLoading, setIsLoading] = useState(true)
+  
+  const headerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        '.number-card',
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.4, stagger: 0.05, ease: 'power3.out' }
+        headerRef.current,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
       )
     })
     return () => ctx.revert()
-  }, [numberType])
+  }, [])
 
-  const numbers = numberType === 'local' ? availableNumbers : tollFreeNumbers
-  const filteredNumbers = numbers.filter(n => 
-    n.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    n.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    n.number.includes(searchQuery)
-  )
+  useEffect(() => {
+    refreshAgents()
+    fetchNumbers()
+  }, [])
 
-  const handlePurchase = async () => {
-    if (!selectedNumber || !selectedAgent) {
-      toast.error('Please select a number')
+  const fetchNumbers = async () => {
+    if (!profile?.org_id) {
+      setIsLoading(false)
       return
     }
 
-    setIsLoading(true)
-    
-    // Simulate purchase
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
     const supabase = createClient()
-    
-    // In production, this would create a phone number record and link to Twilio/Retell
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('phone_numbers')
-      .insert({
-        org_id: profile?.org_id,
-        agent_id: selectedAgent === 'none' ? null : selectedAgent,
-        number: selectedNumber.number,
-        country: 'US',
-        capabilities: ['voice', 'sms'],
-        status: selectedAgent === 'none' ? 'pending_agent' : 'active',
-        monthly_cost: selectedNumber.price,
-      })
+      .select('*')
+      .eq('org_id', profile.org_id)
+      .order('created_at', { ascending: false })
 
-    if (error) {
-      // If table doesn't exist, just simulate success
-      toast.success('Phone number activated!')
-      router.push('/dashboard/phone')
-    } else {
-      toast.success('Phone number activated!')
-      router.push('/dashboard/phone')
+    if (!error && data) {
+      setNumbers(data)
     }
-
     setIsLoading(false)
   }
 
+  const getAgentName = (agentId: string | null) => {
+    if (!agentId) return 'Unassigned'
+    const agent = agents.find(a => a.id === agentId)
+    return agent?.name || 'Unknown Agent'
+  }
+
+  const filteredNumbers = numbers.filter(num => {
+    const matchesSearch = num.number.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesFilter = filter === 'all' || 
+      (filter === 'active' && num.status === 'active') ||
+      (filter === 'unassigned' && !num.agent_id)
+    return matchesSearch && matchesFilter
+  })
+
+  const formatDate = (date: string) => {
+    const d = new Date(date)
+    return d.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric'
+    })
+  }
+
   return (
-    <div className="min-h-screen bg-dark py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#262720] border border-[#474b37] mb-4">
-            <PhoneIcon className="w-4 h-4 text-[#e7f69e]" />
-            <span className="text-sm text-[#e7f69e] font-medium">Get a Phone Number</span>
-          </div>
-          <h1 className="text-3xl font-display font-bold text-white mb-2">
-            Connect Your Agent
+    <div className="space-y-6">
+      {/* Header */}
+      <div ref={headerRef} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-display font-bold text-white">
+            Phone Numbers
           </h1>
-          <p className="text-white/60">
-            Get a dedicated phone number for your AI agent
+          <p className="text-white/50 mt-1">
+            Manage your dedicated phone numbers
           </p>
         </div>
+        <Link href="/dashboard/phone/new">
+          <Button leftIcon={<PhoneIcon className="w-4 h-4" />}>
+            Get a Phone Number
+          </Button>
+        </Link>
+      </div>
 
-        {/* Steps */}
-        <div className="flex items-center justify-center gap-4 mb-8">
-          {[
-            { num: 1, label: 'Choose Number' },
-            { num: 2, label: 'Select Agent' },
-            { num: 3, label: 'Activate' },
-          ].map((s, i) => (
-            <div key={s.num} className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
-                step >= i ? 'bg-[#262720] border border-[#474b37] text-[#e7f69e]' : 'bg-white/5 border border-white/10 text-white/40'
-              }`}>
-                {step > i ? <CheckIcon className="w-4 h-4" /> : s.num}
-              </div>
-              <span className={`ml-2 text-sm hidden sm:block transition-colors ${step >= i ? 'text-white' : 'text-white/40'}`}>
-                {s.label}
-              </span>
-              {i < 2 && <div className={`w-12 h-px mx-3 transition-colors ${step > i ? 'bg-[#474b37]' : 'bg-white/10'}`} />}
-            </div>
+      {/* Search & Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1 relative">
+          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+          <input
+            type="text"
+            placeholder="Search numbers..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-[#262720] border border-[#474b37] rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-[#e7f69e]"
+          />
+        </div>
+        <div className="flex gap-2">
+          {(['all', 'active', 'unassigned'] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                filter === f
+                  ? 'bg-[#262720] text-[#e7f69e] border border-[#474b37]'
+                  : 'bg-[#1a1b18] text-white/60 border border-[#3a3d32] hover:border-[#474b37]'
+              }`}
+            >
+              {f === 'unassigned' ? 'Unassigned' : f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
           ))}
         </div>
+      </div>
 
-        <div ref={containerRef} className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl border border-[#474b37] rounded-3xl p-6 lg:p-8">
-          {/* Step 0: Choose Number */}
-          {step === 0 && (
-            <>
-              {/* Number Type Toggle */}
-              <div className="flex gap-2 p-1 bg-[#262720] rounded-full mb-6 max-w-xs border border-[#474b37]">
-                <button
-                  onClick={() => setNumberType('local')}
-                  className={`flex-1 py-2.5 px-5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    numberType === 'local' 
-                      ? 'bg-[#262720] border border-[#474b37] text-[#e7f69e]' 
-                      : 'text-white/50 hover:text-white'
-                  }`}
-                >
-                  Local Numbers
-                </button>
-                <button
-                  onClick={() => setNumberType('tollfree')}
-                  className={`flex-1 py-2.5 px-5 rounded-full text-sm font-medium transition-all duration-200 ${
-                    numberType === 'tollfree' 
-                      ? 'bg-[#262720] border border-[#474b37] text-[#e7f69e]' 
-                      : 'text-white/50 hover:text-white'
-                  }`}
-                >
-                  Toll-Free
-                </button>
-              </div>
-
-              {/* Search */}
-              <div className="relative mb-6">
-                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by city, state, or area code..."
-                  className="w-full pl-12 pr-4 py-3.5 bg-[#262720] border border-[#474b37] rounded-full text-white placeholder:text-white/30 focus:outline-none focus:border-[#e7f69e] transition-colors"
-                />
-              </div>
-
-              {/* Number Grid */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      {/* Phone Numbers Table */}
+      <div className="bg-[#262720] border border-[#474b37] rounded-2xl overflow-hidden">
+        {isLoading ? (
+          <div className="p-12 text-center">
+            <div className="w-8 h-8 border-2 border-[#e7f69e]/30 border-t-[#e7f69e] rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-white/50">Loading numbers...</p>
+          </div>
+        ) : filteredNumbers.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#3a3d32]">
+                  <th className="px-6 py-4 text-left text-sm font-medium text-white/50">Number</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-white/50">Status</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-white/50 hidden md:table-cell">Assigned Agent</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-white/50 hidden lg:table-cell">Added</th>
+                  <th className="px-6 py-4 text-right text-sm font-medium text-white/50"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#3a3d32]">
                 {filteredNumbers.map((num) => (
-                  <button
-                    key={num.number}
-                    onClick={() => setSelectedNumber(num)}
-                    className={`number-card p-5 rounded-2xl border text-left transition-all duration-200 relative ${
-                      selectedNumber?.number === num.number
-                        ? 'bg-[#262720] border-[#474b37]'
-                        : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
-                    }`}
+                  <tr 
+                    key={num.id}
+                    className="hover:bg-[#2d3127] transition-colors group"
                   >
-                    {num.popular && (
-                      <div className="absolute -top-2.5 -right-2 px-2.5 py-1 bg-[#262720] border border-[#474b37] text-[#e7f69e] text-xs font-medium rounded-full flex items-center gap-1">
-                        <StarIcon className="w-3 h-3" /> Popular
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-[#1a1b18] border border-[#3a3d32] flex items-center justify-center group-hover:border-[#474b37] transition-colors">
+                          <PhoneIcon className="w-5 h-5 text-[#e7f69e]/70" />
+                        </div>
+                        <span className="text-white font-mono">{num.number}</span>
                       </div>
-                    )}
-                    <div className="text-lg font-mono text-white mb-2">{num.number}</div>
-                    <div className="flex items-center gap-2 text-sm text-white/40">
-                      <LocationIcon className="w-4 h-4" />
-                      {num.city}, {num.state}
-                    </div>
-                    <div className="mt-3 text-[#e7f69e] font-medium">${num.price}/mo</div>
-                    {selectedNumber?.number === num.number && (
-                      <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-[#262720] border border-[#474b37] flex items-center justify-center">
-                        <CheckIcon className="w-3.5 h-3.5 text-[#e7f69e]" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+                        num.status === 'active' 
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                          : num.status === 'pending_agent'
+                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                          : 'bg-white/5 text-white/50 border border-white/10'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${
+                          num.status === 'active' ? 'bg-emerald-400' : 
+                          num.status === 'pending_agent' ? 'bg-amber-400' : 'bg-white/40'
+                        }`} />
+                        {num.status === 'pending_agent' ? 'Needs Agent' : num.status.charAt(0).toUpperCase() + num.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 hidden md:table-cell">
+                      <div className="flex items-center gap-2">
+                        {num.agent_id ? (
+                          <>
+                            <AgentIcon className="w-4 h-4 text-[#e7f69e]/50" />
+                            <span className="text-white/70">{getAgentName(num.agent_id)}</span>
+                          </>
+                        ) : (
+                          <span className="text-white/40">-</span>
+                        )}
                       </div>
-                    )}
-                  </button>
+                    </td>
+                    <td className="px-6 py-4 text-white/50 text-sm hidden lg:table-cell">
+                      {formatDate(num.created_at)}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => {/* TODO: Open settings modal */}}
+                        className="inline-flex items-center gap-2 text-[#e7f69e]/70 hover:text-[#e7f69e] transition-colors text-sm"
+                      >
+                        Settings
+                        <PlusIcon className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-
-              <Button
-                className="w-full"
-                disabled={!selectedNumber}
-                onClick={() => setStep(1)}
-                rightIcon={<ArrowRightIcon className="w-4 h-4" />}
-              >
-                Continue with {selectedNumber?.number || 'Selected Number'}
-              </Button>
-            </>
-          )}
-
-          {/* Step 1: Select Agent (Optional) */}
-          {step === 1 && (
-            <>
-              <h2 className="text-xl font-display font-semibold text-white mb-2">
-                Which agent should answer this number?
-              </h2>
-              <p className="text-white/50 mb-6">
-                {agents.length > 0 
-                  ? 'Connect this phone number to one of your AI agents, or assign later'
-                  : 'You can assign an agent after creating one'}
-              </p>
-
-              <div className="space-y-3 mb-6">
-                {/* Option to skip agent assignment */}
-                <button
-                  onClick={() => setSelectedAgent('none')}
-                  className={`w-full p-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-4 ${
-                    selectedAgent === 'none'
-                      ? 'bg-[#262720] border-[#474b37]'
-                      : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
-                  }`}
-                >
-                  <div className="w-12 h-12 rounded-xl bg-[#1a1b18] border border-[#3a3d32] flex items-center justify-center">
-                    <GlobeIcon className="w-5 h-5 text-white/40" />
-                  </div>
-                  <div className="flex-1">
-                    <div className={`font-medium ${selectedAgent === 'none' ? 'text-[#e7f69e]' : 'text-white'}`}>
-                      Assign Later
-                    </div>
-                    <div className="text-sm text-white/40">Configure agent after purchase</div>
-                  </div>
-                  {selectedAgent === 'none' && (
-                    <CheckIcon className="w-5 h-5 text-[#e7f69e]" />
-                  )}
-                </button>
-
-                {agents.map((agent) => (
-                  <button
-                    key={agent.id}
-                    onClick={() => setSelectedAgent(agent.id)}
-                    className={`w-full p-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-4 ${
-                      selectedAgent === agent.id
-                        ? 'bg-[#262720] border-[#474b37]'
-                        : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
-                    }`}
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-[#262720] border border-[#474b37] flex items-center justify-center">
-                      <AgentIcon className="w-5 h-5 text-[#e7f69e]" />
-                    </div>
-                    <div className="flex-1">
-                      <div className={`font-medium ${selectedAgent === agent.id ? 'text-[#e7f69e]' : 'text-white'}`}>
-                        {agent.name}
-                      </div>
-                      <div className="text-sm text-white/40 capitalize">{agent.industry} - {agent.type}</div>
-                    </div>
-                    {selectedAgent === agent.id && (
-                      <CheckIcon className="w-5 h-5 text-[#e7f69e]" />
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex gap-4">
-                <Button variant="ghost" onClick={() => setStep(0)}>Back</Button>
-                <Button
-                  className="flex-1"
-                  disabled={!selectedAgent}
-                  onClick={() => setStep(2)}
-                  rightIcon={<ArrowRightIcon className="w-4 h-4" />}
-                >
-                  Continue
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="p-12 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-[#1a1b18] border border-[#3a3d32] flex items-center justify-center mx-auto mb-4">
+              <PhoneIcon className="w-8 h-8 text-[#e7f69e]" />
+            </div>
+            <h3 className="text-lg font-display font-semibold text-white mb-2">
+              {searchQuery || filter !== 'all' ? 'No numbers found' : 'No phone numbers yet'}
+            </h3>
+            <p className="text-white/50 mb-6">
+              {searchQuery || filter !== 'all' 
+                ? 'Try adjusting your search or filters'
+                : 'Get a dedicated phone number for your AI agents'}
+            </p>
+            {!searchQuery && filter === 'all' && (
+              <Link href="/dashboard/phone/new">
+                <Button leftIcon={<PhoneIcon className="w-4 h-4" />}>
+                  Get a Phone Number
                 </Button>
-              </div>
-            </>
-          )}
-
-          {/* Step 2: Confirm */}
-          {step === 2 && (
-            <>
-              <h2 className="text-xl font-display font-semibold text-white mb-6">
-                Confirm Your Setup
-              </h2>
-
-              <div className="space-y-4 mb-8">
-                <div className="p-5 rounded-2xl bg-[#262720] border border-[#474b37]">
-                  <div className="text-xs text-white/40 mb-1">Phone Number</div>
-                  <div className="text-xl font-mono text-[#e7f69e]">{selectedNumber?.number}</div>
-                  <div className="text-sm text-white/40 mt-1">{selectedNumber?.city}, {selectedNumber?.state}</div>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#262720] border border-[#474b37]">
-                  <div className="text-xs text-white/40 mb-1">Connected Agent</div>
-                  <div className="text-white font-medium">
-                    {selectedAgent === 'none' 
-                      ? 'To be assigned later' 
-                      : agents.find(a => a.id === selectedAgent)?.name || 'Not selected'}
-                  </div>
-                  {selectedAgent === 'none' && (
-                    <p className="text-xs text-white/40 mt-1">You can assign an agent from the phone settings</p>
-                  )}
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#262720] border border-[#474b37]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/60">Monthly Cost</span>
-                    <span className="text-2xl font-display font-bold text-[#e7f69e]">${selectedNumber?.price}/mo</span>
-                  </div>
-                  <p className="text-xs text-white/40 mt-2">
-                    Includes unlimited inbound calls. Cancel anytime.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <Button variant="ghost" onClick={() => setStep(1)}>Back</Button>
-                <Button
-                  className="flex-1"
-                  onClick={handlePurchase}
-                  isLoading={isLoading}
-                  rightIcon={<SparklesIcon className="w-4 h-4" />}
-                >
-                  Activate Number
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

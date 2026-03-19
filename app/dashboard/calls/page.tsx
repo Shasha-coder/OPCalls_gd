@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { Phone, Search, Play, Download, ChevronRight, Filter, X, Pause, Volume2 } from 'lucide-react'
 import gsap from 'gsap'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth'
 import { formatDuration, getRelativeTime, getOutcomeLabel, getSentimentColor } from '@/lib/utils'
 import type { Call } from '@/types/database'
+import { SearchIcon, PhoneIcon, DownloadIcon, FilterIcon, CloseIcon, PlayIcon, PauseIcon } from '@/components/ui/Icons'
+import { ChevronRight, X } from 'lucide-react'
 
 const PAGE_SIZE = 20
 
@@ -15,6 +16,15 @@ interface FilterState {
   outcome: string
   sentiment: string
 }
+
+// Icons
+const VolumeIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+  </svg>
+)
 
 export default function CallsPage() {
   const { profile } = useAuthStore()
@@ -64,7 +74,6 @@ export default function CallsPage() {
       .order('created_at', { ascending: false })
       .range(offset, offset + PAGE_SIZE - 1)
 
-    // Date filter
     if (filters.dateRange !== 'all') {
       const days = parseInt(filters.dateRange)
       const cutoff = new Date()
@@ -72,17 +81,14 @@ export default function CallsPage() {
       query = query.gte('created_at', cutoff.toISOString())
     }
 
-    // Outcome filter
     if (filters.outcome !== 'all') {
       query = query.eq('outcome', filters.outcome)
     }
 
-    // Sentiment filter
     if (filters.sentiment !== 'all') {
       query = query.eq('sentiment', filters.sentiment)
     }
 
-    // Search
     if (debouncedSearch) {
       query = query.or(`caller_name.ilike.%${debouncedSearch}%,from_number.ilike.%${debouncedSearch}%,summary.ilike.%${debouncedSearch}%`)
     }
@@ -187,14 +193,14 @@ export default function CallsPage() {
   const activeFiltersCount = [filters.dateRange, filters.outcome, filters.sentiment].filter(f => f !== 'all').length
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div ref={headerRef} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl lg:text-3xl font-display font-bold text-white">
             Call History
           </h1>
-          <p className="text-white/60 mt-1">
+          <p className="text-white/50 mt-1">
             {calls.length > 0 && `${calls.length} calls`}
             {hasMore && ' • Scroll for more'}
           </p>
@@ -202,23 +208,23 @@ export default function CallsPage() {
         <button 
           onClick={exportCalls}
           disabled={calls.length === 0}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white/70 hover:bg-white/10 transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-2.5 px-5 py-2.5 bg-[#1a1b18] border-2 border-[#474b37] text-[#e7f69e] font-medium text-sm rounded-full hover:bg-[#262720] hover:border-[#5c6147] transition-all disabled:opacity-50"
         >
-          <Download className="w-4 h-4" />
+          <DownloadIcon className="w-4 h-4" />
           Export CSV
         </button>
       </div>
 
       {/* Search & Filters */}
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
           <input
             type="text"
             placeholder="Search by caller, phone, or keywords..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-lime-200/50 transition-colors"
+            className="w-full pl-12 pr-10 py-3 bg-[#262720] border border-[#474b37] rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-[#e7f69e]"
           />
           {searchQuery && (
             <button 
@@ -233,14 +239,14 @@ export default function CallsPage() {
           onClick={() => setShowFilters(!showFilters)}
           className={`relative flex items-center gap-2 px-4 py-3 border rounded-xl transition-colors ${
             showFilters || activeFiltersCount > 0
-              ? 'bg-lime-200/10 border-lime-200/30 text-lime-200'
-              : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+              ? 'bg-[#262720] border-[#474b37] text-[#e7f69e]'
+              : 'bg-[#1a1b18] border-[#3a3d32] text-white/70 hover:border-[#474b37]'
           }`}
         >
-          <Filter className="w-4 h-4" />
+          <FilterIcon className="w-4 h-4" />
           <span className="hidden sm:inline">Filters</span>
           {activeFiltersCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-lime-200 text-dark text-xs font-bold rounded-full flex items-center justify-center">
+            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#e7f69e] text-[#1a1b18] text-xs font-bold rounded-full flex items-center justify-center">
               {activeFiltersCount}
             </span>
           )}
@@ -249,14 +255,14 @@ export default function CallsPage() {
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-4">
+        <div className="p-4 bg-[#262720] border border-[#474b37] rounded-xl space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-white/50 mb-2">Time Period</label>
               <select
                 value={filters.dateRange}
                 onChange={(e) => setFilters(f => ({ ...f, dateRange: e.target.value as FilterState['dateRange'] }))}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-lime-200/50 appearance-none"
+                className="w-full px-3 py-2 bg-[#1a1b18] border border-[#3a3d32] rounded-lg text-white focus:outline-none focus:border-[#e7f69e] appearance-none"
               >
                 <option value="all">All Time</option>
                 <option value="7d">Last 7 Days</option>
@@ -269,7 +275,7 @@ export default function CallsPage() {
               <select
                 value={filters.outcome}
                 onChange={(e) => setFilters(f => ({ ...f, outcome: e.target.value }))}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-lime-200/50 appearance-none"
+                className="w-full px-3 py-2 bg-[#1a1b18] border border-[#3a3d32] rounded-lg text-white focus:outline-none focus:border-[#e7f69e] appearance-none"
               >
                 <option value="all">All Outcomes</option>
                 <option value="booking">Booking Made</option>
@@ -283,7 +289,7 @@ export default function CallsPage() {
               <select
                 value={filters.sentiment}
                 onChange={(e) => setFilters(f => ({ ...f, sentiment: e.target.value }))}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-lime-200/50 appearance-none"
+                className="w-full px-3 py-2 bg-[#1a1b18] border border-[#3a3d32] rounded-lg text-white focus:outline-none focus:border-[#e7f69e] appearance-none"
               >
                 <option value="all">All Sentiments</option>
                 <option value="positive">Positive</option>
@@ -295,7 +301,7 @@ export default function CallsPage() {
           {activeFiltersCount > 0 && (
             <button
               onClick={() => setFilters({ dateRange: 'all', outcome: 'all', sentiment: 'all' })}
-              className="text-sm text-lime-200 hover:underline"
+              className="text-sm text-[#e7f69e] hover:underline"
             >
               Clear all filters
             </button>
@@ -304,10 +310,10 @@ export default function CallsPage() {
       )}
 
       {/* Calls Table */}
-      <div className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-[#262720] border border-[#474b37] rounded-2xl overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center">
-            <div className="w-8 h-8 border-2 border-lime-200/30 border-t-lime-200 rounded-full animate-spin mx-auto mb-4" />
+            <div className="w-8 h-8 border-2 border-[#e7f69e]/30 border-t-[#e7f69e] rounded-full animate-spin mx-auto mb-4" />
             <p className="text-white/50">Loading calls...</p>
           </div>
         ) : calls.length > 0 ? (
@@ -315,26 +321,26 @@ export default function CallsPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/5">
-                    <th className="px-6 py-4 text-left text-xs font-medium text-white/50 uppercase tracking-wider">Caller</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-white/50 uppercase tracking-wider">Outcome</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-white/50 uppercase tracking-wider hidden md:table-cell">Duration</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-white/50 uppercase tracking-wider hidden lg:table-cell">Sentiment</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-white/50 uppercase tracking-wider">Time</th>
+                  <tr className="border-b border-[#3a3d32]">
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white/50">Caller</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white/50">Outcome</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white/50 hidden md:table-cell">Duration</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white/50 hidden lg:table-cell">Sentiment</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-white/50">Time</th>
                     <th className="px-6 py-4"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-[#3a3d32]">
                   {calls.map((call) => (
                     <tr 
                       key={call.id}
                       onClick={() => setSelectedCall(call)}
-                      className="hover:bg-white/5 cursor-pointer transition-colors group"
+                      className="hover:bg-[#2d3127] cursor-pointer transition-colors group"
                     >
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-lime-200/10 flex items-center justify-center group-hover:bg-lime-200/20 transition-colors">
-                            <Phone className="w-4 h-4 text-lime-200" />
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-[#1a1b18] border border-[#3a3d32] flex items-center justify-center group-hover:border-[#474b37] transition-colors">
+                            <PhoneIcon className="w-5 h-5 text-[#e7f69e]/70" />
                           </div>
                           <div>
                             <div className="text-sm font-medium text-white">
@@ -347,7 +353,7 @@ export default function CallsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-lime-200/10 text-lime-200 border border-lime-200/20">
+                        <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-[#e7f69e]/10 text-[#e7f69e] border border-[#e7f69e]/20">
                           {call.outcome ? getOutcomeLabel(call.outcome) : 'Completed'}
                         </span>
                       </td>
@@ -375,7 +381,7 @@ export default function CallsPage() {
             <div ref={loadMoreRef} className="p-4 text-center">
               {isLoadingMore && (
                 <div className="flex items-center justify-center gap-2 text-white/50">
-                  <div className="w-4 h-4 border-2 border-lime-200/30 border-t-lime-200 rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-[#e7f69e]/30 border-t-[#e7f69e] rounded-full animate-spin" />
                   Loading more...
                 </div>
               )}
@@ -386,8 +392,10 @@ export default function CallsPage() {
           </>
         ) : (
           <div className="p-12 text-center">
-            <Phone className="w-12 h-12 text-white/20 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No calls found</h3>
+            <div className="w-16 h-16 rounded-2xl bg-[#1a1b18] border border-[#3a3d32] flex items-center justify-center mx-auto mb-4">
+              <PhoneIcon className="w-8 h-8 text-[#e7f69e]" />
+            </div>
+            <h3 className="text-lg font-display font-semibold text-white mb-2">No calls found</h3>
             <p className="text-white/50">
               {debouncedSearch || activeFiltersCount > 0 
                 ? 'Try adjusting your search or filters'
@@ -400,18 +408,18 @@ export default function CallsPage() {
       {/* Call Detail Modal */}
       {selectedCall && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm" 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0a0a0a]/80 backdrop-blur-sm" 
           onClick={() => setSelectedCall(null)}
         >
           <div 
-            className="w-full max-w-2xl bg-gradient-to-b from-[#141414] to-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden"
+            className="w-full max-w-2xl bg-[#1a1b18] border border-[#474b37] rounded-2xl overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/5">
+            <div className="flex items-center justify-between p-6 border-b border-[#3a3d32]">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-lime-200/10 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-lime-200" />
+                <div className="w-12 h-12 rounded-xl bg-[#262720] border border-[#474b37] flex items-center justify-center">
+                  <PhoneIcon className="w-5 h-5 text-[#e7f69e]" />
                 </div>
                 <div>
                   <h2 className="text-lg font-display font-bold text-white">
@@ -432,19 +440,19 @@ export default function CallsPage() {
             <div className="p-6 space-y-6">
               {/* Stats Grid */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-white/5">
+                <div className="p-4 rounded-xl bg-[#262720] border border-[#3a3d32]">
                   <div className="text-xs text-white/50 mb-1">Duration</div>
                   <div className="text-white font-medium">
                     {selectedCall.duration_ms ? formatDuration(selectedCall.duration_ms) : '-'}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-white/5">
+                <div className="p-4 rounded-xl bg-[#262720] border border-[#3a3d32]">
                   <div className="text-xs text-white/50 mb-1">Outcome</div>
-                  <div className="text-lime-200 font-medium">
+                  <div className="text-[#e7f69e] font-medium">
                     {selectedCall.outcome ? getOutcomeLabel(selectedCall.outcome) : 'Completed'}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-white/5">
+                <div className="p-4 rounded-xl bg-[#262720] border border-[#3a3d32]">
                   <div className="text-xs text-white/50 mb-1">Sentiment</div>
                   <div className={`font-medium capitalize ${getSentimentColor(selectedCall.sentiment || 'neutral')}`}>
                     {selectedCall.sentiment || 'Neutral'}
@@ -456,7 +464,7 @@ export default function CallsPage() {
               {selectedCall.summary && (
                 <div>
                   <h3 className="text-sm font-medium text-white/70 mb-2">Call Summary</h3>
-                  <div className="p-4 rounded-xl bg-white/5 text-white/80 text-sm leading-relaxed">
+                  <div className="p-4 rounded-xl bg-[#262720] border border-[#3a3d32] text-white/80 text-sm leading-relaxed">
                     {selectedCall.summary}
                   </div>
                 </div>
@@ -466,28 +474,22 @@ export default function CallsPage() {
               {selectedCall.recording_url && (
                 <div>
                   <h3 className="text-sm font-medium text-white/70 mb-2">Recording</h3>
-                  <div className="flex items-center gap-4 p-4 rounded-xl bg-lime-200/5 border border-lime-200/20">
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-[#262720] border border-[#474b37]">
                     <button 
                       onClick={() => togglePlayback(selectedCall.recording_url!)}
-                      className="w-12 h-12 flex items-center justify-center rounded-full bg-lime-200 text-dark hover:bg-lime-300 transition-colors"
+                      className="w-12 h-12 flex items-center justify-center rounded-full bg-[#e7f69e] text-[#1a1b18] hover:bg-[#d4e38c] transition-colors"
                     >
-                      {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+                      {isPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5 ml-0.5" />}
                     </button>
                     <div className="flex-1">
-                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-0 bg-lime-200 rounded-full" />
+                      <div className="h-2 bg-[#3a3d32] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#e7f69e] w-0" />
                       </div>
                     </div>
-                    <Volume2 className="w-5 h-5 text-white/40" />
+                    <VolumeIcon className="w-5 h-5 text-white/40" />
                   </div>
                 </div>
               )}
-
-              {/* Timestamp */}
-              <div className="flex items-center justify-between pt-4 border-t border-white/5 text-sm text-white/40">
-                <span>{new Date(selectedCall.created_at).toLocaleString()}</span>
-                <span>ID: {selectedCall.id.slice(0, 8)}...</span>
-              </div>
             </div>
           </div>
         </div>

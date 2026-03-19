@@ -1,6 +1,8 @@
 'use client'
 
 import { useRef, useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import gsap from 'gsap'
 import { cn, formatNumber, formatMinutes, getStatusColor } from '@/lib/utils'
 import type { Agent } from '@/types/database'
@@ -18,9 +20,16 @@ interface AgentCardProps {
 }
 
 export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }: AgentCardProps) {
+  const router = useRouter()
   const cardRef = useRef<HTMLDivElement>(null)
   const glowRef = useRef<HTMLDivElement>(null)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking menu or its items
+    if ((e.target as HTMLElement).closest('.menu-container')) return
+    router.push(`/dashboard/agents/${agent.id}`)
+  }
 
   // Entrance animation
   useEffect(() => {
@@ -100,7 +109,8 @@ export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }
   return (
     <div
       ref={cardRef}
-      className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 backdrop-blur-xl"
+      onClick={handleCardClick}
+      className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 backdrop-blur-xl cursor-pointer"
     >
       {/* Animated glow effect */}
       <div
@@ -143,9 +153,9 @@ export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }
           </div>
 
           {/* Menu */}
-          <div className="relative">
+          <div className="relative menu-container">
             <button
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
               className="p-2 rounded-lg hover:bg-white/10 transition-colors"
             >
               <MoreIcon className="w-4 h-4 text-white/50" />

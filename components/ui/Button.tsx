@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline'
   size?: 'sm' | 'md' | 'lg'
   isLoading?: boolean
   leftIcon?: React.ReactNode
@@ -25,10 +25,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ...props 
   }, ref) => {
     const variants = {
-      primary: 'bg-[#262720] border border-[#474b37] text-[#e7f69e] font-medium hover:bg-[#2d3127] hover:border-[#5a5f4a] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
-      secondary: 'bg-[#262720] border border-white/20 text-white/80 hover:bg-[#2d3127] hover:border-white/30 active:scale-[0.98]',
+      // Outline style - matches the "Get a Phone Number" design
+      primary: 'bg-[#1a1b18] border-2 border-[#474b37] text-[#e7f69e] font-medium hover:bg-[#262720] hover:border-[#5c6147] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+      // Solid yellow style for CTAs
+      secondary: 'bg-[#e7f69e] border-2 border-[#e7f69e] text-[#1a1b18] font-medium hover:bg-[#d4e38c] hover:border-[#d4e38c] active:scale-[0.98]',
       ghost: 'bg-transparent text-white/60 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10',
-      danger: 'bg-[#262720] text-red-400 border border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50',
+      danger: 'bg-[#262720] text-red-400 border-2 border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50',
+      // Outline variant explicit
+      outline: 'bg-transparent border-2 border-[#474b37] text-[#e7f69e] font-medium hover:bg-[#262720] hover:border-[#5c6147] active:scale-[0.98]',
     }
 
     const sizes = {
@@ -41,7 +45,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          'relative inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#e7f69e]/30 focus:ring-offset-2 focus:ring-offset-[#0a0a0a]',
+          'relative inline-flex items-center justify-center gap-2.5 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#e7f69e]/30 focus:ring-offset-2 focus:ring-offset-[#0a0a0a]',
           variants[variant],
           sizes[size],
           className

@@ -106,14 +106,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   key={name}
                   href={href}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all',
                     isActive
-                      ? 'bg-[#e7f69e] text-[#262720]'
-                      : 'text-white/60 hover:text-white hover:bg-[#262720]'
+                      ? 'bg-[#262720] text-[#e7f69e] border border-[#474b37]'
+                      : 'text-white/60 hover:text-white hover:bg-[#262720] border border-transparent'
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Icon />
+                  <Icon className="w-5 h-5" />
                   {name}
                 </Link>
               )

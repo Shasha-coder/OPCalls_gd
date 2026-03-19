@@ -209,19 +209,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   refreshAgents: async () => {
+    console.log('[v0] refreshAgents called')
     const supabase = getSupabaseClient()
-    if (!supabase) return
+    if (!supabase) {
+      console.log('[v0] No supabase client available')
+      return
+    }
     
     const { profile } = get()
+    console.log('[v0] Current profile:', profile)
     
     if (profile?.org_id) {
-      const { data: agents } = await supabase
+      console.log('[v0] Fetching agents for org:', profile.org_id)
+      const { data: agents, error } = await supabase
         .from('agents')
         .select('*')
         .eq('org_id', profile.org_id)
         .order('created_at', { ascending: false })
       
+      console.log('[v0] Fetched agents:', agents)
+      console.log('[v0] Fetch error:', error)
+      
       set({ agents: agents || [] })
+      console.log('[v0] Store updated with agents count:', (agents || []).length)
+    } else {
+      console.log('[v0] No org_id in profile')
     }
   },
 }))

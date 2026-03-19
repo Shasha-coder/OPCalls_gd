@@ -59,6 +59,10 @@ export default function NewAgentPage() {
   }, [step])
 
   const handleCreate = async () => {
+    console.log('[v0] Starting agent creation...')
+    console.log('[v0] Profile:', profile)
+    console.log('[v0] Org ID:', profile?.org_id)
+    
     if (!profile?.org_id) {
       toast.error('Please complete onboarding first')
       router.push('/onboarding')
@@ -68,30 +72,37 @@ export default function NewAgentPage() {
     setIsLoading(true)
     const supabase = createClient()
 
+    const insertData = {
+      org_id: profile.org_id,
+      name: formData.name,
+      type: formData.agentType,
+      capabilities: ['inbound', 'outbound', 'sms'],
+      industry: formData.industry.toLowerCase(),
+      primary_language: formData.primaryLanguage,
+      languages: formData.languages,
+      voice: formData.voice,
+      is_active: false,
+    }
+    
+    console.log('[v0] Inserting agent data:', insertData)
+
     const { data, error } = await supabase
       .from('agents')
-      .insert({
-        org_id: profile.org_id,
-        name: formData.name,
-        type: formData.agentType,
-        // Unified agent: supports all channels (inbound, outbound, sms)
-        capabilities: ['inbound', 'outbound', 'sms'],
-        industry: formData.industry.toLowerCase(),
-        primary_language: formData.primaryLanguage,
-        languages: formData.languages,
-        voice: formData.voice,
-        is_active: false,
-      })
+      .insert(insertData)
       .select()
       .single()
 
+    console.log('[v0] Insert result - data:', data)
+    console.log('[v0] Insert result - error:', error)
+
     if (error) {
-      toast.error('Failed to create agent')
-      console.error(error)
+      toast.error('Failed to create agent: ' + error.message)
+      console.error('[v0] Agent creation error:', error)
     } else {
       toast.success('Agent created successfully!')
+      console.log('[v0] Agent created with ID:', data.id)
       await refreshAgents()
-      // Redirect to agent detail page for configuration
+      console.log('[v0] Agents refreshed, navigating to:', `/dashboard/agents/${data.id}`)
       router.push(`/dashboard/agents/${data.id}`)
     }
 

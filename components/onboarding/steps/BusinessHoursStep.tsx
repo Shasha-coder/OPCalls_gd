@@ -130,24 +130,24 @@ export function BusinessHoursStep({ data, onComplete, onBack, saving }: Props) {
                 <select
                   value={hours[day.key].open}
                   onChange={(e) => updateTime(day.key, 'open', e.target.value)}
-                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/20"
+                  className="px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 transition-all duration-200"
                   style={{ colorScheme: 'dark' }}
                 >
                   {TIME_OPTIONS.map(t => (
-                    <option key={t.value} value={t.value} className="bg-[#0a0a0a]">{t.label}</option>
+                    <option key={t.value} value={t.value} style={{ background: '#111', color: '#fff' }}>{t.label}</option>
                   ))}
                 </select>
                 
-                <span className="text-white/40">to</span>
+                <span className="text-white/40 text-sm">to</span>
                 
                 <select
                   value={hours[day.key].close}
                   onChange={(e) => updateTime(day.key, 'close', e.target.value)}
-                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/20"
+                  className="px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 transition-all duration-200"
                   style={{ colorScheme: 'dark' }}
                 >
                   {TIME_OPTIONS.map(t => (
-                    <option key={t.value} value={t.value} className="bg-[#0a0a0a]">{t.label}</option>
+                    <option key={t.value} value={t.value} style={{ background: '#111', color: '#fff' }}>{t.label}</option>
                   ))}
                 </select>
                 
@@ -170,27 +170,19 @@ export function BusinessHoursStep({ data, onComplete, onBack, saving }: Props) {
       </div>
       
       {/* Buttons */}
-      <div className="flex gap-3 pt-4">
+      <div className="flex gap-3 pt-6">
         <button
           type="button"
           onClick={onBack}
-          className="px-6 py-3.5 border border-white/10 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+          className="px-6 py-3.5 border border-white/10 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200"
         >
           Back
         </button>
         <button
           type="submit"
-          disabled={saving}
-          className="flex-1 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-white/90 disabled:bg-white/50 disabled:cursor-not-allowed transition-all"
+          className="flex-1 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-white/90 active:scale-[0.98] transition-all duration-200"
         >
-          {saving ? (
-            <span className="flex items-center justify-center gap-2">
-              <div className="animate-spin h-4 w-4 border-2 border-gray-900 border-t-transparent rounded-full" />
-              Saving...
-            </span>
-          ) : (
-            'Continue'
-          )}
+          Continue
         </button>
       </div>
     </form>

@@ -89,10 +89,10 @@ export function OnboardingWizard() {
   
   const handleStepComplete = async (stepName: string, stepData: Partial<OnboardingData>) => {
     setData(prev => ({ ...prev, ...stepData }))
-    const success = await updateOnboardingStep(currentStep, stepName, stepData)
-    if (success) {
-      setCurrentStep(prev => Math.min(prev + 1, STEPS.length))
-    }
+    // Always advance the step first for smooth UX, then save in background
+    setCurrentStep(prev => Math.min(prev + 1, STEPS.length))
+    // Save in background - don't block navigation
+    updateOnboardingStep(currentStep, stepName, stepData).catch(console.error)
   }
   
   const handleBack = () => {

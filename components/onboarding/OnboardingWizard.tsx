@@ -1,20 +1,21 @@
 /**
- * OPCALLS Phase 6: Onboarding Wizard
- * 
- * Main onboarding wizard component
+ * OPCalls Onboarding Wizard - Clean Design
  */
 
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useProvisioning, useProvisioningProgress } from '@/hooks/useProvisioning'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useProvisioning } from '@/hooks/useProvisioning'
 import { BusinessInfoStep } from './steps/BusinessInfoStep'
 import { BusinessHoursStep } from './steps/BusinessHoursStep'
 import { AgentConfigStep } from './steps/AgentConfigStep'
 import { PhoneNumberStep } from './steps/PhoneNumberStep'
 import { ReviewStep } from './steps/ReviewStep'
 import { ProvisioningStep } from './steps/ProvisioningStep'
+import { cn } from '@/lib/utils'
 
 // ============================================================================
 // Types
@@ -44,12 +45,12 @@ export interface OnboardingData {
 }
 
 const STEPS = [
-  { id: 1, name: 'businessInfo', title: 'Business Info' },
-  { id: 2, name: 'businessHours', title: 'Business Hours' },
-  { id: 3, name: 'agentConfig', title: 'AI Agent' },
-  { id: 4, name: 'phoneConfig', title: 'Phone Number' },
-  { id: 5, name: 'review', title: 'Review' },
-  { id: 6, name: 'provisioning', title: 'Setup' },
+  { id: 1, name: 'businessInfo', title: 'Business Info', description: 'Tell us about your business' },
+  { id: 2, name: 'businessHours', title: 'Business Hours', description: 'Set your availability' },
+  { id: 3, name: 'agentConfig', title: 'AI Agent', description: 'Configure your assistant' },
+  { id: 4, name: 'phoneConfig', title: 'Phone Number', description: 'Choose your number' },
+  { id: 5, name: 'review', title: 'Review', description: 'Confirm your setup' },
+  { id: 6, name: 'provisioning', title: 'Setup', description: 'Creating your agent' },
 ]
 
 // ============================================================================
@@ -80,33 +81,24 @@ export function OnboardingWizard() {
         setJobId(onboardingState.provisioningJobId)
       }
       
-      // If already completed, redirect to dashboard
       if (onboardingState.status === 'completed') {
         router.push('/dashboard')
       }
     }
   }, [onboardingState, router])
   
-  // Handle step completion
   const handleStepComplete = async (stepName: string, stepData: Partial<OnboardingData>) => {
-    // Update local data
     setData(prev => ({ ...prev, ...stepData }))
-    
-    // Save to server
     const success = await updateOnboardingStep(currentStep, stepName, stepData)
-    
     if (success) {
-      // Move to next step
       setCurrentStep(prev => Math.min(prev + 1, STEPS.length))
     }
   }
   
-  // Handle going back
   const handleBack = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1))
   }
   
-  // Start provisioning
   const handleStartProvisioning = async () => {
     const newJobId = await startOnboardingProvisioning()
     if (newJobId) {
@@ -115,78 +107,92 @@ export function OnboardingWizard() {
     }
   }
   
-  // Handle provisioning complete
   const handleProvisioningComplete = () => {
     router.push('/dashboard?welcome=true')
   }
   
   if (onboardingLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-slate-400">Loading...</p>
+      <div className="min-h-screen dark-bg flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          <p className="text-white/50 text-sm">Loading...</p>
         </div>
       </div>
     )
   }
   
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen dark-bg">
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">OP</span>
-              </div>
-              <span className="text-xl font-semibold text-white">OPCalls</span>
-            </div>
-            
-            {/* Progress */}
-            <div className="flex items-center gap-2">
-              {STEPS.map((step, index) => (
-                <div key={step.id} className="flex items-center">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                      step.id < currentStep
-                        ? 'bg-green-500 text-white'
-                        : step.id === currentStep
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-slate-700 text-slate-400'
-                    }`}
-                  >
-                    {step.id < currentStep ? '✓' : step.id}
-                  </div>
-                  {index < STEPS.length - 1 && (
-                    <div
-                      className={`w-8 h-0.5 mx-1 ${
-                        step.id < currentStep ? 'bg-green-500' : 'bg-slate-700'
-                      }`}
-                    />
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
+            <Image
+              src="/favicon.png"
+              alt="OPCalls"
+              width={32}
+              height={32}
+              className="rounded-lg"
+            />
+            <span className="font-semibold text-white text-lg">OPCalls</span>
+          </Link>
+          
+          {/* Step indicator */}
+          <div className="hidden md:flex items-center gap-1">
+            {STEPS.slice(0, -1).map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <button
+                  onClick={() => step.id < currentStep && setCurrentStep(step.id)}
+                  disabled={step.id >= currentStep}
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-all",
+                    step.id < currentStep 
+                      ? "bg-white text-black cursor-pointer hover:bg-white/90"
+                      : step.id === currentStep
+                      ? "bg-white text-black"
+                      : "bg-white/10 text-white/40"
                   )}
-                </div>
-              ))}
-            </div>
+                >
+                  {step.id < currentStep ? (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    step.id
+                  )}
+                </button>
+                {index < STEPS.length - 2 && (
+                  <div className={cn(
+                    "w-8 h-px mx-1",
+                    step.id < currentStep ? "bg-white" : "bg-white/10"
+                  )} />
+                )}
+              </div>
+            ))}
+          </div>
+          
+          {/* Mobile step indicator */}
+          <div className="md:hidden text-sm text-white/50">
+            Step {currentStep} of {STEPS.length - 1}
           </div>
         </div>
       </header>
       
       {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-6 py-12">
-        {/* Step Title */}
-        <div className="mb-8">
-          <p className="text-blue-400 text-sm font-medium mb-2">
-            Step {currentStep} of {STEPS.length}
+      <main className="max-w-2xl mx-auto px-6 py-12 md:py-16">
+        {/* Step Header */}
+        <div className="mb-8 md:mb-12">
+          <p className="text-white/50 text-sm font-medium mb-2">
+            {STEPS[currentStep - 1]?.description}
           </p>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-tight">
             {STEPS[currentStep - 1]?.title}
           </h1>
         </div>
         
         {/* Step Content */}
-        <div className="bg-slate-800/50 rounded-2xl border border-slate-700/50 p-8">
+        <div className="glass-card rounded-2xl p-6 md:p-8">
           {currentStep === 1 && (
             <BusinessInfoStep
               data={data.businessInfo}
@@ -241,6 +247,11 @@ export function OnboardingWizard() {
             />
           )}
         </div>
+        
+        {/* Help text */}
+        <p className="mt-6 text-center text-sm text-white/40">
+          Need help? <a href="mailto:support@opcalls.com" className="text-white/70 hover:text-white transition-colors">Contact support</a>
+        </p>
       </main>
     </div>
   )

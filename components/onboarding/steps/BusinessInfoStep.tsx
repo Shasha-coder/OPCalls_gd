@@ -1,5 +1,5 @@
 /**
- * Business Info Step
+ * Business Info Step - Matching Landing Page Design
  */
 
 'use client'
@@ -86,108 +86,115 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
     onComplete(formData)
   }
   
+  const inputClasses = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
+  const selectClasses = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-white/20 appearance-none cursor-pointer transition-all"
+  const labelClasses = "block text-sm text-white/60 mb-2"
+  const errorInputClasses = "w-full px-4 py-3 bg-white/5 border border-red-500/50 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 transition-all"
+  
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <p className="text-slate-400 mb-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <p className="text-white/50 text-sm mb-6">
         Tell us about your business so we can customize your AI receptionist.
       </p>
       
       {/* Business Name */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Business Name *
+        <label className={labelClasses}>
+          Business Name <span className="text-red-400">*</span>
         </label>
         <input
           type="text"
           value={formData.name}
           onChange={(e) => handleChange('name', e.target.value)}
           placeholder="Acme Dental Clinic"
-          className={`w-full px-4 py-3 bg-slate-900/50 border rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.name ? 'border-red-500' : 'border-slate-600'
-          }`}
+          className={errors.name ? errorInputClasses : inputClasses}
         />
         {errors.name && (
-          <p className="mt-1 text-sm text-red-400">{errors.name}</p>
+          <p className="mt-1.5 text-sm text-red-400">{errors.name}</p>
         )}
       </div>
       
       {/* Industry */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Industry *
+        <label className={labelClasses}>
+          Industry <span className="text-red-400">*</span>
         </label>
-        <select
-          value={formData.industry}
-          onChange={(e) => handleChange('industry', e.target.value)}
-          className={`w-full px-4 py-3 bg-slate-900/50 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.industry ? 'border-red-500' : 'border-slate-600'
-          }`}
-        >
-          <option value="">Select your industry</option>
-          {INDUSTRIES.map(ind => (
-            <option key={ind.value} value={ind.value}>{ind.label}</option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={formData.industry}
+            onChange={(e) => handleChange('industry', e.target.value)}
+            className={errors.industry ? errorInputClasses : selectClasses}
+            style={{ colorScheme: 'dark' }}
+          >
+            <option value="" className="bg-[#0a0a0a]">Select your industry</option>
+            {INDUSTRIES.map(ind => (
+              <option key={ind.value} value={ind.value} className="bg-[#0a0a0a]">{ind.label}</option>
+            ))}
+          </select>
+          <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
         {errors.industry && (
-          <p className="mt-1 text-sm text-red-400">{errors.industry}</p>
+          <p className="mt-1.5 text-sm text-red-400">{errors.industry}</p>
         )}
       </div>
       
       {/* Phone */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Business Phone
-        </label>
+        <label className={labelClasses}>Business Phone</label>
         <input
           type="tel"
           value={formData.phone}
           onChange={(e) => handleChange('phone', e.target.value)}
           placeholder="(555) 123-4567"
-          className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={inputClasses}
         />
       </div>
       
       {/* Address */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Business Address
-        </label>
+        <label className={labelClasses}>Business Address</label>
         <input
           type="text"
           value={formData.address}
           onChange={(e) => handleChange('address', e.target.value)}
           placeholder="123 Main St, City, State ZIP"
-          className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={inputClasses}
         />
       </div>
       
       {/* Timezone */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Timezone
-        </label>
-        <select
-          value={formData.timezone}
-          onChange={(e) => handleChange('timezone', e.target.value)}
-          className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {TIMEZONES.map(tz => (
-            <option key={tz.value} value={tz.value}>{tz.label}</option>
-          ))}
-        </select>
+        <label className={labelClasses}>Timezone</label>
+        <div className="relative">
+          <select
+            value={formData.timezone}
+            onChange={(e) => handleChange('timezone', e.target.value)}
+            className={selectClasses}
+            style={{ colorScheme: 'dark' }}
+          >
+            {TIMEZONES.map(tz => (
+              <option key={tz.value} value={tz.value} className="bg-[#0a0a0a]">{tz.label}</option>
+            ))}
+          </select>
+          <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
       
       {/* Submit */}
       <button
         type="submit"
         disabled={saving}
-        className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+        className="w-full py-4 bg-white text-gray-900 rounded-xl font-semibold hover:bg-white/90 disabled:bg-white/50 disabled:cursor-not-allowed transition-all mt-4"
       >
         {saving ? (
-          <>
-            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+          <span className="flex items-center justify-center gap-2">
+            <div className="animate-spin h-4 w-4 border-2 border-gray-900 border-t-transparent rounded-full" />
             Saving...
-          </>
+          </span>
         ) : (
           'Continue'
         )}

@@ -3,70 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* Semantic color tokens for dark mode (default) */
-    --color-background: 0 0% 5%;
-    --color-foreground: 0 0% 95%;
-    --color-card: 0 0% 12%;
-    --color-card-foreground: 0 0% 95%;
-    --color-primary: 220 90% 56%;
-    --color-primary-foreground: 0 0% 100%;
-    --color-secondary: 0 0% 20%;
-    --color-secondary-foreground: 0 0% 95%;
-    --color-muted: 0 0% 30%;
-    --color-muted-foreground: 0 0% 70%;
-    --color-border: 0 0% 20%;
-    --color-destructive: 0 84% 60%;
-  }
-
-  @media (prefers-color-scheme: light) {
-    :root {
-      /* Semantic color tokens for light mode */
-      --color-background: 0 0% 100%;
-      --color-foreground: 0 0% 5%;
-      --color-card: 0 0% 95%;
-      --color-card-foreground: 0 0% 5%;
-      --color-primary: 220 90% 56%;
-      --color-primary-foreground: 0 0% 100%;
-      --color-secondary: 0 0% 90%;
-      --color-secondary-foreground: 0 0% 5%;
-      --color-muted: 0 0% 80%;
-      --color-muted-foreground: 0 0% 40%;
-      --color-border: 0 0% 85%;
-      --color-destructive: 0 84% 60%;
-    }
-  }
-
-  .dark {
-    --color-background: 0 0% 5%;
-    --color-foreground: 0 0% 95%;
-    --color-card: 0 0% 12%;
-    --color-card-foreground: 0 0% 95%;
-    --color-primary: 220 90% 56%;
-    --color-primary-foreground: 0 0% 100%;
-    --color-secondary: 0 0% 20%;
-    --color-secondary-foreground: 0 0% 95%;
-    --color-muted: 0 0% 30%;
-    --color-muted-foreground: 0 0% 70%;
-    --color-border: 0 0% 20%;
-    --color-destructive: 0 84% 60%;
-  }
-
-  .light {
-    --color-background: 0 0% 100%;
-    --color-foreground: 0 0% 5%;
-    --color-card: 0 0% 95%;
-    --color-card-foreground: 0 0% 5%;
-    --color-primary: 220 90% 56%;
-    --color-primary-foreground: 0 0% 100%;
-    --color-secondary: 0 0% 90%;
-    --color-secondary-foreground: 0 0% 5%;
-    --color-muted: 0 0% 80%;
-    --color-muted-foreground: 0 0% 40%;
-    --color-border: 0 0% 85%;
-    --color-destructive: 0 84% 60%;
-  }
-
   html {
     scroll-behavior: smooth;
   }
@@ -74,9 +10,6 @@
   body {
     @apply antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-color: hsl(var(--color-background));
-    color: hsl(var(--color-foreground));
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 

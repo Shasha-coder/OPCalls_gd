@@ -131,8 +131,10 @@ export default function AgentsPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 rounded-2xl p-12 text-center">
-          <Bot className="w-16 h-16 text-white/20 mx-auto mb-4" />
+        <div className="bg-[#262720] border border-[#474b37] rounded-2xl p-12 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-[#1a1b18] border border-[#3a3d32] flex items-center justify-center mx-auto mb-4">
+            <AgentIcon className="w-8 h-8 text-[#e7f69e]" />
+          </div>
           <h3 className="text-lg font-display font-semibold text-white mb-2">
             {searchQuery || filter !== 'all' ? 'No agents found' : 'No agents yet'}
           </h3>
@@ -143,7 +145,7 @@ export default function AgentsPage() {
           </p>
           {!searchQuery && filter === 'all' && (
             <Link href="/dashboard/agents/new">
-              <Button rightIcon={<Plus className="w-4 h-4" />}>
+              <Button rightIcon={<PlusIcon className="w-4 h-4" />}>
                 Create Agent
               </Button>
             </Link>

@@ -8,6 +8,22 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAuthStore } from '@/store/auth'
+import { createClient } from '@/lib/supabase/client'
+
+// Helper to get auth headers
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (!session?.access_token) {
+    throw new Error('Not authenticated')
+  }
+  
+  return {
+    'Authorization': `Bearer ${session.access_token}`,
+    'Content-Type': 'application/json',
+  }
+}
 
 // ============================================================================
 // Types
@@ -75,7 +91,8 @@ export function usePhoneNumbers() {
     setError(null)
     
     try {
-      const response = await fetch('/api/telephony/numbers?action=list')
+      const headers = await getAuthHeaders()
+      const response = await fetch('/api/telephony/numbers?action=list', { headers })
       
       if (!response.ok) {
         throw new Error('Failed to fetch phone numbers')
@@ -132,15 +149,11 @@ export function useNumberSearch() {
     locality?: string
     region?: string
   }) => {
-    if (!user) {
-      setError('Not authenticated')
-      return
-    }
-    
     setLoading(true)
     setError(null)
     
     try {
+      const headers = await getAuthHeaders()
       const searchParams = new URLSearchParams({
         action: 'search',
         ...Object.fromEntries(
@@ -148,10 +161,11 @@ export function useNumberSearch() {
         ),
       })
       
-      const response = await fetch(`/api/telephony/numbers?${searchParams}`)
+      const response = await fetch(`/api/telephony/numbers?${searchParams}`, { headers })
       
       if (!response.ok) {
-        throw new Error('Search failed')
+        const data = await response.json()
+        throw new Error(data.error || 'Search failed')
       }
       
       const data = await response.json()
@@ -195,20 +209,14 @@ export function usePurchaseNumber() {
     friendlyName?: string
     agentId?: string
   }): Promise<PhoneNumber | null> => {
-    if (!user) {
-      setError('Not authenticated')
-      return null
-    }
-    
     setLoading(true)
     setError(null)
     
     try {
+      const headers = await getAuthHeaders()
       const response = await fetch('/api/telephony/numbers', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(params),
       })
       

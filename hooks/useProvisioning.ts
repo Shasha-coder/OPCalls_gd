@@ -8,6 +8,22 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuthStore } from '@/store/auth'
+import { createClient } from '@/lib/supabase/client'
+
+// Helper to get auth headers
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (!session?.access_token) {
+    throw new Error('Not authenticated')
+  }
+  
+  return {
+    'Authorization': `Bearer ${session.access_token}`,
+    'Content-Type': 'application/json',
+  }
+}
 
 // ============================================================================
 // Types
@@ -86,13 +102,14 @@ export function useProvisioningJob(jobId: string | null) {
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
   
   const fetchJob = useCallback(async () => {
-    if (!jobId || !user) {
+    if (!jobId) {
       setLoading(false)
       return
     }
     
     try {
-      const response = await fetch(`/api/provisioning/jobs?jobId=${jobId}`)
+      const headers = await getAuthHeaders()
+      const response = await fetch(`/api/provisioning/jobs?jobId=${jobId}`, { headers })
       
       if (!response.ok) {
         throw new Error('Failed to fetch job')
@@ -136,14 +153,13 @@ export function useProvisioningJob(jobId: string | null) {
   }, [jobId, fetchJob])
   
   const retry = useCallback(async () => {
-    if (!jobId || !user) return false
+    if (!jobId) return false
     
     try {
+      const headers = await getAuthHeaders()
       const response = await fetch('/api/provisioning/jobs', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ action: 'retry', jobId }),
       })
       
@@ -159,14 +175,13 @@ export function useProvisioningJob(jobId: string | null) {
   }, [jobId, user, fetchJob])
   
   const cancel = useCallback(async () => {
-    if (!jobId || !user) return false
+    if (!jobId) return false
     
     try {
+      const headers = await getAuthHeaders()
       const response = await fetch('/api/provisioning/jobs', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ action: 'cancel', jobId }),
       })
       
@@ -205,20 +220,14 @@ export function useStartJob() {
     jobType: string,
     inputParams: Record<string, unknown>
   ): Promise<string | null> => {
-    if (!user) {
-      setError('Not authenticated')
-      return null
-    }
-    
     setLoading(true)
     setError(null)
     
     try {
+      const headers = await getAuthHeaders()
       const response = await fetch('/api/provisioning/jobs', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ jobType, inputParams }),
       })
       
@@ -255,13 +264,14 @@ export function useOnboarding() {
   
   // Fetch onboarding state
   const fetchState = useCallback(async () => {
-    if (!orgId || !user) {
+    if (!orgId) {
       setLoading(false)
       return
     }
     
     try {
-      const response = await fetch('/api/provisioning/onboarding')
+      const headers = await getAuthHeaders()
+      const response = await fetch('/api/provisioning/onboarding', { headers })
       
       if (!response.ok) {
         throw new Error('Failed to fetch onboarding state')
@@ -287,16 +297,13 @@ export function useOnboarding() {
     stepName: string,
     stepData: Partial<OnboardingStepData>
   ): Promise<boolean> => {
-    if (!user) return false
-    
     setSaving(true)
     
     try {
+      const headers = await getAuthHeaders()
       const response = await fetch('/api/provisioning/onboarding', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ step, stepName, stepData }),
       })
       
@@ -319,16 +326,13 @@ export function useOnboarding() {
   
   // Start provisioning
   const startProvisioning = useCallback(async (): Promise<string | null> => {
-    if (!user) return null
-    
     setSaving(true)
     
     try {
+      const headers = await getAuthHeaders()
       const response = await fetch('/api/provisioning/onboarding', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ action: 'start-provisioning' }),
       })
       
@@ -358,12 +362,9 @@ export function useOnboarding() {
     progress?: number
     error?: string
   }> => {
-    if (!user) {
-      return { status: 'error', error: 'Not authenticated' }
-    }
-    
     try {
-      const response = await fetch('/api/provisioning/onboarding?action=check-provisioning')
+      const headers = await getAuthHeaders()
+      const response = await fetch('/api/provisioning/onboarding?action=check-provisioning', { headers })
       
       if (!response.ok) {
         throw new Error('Failed to check status')

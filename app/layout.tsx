@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   title: 'OPCalls - The Next-Gen AI Agent for Efficiency',
   description: 'Build your specialized AI voice agent in under 10 minutes. Handle calls 24/7, book appointments, and never lose a customer again.',
   keywords: 'AI voice agent, call automation, business calls, AI receptionist, voice AI, customer service',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
   openGraph: {
     title: 'OPCalls - The Next-Gen AI Agent for Efficiency',
     description: 'Build your specialized AI voice agent in under 10 minutes.',

@@ -1,5 +1,5 @@
 /**
- * Agent Configuration Step
+ * Agent Configuration Step - Matching Landing Page Design
  */
 
 'use client'
@@ -24,30 +24,10 @@ interface Props {
 }
 
 const AGENT_TYPES = [
-  {
-    value: 'receptionist',
-    label: 'Receptionist',
-    description: 'Answers calls, takes messages, provides info',
-    icon: '📞',
-  },
-  {
-    value: 'booking',
-    label: 'Booking Agent',
-    description: 'Schedules appointments and manages calendar',
-    icon: '📅',
-  },
-  {
-    value: 'support',
-    label: 'Support Agent',
-    description: 'Handles customer questions and issues',
-    icon: '🛟',
-  },
-  {
-    value: 'afterhours',
-    label: 'After Hours',
-    description: 'Takes messages when you\'re closed',
-    icon: '🌙',
-  },
+  { value: 'receptionist', label: 'Receptionist', description: 'Answers calls, takes messages' },
+  { value: 'booking', label: 'Booking Agent', description: 'Schedules appointments' },
+  { value: 'support', label: 'Support Agent', description: 'Handles customer questions' },
+  { value: 'afterhours', label: 'After Hours', description: 'Takes messages when closed' },
 ]
 
 export function AgentConfigStep({ data, businessName, industry, onComplete, onBack, saving }: Props) {
@@ -62,67 +42,59 @@ export function AgentConfigStep({ data, businessName, industry, onComplete, onBa
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showCustom, setShowCustom] = useState(!!data?.customInstructions)
   
-  // Auto-generate agent name
   useEffect(() => {
     if (!data?.name && businessName) {
       const typeLabel = AGENT_TYPES.find(t => t.value === formData.type)?.label || 'Receptionist'
-      setFormData(prev => ({
-        ...prev,
-        name: `${businessName} ${typeLabel}`,
-      }))
+      setFormData(prev => ({ ...prev, name: `${businessName} ${typeLabel}` }))
     }
   }, [businessName, formData.type, data?.name])
   
   const handleChange = (field: keyof AgentConfigData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
-    }
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }))
   }
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
-    const newErrors: Record<string, string> = {}
-    
     if (!formData.name.trim()) {
-      newErrors.name = 'Agent name is required'
-    }
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
+      setErrors({ name: 'Agent name is required' })
       return
     }
-    
     onComplete(formData)
   }
+
+  const defaultVoices = [
+    { id: '11labs-Rachel', name: 'Rachel', description: 'Friendly, caring' },
+    { id: '11labs-Adrian', name: 'Adrian', description: 'Professional, warm' },
+    { id: '11labs-Sarah', name: 'Sarah', description: 'Upbeat, cheerful' },
+    { id: '11labs-Josh', name: 'Josh', description: 'Casual, energetic' },
+    { id: '11labs-Emily', name: 'Emily', description: 'Professional, British' },
+    { id: '11labs-Adam', name: 'Adam', description: 'Authoritative' },
+  ]
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <p className="text-slate-400 mb-6">
-        Configure your AI voice agent. We'll use your industry to customize its behavior.
+      <p className="text-white/50 text-sm mb-6">
+        Configure your AI voice agent. We will use your industry to customize its behavior.
       </p>
       
-      {/* Agent Type Selection */}
+      {/* Agent Type */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-3">
-          Agent Type
-        </label>
+        <label className="block text-sm text-white/60 mb-3">Agent Type</label>
         <div className="grid grid-cols-2 gap-3">
           {AGENT_TYPES.map(type => (
             <button
               key={type.value}
               type="button"
               onClick={() => handleChange('type', type.value)}
-              className={`p-4 rounded-lg border text-left transition-all ${
+              className={`p-4 rounded-xl border text-left transition-all ${
                 formData.type === type.value
-                  ? 'border-blue-500 bg-blue-500/10'
-                  : 'border-slate-600 hover:border-slate-500'
+                  ? 'border-white bg-white/10'
+                  : 'border-white/10 hover:border-white/20 bg-white/5'
               }`}
             >
-              <span className="text-2xl mb-2 block">{type.icon}</span>
               <span className="font-medium text-white block">{type.label}</span>
-              <span className="text-xs text-slate-400">{type.description}</span>
+              <span className="text-xs text-white/50">{type.description}</span>
             </button>
           ))}
         </div>
@@ -130,66 +102,55 @@ export function AgentConfigStep({ data, businessName, industry, onComplete, onBa
       
       {/* Agent Name */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Agent Name *
+        <label className="block text-sm text-white/60 mb-2">
+          Agent Name <span className="text-red-400">*</span>
         </label>
         <input
           type="text"
           value={formData.name}
           onChange={(e) => handleChange('name', e.target.value)}
           placeholder="My AI Receptionist"
-          className={`w-full px-4 py-3 bg-slate-900/50 border rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.name ? 'border-red-500' : 'border-slate-600'
+          className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 ${
+            errors.name ? 'border-red-500/50' : 'border-white/10'
           }`}
         />
-        {errors.name && (
-          <p className="mt-1 text-sm text-red-400">{errors.name}</p>
-        )}
+        {errors.name && <p className="mt-1.5 text-sm text-red-400">{errors.name}</p>}
       </div>
       
       {/* Voice Selection */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Voice
-        </label>
+        <label className="block text-sm text-white/60 mb-3">Voice</label>
         {voicesLoading ? (
-          <div className="py-3 text-slate-400">Loading voices...</div>
+          <div className="py-3 text-white/40">Loading voices...</div>
         ) : (
           <div className="grid grid-cols-3 gap-2">
-            {(voices.length > 0 ? voices : [
-              { id: '11labs-Rachel', name: 'Rachel', gender: 'female', description: 'Friendly, caring' },
-              { id: '11labs-Adrian', name: 'Adrian', gender: 'male', description: 'Professional, warm' },
-              { id: '11labs-Sarah', name: 'Sarah', gender: 'female', description: 'Upbeat, cheerful' },
-              { id: '11labs-Josh', name: 'Josh', gender: 'male', description: 'Casual, energetic' },
-              { id: '11labs-Emily', name: 'Emily', gender: 'female', description: 'Professional, British' },
-              { id: '11labs-Adam', name: 'Adam', gender: 'male', description: 'Authoritative' },
-            ]).map(voice => (
+            {(voices.length > 0 ? voices : defaultVoices).map(voice => (
               <button
                 key={voice.id}
                 type="button"
                 onClick={() => handleChange('voiceId', voice.id)}
-                className={`p-3 rounded-lg border text-left transition-all ${
+                className={`p-3 rounded-xl border text-left transition-all ${
                   formData.voiceId === voice.id
-                    ? 'border-blue-500 bg-blue-500/10'
-                    : 'border-slate-600 hover:border-slate-500'
+                    ? 'border-white bg-white/10'
+                    : 'border-white/10 hover:border-white/20 bg-white/5'
                 }`}
               >
                 <span className="font-medium text-white text-sm block">{voice.name}</span>
-                <span className="text-xs text-slate-400">{voice.description || voice.gender}</span>
+                <span className="text-xs text-white/50">{voice.description}</span>
               </button>
             ))}
           </div>
         )}
       </div>
       
-      {/* Custom Instructions Toggle */}
+      {/* Custom Instructions */}
       <div>
         <button
           type="button"
           onClick={() => setShowCustom(!showCustom)}
-          className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"
+          className="text-sm text-white/50 hover:text-white flex items-center gap-1 transition-colors"
         >
-          {showCustom ? '−' : '+'} Custom Instructions
+          <span className="text-lg leading-none">{showCustom ? '−' : '+'}</span> Custom Instructions
         </button>
         
         {showCustom && (
@@ -199,9 +160,9 @@ export function AgentConfigStep({ data, businessName, industry, onComplete, onBa
               onChange={(e) => handleChange('customInstructions', e.target.value)}
               placeholder="Add any specific instructions for your AI agent..."
               rows={4}
-              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 resize-none"
             />
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-white/40">
               Examples: "Always ask for patient's date of birth", "Mention we offer free estimates"
             </p>
           </div>
@@ -213,20 +174,20 @@ export function AgentConfigStep({ data, businessName, industry, onComplete, onBa
         <button
           type="button"
           onClick={onBack}
-          className="px-6 py-3 border border-slate-600 text-slate-300 hover:bg-slate-800 rounded-lg transition-colors"
+          className="px-6 py-3.5 border border-white/10 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
         >
           Back
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="flex-1 py-3 px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+          className="flex-1 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-white/90 disabled:bg-white/50 disabled:cursor-not-allowed transition-all"
         >
           {saving ? (
-            <>
-              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+            <span className="flex items-center justify-center gap-2">
+              <div className="animate-spin h-4 w-4 border-2 border-gray-900 border-t-transparent rounded-full" />
               Saving...
-            </>
+            </span>
           ) : (
             'Continue'
           )}

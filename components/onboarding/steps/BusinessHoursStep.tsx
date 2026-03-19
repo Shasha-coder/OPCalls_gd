@@ -1,5 +1,5 @@
 /**
- * Business Hours Step
+ * Business Hours Step - Matching Landing Page Design
  */
 
 'use client'
@@ -87,39 +87,39 @@ export function BusinessHoursStep({ data, onComplete, onBack, saving }: Props) {
   }
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <p className="text-slate-400 mb-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <p className="text-white/50 text-sm mb-6">
         Set your business hours so your AI knows when to offer appointments and when to take messages.
       </p>
       
-      <div className="space-y-3">
+      <div className="space-y-2">
         {DAYS.map(day => (
           <div
             key={day.key}
-            className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
+            className={`flex items-center gap-4 p-4 rounded-xl border transition-colors ${
               hours[day.key]?.enabled
-                ? 'bg-slate-800/50 border-slate-600'
-                : 'bg-slate-900/30 border-slate-700'
+                ? 'bg-white/5 border-white/10'
+                : 'bg-white/[0.02] border-white/5'
             }`}
           >
             {/* Toggle */}
             <button
               type="button"
               onClick={() => toggleDay(day.key)}
-              className={`w-12 h-6 rounded-full transition-colors relative ${
-                hours[day.key]?.enabled ? 'bg-blue-500' : 'bg-slate-600'
+              className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ${
+                hours[day.key]?.enabled ? 'bg-white' : 'bg-white/20'
               }`}
             >
               <span
-                className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                  hours[day.key]?.enabled ? 'left-7' : 'left-1'
+                className={`absolute top-1 w-4 h-4 rounded-full transition-all ${
+                  hours[day.key]?.enabled ? 'left-6 bg-gray-900' : 'left-1 bg-white/60'
                 }`}
               />
             </button>
             
             {/* Day Label */}
-            <span className={`w-24 font-medium ${
-              hours[day.key]?.enabled ? 'text-white' : 'text-slate-500'
+            <span className={`w-24 font-medium text-sm ${
+              hours[day.key]?.enabled ? 'text-white' : 'text-white/30'
             }`}>
               {day.label}
             </span>
@@ -130,22 +130,24 @@ export function BusinessHoursStep({ data, onComplete, onBack, saving }: Props) {
                 <select
                   value={hours[day.key].open}
                   onChange={(e) => updateTime(day.key, 'open', e.target.value)}
-                  className="px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/20"
+                  style={{ colorScheme: 'dark' }}
                 >
                   {TIME_OPTIONS.map(t => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
+                    <option key={t.value} value={t.value} className="bg-[#0a0a0a]">{t.label}</option>
                   ))}
                 </select>
                 
-                <span className="text-slate-400">to</span>
+                <span className="text-white/40">to</span>
                 
                 <select
                   value={hours[day.key].close}
                   onChange={(e) => updateTime(day.key, 'close', e.target.value)}
-                  className="px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/20"
+                  style={{ colorScheme: 'dark' }}
                 >
                   {TIME_OPTIONS.map(t => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
+                    <option key={t.value} value={t.value} className="bg-[#0a0a0a]">{t.label}</option>
                   ))}
                 </select>
                 
@@ -154,14 +156,14 @@ export function BusinessHoursStep({ data, onComplete, onBack, saving }: Props) {
                   <button
                     type="button"
                     onClick={() => applyToAll('mon')}
-                    className="ml-auto text-sm text-blue-400 hover:text-blue-300"
+                    className="ml-auto text-xs text-white/50 hover:text-white transition-colors"
                   >
                     Apply to all
                   </button>
                 )}
               </div>
             ) : (
-              <span className="text-slate-500 text-sm">Closed</span>
+              <span className="text-white/30 text-sm">Closed</span>
             )}
           </div>
         ))}
@@ -172,20 +174,20 @@ export function BusinessHoursStep({ data, onComplete, onBack, saving }: Props) {
         <button
           type="button"
           onClick={onBack}
-          className="px-6 py-3 border border-slate-600 text-slate-300 hover:bg-slate-800 rounded-lg transition-colors"
+          className="px-6 py-3.5 border border-white/10 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
         >
           Back
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="flex-1 py-3 px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+          className="flex-1 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-white/90 disabled:bg-white/50 disabled:cursor-not-allowed transition-all"
         >
           {saving ? (
-            <>
-              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+            <span className="flex items-center justify-center gap-2">
+              <div className="animate-spin h-4 w-4 border-2 border-gray-900 border-t-transparent rounded-full" />
               Saving...
-            </>
+            </span>
           ) : (
             'Continue'
           )}

@@ -1,5 +1,5 @@
 /**
- * OPCalls Onboarding Wizard - Minimalist Design
+ * OPCalls Onboarding Wizard - Clean Design
  */
 
 'use client'
@@ -7,6 +7,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useProvisioning } from '@/hooks/useProvisioning'
 import { BusinessInfoStep } from './steps/BusinessInfoStep'
 import { BusinessHoursStep } from './steps/BusinessHoursStep'
@@ -112,21 +113,21 @@ export function OnboardingWizard() {
   
   if (onboardingLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen dark-bg flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-muted-foreground text-sm">Loading...</p>
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          <p className="text-white/50 text-sm">Loading...</p>
         </div>
       </div>
     )
   }
   
   return (
-    <div className="min-h-screen bg-background dark">
+    <div className="min-h-screen dark-bg">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <Image
               src="/favicon.png"
               alt="OPCalls"
@@ -134,8 +135,8 @@ export function OnboardingWizard() {
               height={32}
               className="rounded-lg"
             />
-            <span className="font-semibold text-foreground text-lg">OPCalls</span>
-          </div>
+            <span className="font-semibold text-white text-lg">OPCalls</span>
+          </Link>
           
           {/* Step indicator */}
           <div className="hidden md:flex items-center gap-1">
@@ -147,10 +148,10 @@ export function OnboardingWizard() {
                   className={cn(
                     "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-all",
                     step.id < currentStep 
-                      ? "bg-primary text-primary-foreground cursor-pointer hover:opacity-80"
+                      ? "bg-white text-black cursor-pointer hover:bg-white/90"
                       : step.id === currentStep
-                      ? "bg-foreground text-background"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-white text-black"
+                      : "bg-white/10 text-white/40"
                   )}
                 >
                   {step.id < currentStep ? (
@@ -164,7 +165,7 @@ export function OnboardingWizard() {
                 {index < STEPS.length - 2 && (
                   <div className={cn(
                     "w-8 h-px mx-1",
-                    step.id < currentStep ? "bg-primary" : "bg-border"
+                    step.id < currentStep ? "bg-white" : "bg-white/10"
                   )} />
                 )}
               </div>
@@ -172,7 +173,7 @@ export function OnboardingWizard() {
           </div>
           
           {/* Mobile step indicator */}
-          <div className="md:hidden text-sm text-muted-foreground">
+          <div className="md:hidden text-sm text-white/50">
             Step {currentStep} of {STEPS.length - 1}
           </div>
         </div>
@@ -182,16 +183,16 @@ export function OnboardingWizard() {
       <main className="max-w-2xl mx-auto px-6 py-12 md:py-16">
         {/* Step Header */}
         <div className="mb-8 md:mb-12">
-          <p className="text-primary text-sm font-medium mb-2">
+          <p className="text-white/50 text-sm font-medium mb-2">
             {STEPS[currentStep - 1]?.description}
           </p>
-          <h1 className="text-3xl md:text-4xl font-semibold text-foreground tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-tight">
             {STEPS[currentStep - 1]?.title}
           </h1>
         </div>
         
         {/* Step Content */}
-        <div className="bg-card rounded-2xl border border-border p-6 md:p-8 shadow-sm">
+        <div className="glass-card rounded-2xl p-6 md:p-8">
           {currentStep === 1 && (
             <BusinessInfoStep
               data={data.businessInfo}
@@ -248,8 +249,8 @@ export function OnboardingWizard() {
         </div>
         
         {/* Help text */}
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Need help? <a href="mailto:support@opcalls.com" className="text-primary hover:underline">Contact support</a>
+        <p className="mt-6 text-center text-sm text-white/40">
+          Need help? <a href="mailto:support@opcalls.com" className="text-white/70 hover:text-white transition-colors">Contact support</a>
         </p>
       </main>
     </div>

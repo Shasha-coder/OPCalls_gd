@@ -3,123 +3,99 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* Light mode tokens */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 9%;
-    
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
-    
-    --primary: 72 100% 50%;
-    --primary-foreground: 0 0% 9%;
-    
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
-    
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 9%;
-    
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 72 100% 50%;
-    
-    --radius: 0.75rem;
-    
-    /* Brand colors */
-    --lime: 72 100% 50%;
-    --lime-foreground: 0 0% 9%;
-  }
-
-  .dark {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 98%;
-    
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 98%;
-    
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 98%;
-    
-    --primary: 72 100% 50%;
-    --primary-foreground: 0 0% 9%;
-    
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
-    
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
-    
-    --accent: 0 0% 12%;
-    --accent-foreground: 0 0% 98%;
-    
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 98%;
-    
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 72 100% 50%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  
   html {
     scroll-behavior: smooth;
   }
   
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Hide scrollbar but keep functionality */
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
+@layer components {
+  /* Dark background - main site color */
+  .dark-bg {
+    background: linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 50%, #0a0a0a 100%);
+  }
+  
+  /* Glass header effect */
+  .glass-header {
+    background: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  /* Icon badge */
+  .icon-badge {
+    background: linear-gradient(135deg, rgba(232, 253, 121, 0.2) 0%, rgba(104, 112, 59, 0.2) 100%);
+    border: 1px solid rgba(232, 253, 121, 0.3);
+  }
+  
+  /* Card hover effects */
+  .card-hover {
+    @apply transition-all duration-300;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Glass card */
+  .glass-card {
+    background: rgba(20, 20, 20, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Glow effects */
+  .lime-glow {
+    box-shadow: 0 0 60px rgba(232, 253, 121, 0.3);
+  }
+  
+  .lime-glow-sm {
+    box-shadow: 0 0 30px rgba(232, 253, 121, 0.2);
+  }
 }
 
-/* Custom scrollbar for dark mode */
-.dark ::-webkit-scrollbar {
+@layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Text balance */
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-.dark ::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
-.dark ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted));
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
 }
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground));
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Selection */
 ::selection {
-  background: hsl(var(--primary) / 0.2);
-}
-
-/* Focus ring */
-:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
+  background: rgba(232, 253, 121, 0.3);
+  color: white;
 }
 
 /* Reduced motion */
@@ -129,13 +105,4 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* Glass effects */
-.glass {
-  @apply bg-card/80 backdrop-blur-xl border border-border;
-}
-
-.glass-strong {
-  @apply bg-card/95 backdrop-blur-2xl border border-border;
 }

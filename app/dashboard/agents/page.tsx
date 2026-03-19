@@ -97,7 +97,7 @@ export default function AgentsPage() {
             placeholder="Search agents..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-lime-200/50"
+            className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-white/30"
           />
         </div>
         <div className="flex gap-2">
@@ -107,7 +107,7 @@ export default function AgentsPage() {
               onClick={() => setFilter(f)}
               className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 filter === f
-                  ? 'bg-lime-200/10 text-lime-200 border border-lime-200/30'
+                  ? 'bg-white/10 text-white border border-white/30'
                   : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10'
               }`}
             >

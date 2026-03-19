@@ -170,27 +170,19 @@ export function AgentConfigStep({ data, businessName, industry, onComplete, onBa
       </div>
       
       {/* Buttons */}
-      <div className="flex gap-3 pt-4">
+      <div className="flex gap-3 pt-6">
         <button
           type="button"
           onClick={onBack}
-          className="px-6 py-3.5 border border-white/10 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+          className="px-6 py-3.5 border border-white/10 text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-200"
         >
           Back
         </button>
         <button
           type="submit"
-          disabled={saving}
-          className="flex-1 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-white/90 disabled:bg-white/50 disabled:cursor-not-allowed transition-all"
+          className="flex-1 py-3.5 bg-white text-gray-900 font-semibold rounded-xl hover:bg-white/90 active:scale-[0.98] transition-all duration-200"
         >
-          {saving ? (
-            <span className="flex items-center justify-center gap-2">
-              <div className="animate-spin h-4 w-4 border-2 border-gray-900 border-t-transparent rounded-full" />
-              Saving...
-            </span>
-          ) : (
-            'Continue'
-          )}
+          Continue
         </button>
       </div>
     </form>

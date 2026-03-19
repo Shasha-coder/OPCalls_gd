@@ -86,10 +86,10 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
     onComplete(formData)
   }
   
-  const inputClasses = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
-  const selectClasses = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-white/20 appearance-none cursor-pointer transition-all"
-  const labelClasses = "block text-sm text-white/60 mb-2"
-  const errorInputClasses = "w-full px-4 py-3 bg-white/5 border border-red-500/50 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-red-500/30 transition-all"
+  const inputClasses = "w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-200"
+  const selectClasses = "w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-white/20 focus:bg-white/[0.05] appearance-none cursor-pointer transition-all duration-200"
+  const labelClasses = "block text-sm text-white/50 mb-2 font-medium"
+  const errorInputClasses = "w-full px-4 py-3.5 bg-red-500/5 border border-red-500/30 rounded-xl text-white placeholder:text-white/25 focus:outline-none focus:border-red-500/50 transition-all duration-200"
   
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -117,7 +117,7 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
       {/* Industry */}
       <div>
         <label className={labelClasses}>
-          Industry <span className="text-red-400">*</span>
+          Industry <span className="text-red-400/80">*</span>
         </label>
         <div className="relative">
           <select
@@ -126,9 +126,9 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
             className={errors.industry ? errorInputClasses : selectClasses}
             style={{ colorScheme: 'dark' }}
           >
-            <option value="" className="bg-[#0a0a0a]">Select your industry</option>
+            <option value="" style={{ background: '#111', color: 'rgba(255,255,255,0.5)' }}>Select your industry</option>
             {INDUSTRIES.map(ind => (
-              <option key={ind.value} value={ind.value} className="bg-[#0a0a0a]">{ind.label}</option>
+              <option key={ind.value} value={ind.value} style={{ background: '#111', color: '#fff', padding: '12px' }}>{ind.label}</option>
             ))}
           </select>
           <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -175,7 +175,7 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
             style={{ colorScheme: 'dark' }}
           >
             {TIMEZONES.map(tz => (
-              <option key={tz.value} value={tz.value} className="bg-[#0a0a0a]">{tz.label}</option>
+              <option key={tz.value} value={tz.value} style={{ background: '#111', color: '#fff' }}>{tz.label}</option>
             ))}
           </select>
           <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -187,17 +187,9 @@ export function BusinessInfoStep({ data, onComplete, saving }: Props) {
       {/* Submit */}
       <button
         type="submit"
-        disabled={saving}
-        className="w-full py-4 bg-white text-gray-900 rounded-xl font-semibold hover:bg-white/90 disabled:bg-white/50 disabled:cursor-not-allowed transition-all mt-4"
+        className="w-full py-4 bg-white text-gray-900 rounded-xl font-semibold hover:bg-white/90 active:scale-[0.98] transition-all duration-200 mt-6"
       >
-        {saving ? (
-          <span className="flex items-center justify-center gap-2">
-            <div className="animate-spin h-4 w-4 border-2 border-gray-900 border-t-transparent rounded-full" />
-            Saving...
-          </span>
-        ) : (
-          'Continue'
-        )}
+        Continue
       </button>
     </form>
   )

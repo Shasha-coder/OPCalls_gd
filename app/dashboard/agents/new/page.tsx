@@ -68,7 +68,7 @@ export default function NewAgentPage() {
     setIsLoading(true)
     const supabase = createClient()
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('agents')
       .insert({
         org_id: profile.org_id,
@@ -79,16 +79,20 @@ export default function NewAgentPage() {
         industry: formData.industry.toLowerCase(),
         primary_language: formData.primaryLanguage,
         languages: formData.languages,
+        voice: formData.voice,
         is_active: false,
       })
+      .select()
+      .single()
 
     if (error) {
       toast.error('Failed to create agent')
       console.error(error)
     } else {
-      toast.success('Agent created successfully! 🎉')
+      toast.success('Agent created successfully!')
       await refreshAgents()
-      router.push('/dashboard/agents')
+      // Redirect to agent detail page for configuration
+      router.push(`/dashboard/agents/${data.id}`)
     }
 
     setIsLoading(false)

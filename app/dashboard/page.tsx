@@ -33,7 +33,7 @@ export default function DashboardPage() {
         </div>
         <Link 
           href="/dashboard/agents/new" 
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#e7f69e] text-[#1a1b18] font-medium text-sm rounded-xl hover:bg-[#d4e38c] transition-colors"
+          className="inline-flex items-center gap-2.5 px-5 py-2.5 bg-[#1a1b18] border-2 border-[#474b37] text-[#e7f69e] font-medium text-sm rounded-full hover:bg-[#262720] hover:border-[#5c6147] transition-all"
         >
           <PlusIcon className="w-4 h-4" />
           Create Agent
@@ -137,7 +137,7 @@ export default function DashboardPage() {
               </p>
               <Link 
                 href="/dashboard/agents/new" 
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#e7f69e] text-[#1a1b18] font-medium text-sm rounded-xl hover:bg-[#d4e38c] transition-colors"
+                className="inline-flex items-center gap-2.5 px-5 py-2.5 bg-[#1a1b18] border-2 border-[#474b37] text-[#e7f69e] font-medium text-sm rounded-full hover:bg-[#262720] hover:border-[#5c6147] transition-all"
               >
                 Create Agent 
                 <ArrowRightIcon className="w-4 h-4" />

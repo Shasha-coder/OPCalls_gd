@@ -3,32 +3,64 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, Upload, Trash2, Zap } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 import type { Agent } from '@/types/database'
+import { 
+  ArrowLeftIcon, PhoneIcon, SaveIcon, TrashIcon, EditIcon, 
+  GlobeIcon, MicIcon, BuildingIcon, SparklesIcon, CheckIcon,
+  PhoneInboundIcon, PhoneOutboundIcon, SmsIcon, PlusIcon,
+  VoiceProfessionalIcon, VoiceFriendlyIcon, VoiceEnergeticIcon, VoiceCalmIcon,
+  PlayIcon, PauseIcon
+} from '@/components/ui/Icons'
 
-export default function AgentConfigPage() {
+const voiceOptions = [
+  { id: 'professional', name: 'Professional', description: 'Clear, business-like tone', Icon: VoiceProfessionalIcon },
+  { id: 'friendly', name: 'Friendly', description: 'Warm and approachable', Icon: VoiceFriendlyIcon },
+  { id: 'energetic', name: 'Energetic', description: 'Upbeat and enthusiastic', Icon: VoiceEnergeticIcon },
+  { id: 'calm', name: 'Calm', description: 'Soothing and reassuring', Icon: VoiceCalmIcon },
+]
+
+const industryOptions = [
+  'Healthcare', 'Real Estate', 'Legal', 'Home Services', 
+  'Automotive', 'Hospitality', 'Retail', 'Other'
+]
+
+const languageOptions = [
+  { code: 'en-US', name: 'English (US)' },
+  { code: 'en-GB', name: 'English (UK)' },
+  { code: 'es-ES', name: 'Spanish' },
+  { code: 'fr-FR', name: 'French' },
+  { code: 'de-DE', name: 'German' },
+  { code: 'pt-BR', name: 'Portuguese' },
+]
+
+export default function AgentDetailPage() {
   const router = useRouter()
   const params = useParams()
   const agentId = params.id as string
-  const { profile, organization } = useAuthStore()
+  const { profile, refreshAgents } = useAuthStore()
+  
   const [agent, setAgent] = useState<Agent | null>(null)
+  const [phoneNumber, setPhoneNumber] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [isAutoProvisioning, setIsAutoProvisioning] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [editingSection, setEditingSection] = useState<string | null>(null)
   
   const [formData, setFormData] = useState({
     name: '',
+    industry: '',
+    voice: 'professional',
+    primaryLanguage: 'en-US',
+    languages: ['en-US'],
     prompt: '',
     knowledgeBase: '',
-    language: 'en-US',
-    personality: 'professional' as 'professional' | 'friendly' | 'energetic' | 'calm',
     maxCallDuration: 30,
-    voiceSpeed: 1,
+    isActive: false,
   })
 
   useEffect(() => {
@@ -37,28 +69,41 @@ export default function AgentConfigPage() {
 
   const loadAgent = async () => {
     const supabase = createClient()
-    const { data, error } = await supabase
+    
+    // Load agent
+    const { data: agentData, error } = await supabase
       .from('agents')
       .select('*')
       .eq('id', agentId)
       .single()
 
-    if (error || !data) {
-      toast.error('Failed to load agent')
+    if (error || !agentData) {
+      toast.error('Agent not found')
       router.push('/dashboard/agents')
       return
     }
 
-    setAgent(data)
+    setAgent(agentData)
     setFormData({
-      name: data.name || '',
-      prompt: data.prompt || '',
-      knowledgeBase: data.knowledge_base || '',
-      language: data.primary_language || 'en-US',
-      personality: data.personality || 'professional',
-      maxCallDuration: data.max_call_duration || 30,
-      voiceSpeed: data.voice_speed || 1,
+      name: agentData.name || '',
+      industry: agentData.industry || '',
+      voice: agentData.voice || 'professional',
+      primaryLanguage: agentData.primary_language || 'en-US',
+      languages: agentData.languages || ['en-US'],
+      prompt: agentData.prompt || '',
+      knowledgeBase: agentData.knowledge_base || '',
+      maxCallDuration: agentData.max_call_duration || 30,
+      isActive: agentData.is_active || false,
     })
+
+    // Load phone number linked to this agent
+    const { data: phoneData } = await supabase
+      .from('phone_numbers')
+      .select('*')
+      .eq('agent_id', agentId)
+      .single()
+    
+    setPhoneNumber(phoneData)
     setIsLoading(false)
   }
 
@@ -70,258 +115,439 @@ export default function AgentConfigPage() {
       .from('agents')
       .update({
         name: formData.name,
+        industry: formData.industry.toLowerCase(),
+        voice: formData.voice,
+        primary_language: formData.primaryLanguage,
+        languages: formData.languages,
         prompt: formData.prompt,
         knowledge_base: formData.knowledgeBase,
-        primary_language: formData.language,
-        personality: formData.personality,
         max_call_duration: formData.maxCallDuration,
-        voice_speed: formData.voiceSpeed,
+        is_active: formData.isActive,
       })
       .eq('id', agentId)
 
     if (error) {
-      toast.error('Failed to save agent')
+      toast.error('Failed to save changes')
     } else {
-      toast.success('Agent configuration saved!')
+      toast.success('Agent updated successfully!')
+      await refreshAgents()
+      setEditingSection(null)
       loadAgent()
     }
     setIsSaving(false)
   }
 
-  const handleAutoProvisionContext = async () => {
-    if (!organization) {
-      toast.error('Organization information not found')
+  const handleToggleActive = async () => {
+    const newStatus = !formData.isActive
+    setFormData(prev => ({ ...prev, isActive: newStatus }))
+    
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('agents')
+      .update({ is_active: newStatus })
+      .eq('id', agentId)
+
+    if (error) {
+      toast.error('Failed to update status')
+      setFormData(prev => ({ ...prev, isActive: !newStatus }))
+    } else {
+      toast.success(newStatus ? 'Agent activated!' : 'Agent paused')
+      await refreshAgents()
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this agent? This action cannot be undone.')) {
       return
     }
 
-    setIsAutoProvisioning(true)
-    try {
-      // Build business context from organization data
-      // Access settings object for additional org info
-      const orgSettings = organization.settings || {}
-      const businessContext = `Organization: ${organization.name}
-Website: ${orgSettings.website || 'Not provided'}
-Phone: ${orgSettings.phone || 'Not provided'}
-Industry: ${orgSettings.industry || 'Not specified'}
-Subscription: ${organization.subscription_tier}
+    setIsDeleting(true)
+    const supabase = createClient()
+    
+    const { error } = await supabase
+      .from('agents')
+      .delete()
+      .eq('id', agentId)
 
-This agent represents the above organization and should use this context when:
-- Introducing itself to callers
-- Answering questions about the business
-- Taking messages or booking appointments
-- Escalating to human representatives
-- Identifying the business in any communication`
-
-      // Auto-populate the system prompt with business context
-      const enhancedPrompt = `${formData.prompt || 'You are a helpful AI assistant.'}\n\nBusiness Context:\n${businessContext}`
-
-      setFormData(prev => ({
-        ...prev,
-        prompt: enhancedPrompt,
-        knowledgeBase: prev.knowledgeBase ? `${prev.knowledgeBase}\n\n---\n\n${businessContext}` : businessContext
-      }))
-
-      toast.success('Business context auto-provisioned!')
-    } catch (error) {
-      toast.error('Failed to auto-provision context')
+    if (error) {
+      toast.error('Failed to delete agent')
+    } else {
+      toast.success('Agent deleted')
+      await refreshAgents()
+      router.push('/dashboard/agents')
     }
-    setIsAutoProvisioning(false)
+    setIsDeleting(false)
   }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-white/60">Loading agent...</div>
+        <div className="w-8 h-8 border-2 border-[#e7f69e] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
+  if (!agent) return null
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div>
-        <Link 
-          href="/dashboard/agents"
-          className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Agents
-        </Link>
-        
-        <h1 className="text-3xl font-bold text-white mb-2">Configure Agent</h1>
-        <p className="text-white/60">Customize your agent's behavior and knowledge</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <Link 
+            href="/dashboard/agents"
+            className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-4 transition-colors"
+          >
+            <ArrowLeftIcon className="w-4 h-4" />
+            Back to Agents
+          </Link>
+          
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl bg-[#262720] border border-[#474b37] flex items-center justify-center">
+              <SparklesIcon className="w-7 h-7 text-[#e7f69e]" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">{agent.name}</h1>
+              <div className="flex items-center gap-3 mt-1">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+                  formData.isActive 
+                    ? 'bg-[#262720] border-[#474b37] text-[#e7f69e]' 
+                    : 'bg-white/5 border-white/10 text-white/50'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${formData.isActive ? 'bg-[#e7f69e] animate-pulse' : 'bg-white/40'}`} />
+                  {formData.isActive ? 'Active' : 'Inactive'}
+                </span>
+                <span className="text-sm text-white/50 capitalize">{agent.industry}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleToggleActive}
+            leftIcon={formData.isActive ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
+          >
+            {formData.isActive ? 'Pause' : 'Activate'}
+          </Button>
+          <button 
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="p-2.5 rounded-xl bg-[#262720] border border-[#474b37] text-white/60 hover:text-red-400 hover:border-red-500/30 transition-colors"
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="space-y-6">
-        {/* Basic Settings */}
-        <div className="glass-card rounded-xl p-6 border border-white/10">
-          <h2 className="text-lg font-semibold text-white mb-6">Basic Settings</h2>
-          
-          <div className="space-y-4">
-            <Input
-              label="Agent Name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="e.g., Sarah - Support Agent"
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
-                Agent Type
-              </label>
-              <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white/60 capitalize">
-                {agent?.type || 'Inbound'}
+      {/* Phone Number Section */}
+      <div className="bg-[#262720] rounded-2xl border border-[#474b37] p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+            <PhoneIcon className="w-5 h-5 text-[#e7f69e]" />
+            Phone Number
+          </h2>
+        </div>
+        
+        {phoneNumber ? (
+          <div className="flex items-center justify-between p-4 bg-[#1a1b18] rounded-xl border border-[#3a3d32]">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#262720] border border-[#474b37] flex items-center justify-center">
+                <PhoneIcon className="w-5 h-5 text-[#e7f69e]" />
+              </div>
+              <div>
+                <div className="font-medium text-white">{phoneNumber.number}</div>
+                <div className="text-sm text-white/50">
+                  {phoneNumber.status === 'active' ? 'Active' : 'Pending'} • ${phoneNumber.monthly_cost}/mo
+                </div>
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  Primary Language
-                </label>
-                <select
-                  value={formData.language}
-                  onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-lime-200/50"
-                  style={{ colorScheme: 'dark' }}
-                >
-                  <option value="en-US">English (US)</option>
-                  <option value="en-GB">English (UK)</option>
-                  <option value="es-ES">Spanish</option>
-                  <option value="fr-FR">French</option>
-                  <option value="de-DE">German</option>
-                  <option value="pt-BR">Portuguese</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
-                  Personality
-                </label>
-                <select
-                  value={formData.personality}
-                  onChange={(e) => setFormData({ ...formData, personality: e.target.value as any })}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-lime-200/50"
-                  style={{ colorScheme: 'dark' }}
-                >
-                  <option value="professional">Professional</option>
-                  <option value="friendly">Friendly</option>
-                  <option value="energetic">Energetic</option>
-                  <option value="calm">Calm</option>
-                </select>
-              </div>
-            </div>
+            <span className="px-3 py-1 rounded-full bg-[#262720] border border-[#474b37] text-[#e7f69e] text-xs font-medium">
+              Connected
+            </span>
           </div>
-        </div>
-
-        {/* System Prompt */}
-        <div className="glass-card rounded-xl p-6 border border-white/10">
-          <h2 className="text-lg font-semibold text-white mb-6">System Prompt</h2>
-          
-          <div>
-            <label className="block text-sm font-medium text-white/80 mb-2">
-              Agent Instructions
-            </label>
-            <textarea
-              value={formData.prompt}
-              onChange={(e) => setFormData({ ...formData, prompt: e.target.value })}
-              placeholder="You are a helpful customer support agent. Be professional and empathetic..."
-              rows={6}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-lime-200/50 resize-none"
-            />
-            <p className="text-xs text-white/50 mt-2">
-              Define how your agent should behave, what it should prioritize, and any specific guidelines.
-            </p>
+        ) : (
+          <div className="text-center py-6">
+            <PhoneIcon className="w-10 h-10 text-white/20 mx-auto mb-3" />
+            <p className="text-white/50 mb-4">No phone number assigned</p>
+            <Link href="/dashboard/phone">
+              <Button leftIcon={<PhoneIcon className="w-4 h-4" />}>
+                Get a Phone Number
+              </Button>
+            </Link>
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Knowledge Base */}
-        <div className="glass-card rounded-xl p-6 border border-white/10">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-white">Knowledge Base</h2>
-            <button
-              onClick={handleAutoProvisionContext}
-              disabled={isAutoProvisioning}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs bg-lime-200/10 hover:bg-lime-200/20 text-lime-200 rounded-lg transition-colors border border-lime-200/30 disabled:opacity-50"
-              title="Auto-populate with organization context"
+      {/* Capabilities */}
+      <div className="bg-[#262720] rounded-2xl border border-[#474b37] p-6">
+        <h2 className="text-lg font-semibold text-white mb-4">Capabilities</h2>
+        <div className="flex flex-wrap gap-3">
+          <span className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1a1b18] border border-[#3a3d32] text-[#e7f69e] text-sm font-medium">
+            <PhoneInboundIcon className="w-4 h-4" /> Receive Calls
+          </span>
+          <span className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1a1b18] border border-[#3a3d32] text-[#e7f69e] text-sm font-medium">
+            <PhoneOutboundIcon className="w-4 h-4" /> Make Calls
+          </span>
+          <span className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1a1b18] border border-[#3a3d32] text-[#e7f69e] text-sm font-medium">
+            <SmsIcon className="w-4 h-4" /> Handle SMS
+          </span>
+        </div>
+      </div>
+
+      {/* Basic Settings */}
+      <div className="bg-[#262720] rounded-2xl border border-[#474b37] p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-white">Basic Settings</h2>
+          {editingSection !== 'basic' ? (
+            <button 
+              onClick={() => setEditingSection('basic')}
+              className="p-2 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors"
             >
-              <Zap className="w-3.5 h-3.5" />
-              {isAutoProvisioning ? 'Provisioning...' : 'Auto-Provision'}
+              <EditIcon className="w-4 h-4" />
             </button>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="border-2 border-dashed border-white/20 rounded-xl p-6 text-center hover:border-white/40 transition-colors cursor-pointer">
-              <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
-              <p className="text-white/60 text-sm">Drop your knowledge base file here or click to browse</p>
-              <p className="text-white/40 text-xs mt-1">Supports PDF, TXT, or JSON format</p>
-              <input type="file" className="hidden" />
+          ) : (
+            <div className="flex gap-2">
+              <Button size="sm" variant="ghost" onClick={() => setEditingSection(null)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave} isLoading={isSaving}>Save</Button>
             </div>
-
-            <textarea
-              value={formData.knowledgeBase}
-              onChange={(e) => setFormData({ ...formData, knowledgeBase: e.target.value })}
-              placeholder="Or paste your knowledge base content directly here...&#10;&#10;Your business info, FAQs, policies, etc."
-              rows={4}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-lime-200/50 resize-none"
-            />
-            <p className="text-xs text-white/50">
-              This content will be used to answer questions and handle customer inquiries accurately.
-            </p>
-          </div>
+          )}
         </div>
-
-        {/* Advanced Settings */}
-        <div className="glass-card rounded-xl p-6 border border-white/10">
-          <h2 className="text-lg font-semibold text-white mb-6">Advanced Settings</h2>
-          
-          <div className="grid grid-cols-2 gap-4">
+        
+        <div className="grid gap-6">
+          <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-3">
-                Max Call Duration (minutes)
-              </label>
-              <input
-                type="number"
-                value={formData.maxCallDuration}
-                onChange={(e) => setFormData({ ...formData, maxCallDuration: parseInt(e.target.value) })}
-                min="1"
-                max="120"
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-lime-200/50"
-              />
+              <label className="block text-sm font-medium text-white/60 mb-2">Agent Name</label>
+              {editingSection === 'basic' ? (
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Agent name"
+                />
+              ) : (
+                <div className="px-4 py-3 bg-[#1a1b18] border border-[#3a3d32] rounded-xl text-white">
+                  {formData.name}
+                </div>
+              )}
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-3">
-                Voice Speed
-              </label>
-              <input
-                type="range"
-                value={formData.voiceSpeed}
-                onChange={(e) => setFormData({ ...formData, voiceSpeed: parseFloat(e.target.value) })}
-                min="0.5"
-                max="2"
-                step="0.1"
-                className="w-full"
-              />
-              <p className="text-xs text-white/50 mt-1">{formData.voiceSpeed.toFixed(1)}x speed</p>
+              <label className="block text-sm font-medium text-white/60 mb-2">Industry</label>
+              {editingSection === 'basic' ? (
+                <select
+                  value={formData.industry}
+                  onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                  className="w-full px-4 py-3 bg-[#1a1b18] border border-[#3a3d32] rounded-xl text-white focus:outline-none focus:border-[#e7f69e]"
+                  style={{ colorScheme: 'dark' }}
+                >
+                  {industryOptions.map(ind => (
+                    <option key={ind} value={ind.toLowerCase()}>{ind}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="px-4 py-3 bg-[#1a1b18] border border-[#3a3d32] rounded-xl text-white capitalize">
+                  {formData.industry || 'Not set'}
+                </div>
+              )}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-3 pt-4">
-          <Button 
-            onClick={handleSave} 
-            isLoading={isSaving}
-            className="flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" />
-            Save Configuration
-          </Button>
-          <button className="p-2.5 rounded-xl bg-white/5 text-white/60 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete agent">
-            <Trash2 className="w-5 h-5" />
-          </button>
+      {/* Voice & Language */}
+      <div className="bg-[#262720] rounded-2xl border border-[#474b37] p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+            <MicIcon className="w-5 h-5 text-[#e7f69e]" />
+            Voice & Language
+          </h2>
+          {editingSection !== 'voice' ? (
+            <button 
+              onClick={() => setEditingSection('voice')}
+              className="p-2 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors"
+            >
+              <EditIcon className="w-4 h-4" />
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <Button size="sm" variant="ghost" onClick={() => setEditingSection(null)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave} isLoading={isSaving}>Save</Button>
+            </div>
+          )}
+        </div>
+
+        {editingSection === 'voice' ? (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-white/60 mb-3">Voice Style</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {voiceOptions.map((voice) => (
+                  <button
+                    key={voice.id}
+                    onClick={() => setFormData({ ...formData, voice: voice.id })}
+                    className={`p-4 rounded-xl border text-center transition-all ${
+                      formData.voice === voice.id
+                        ? 'bg-[#1a1b18] border-[#474b37]'
+                        : 'bg-[#1a1b18] border-[#3a3d32] hover:border-[#474b37]'
+                    }`}
+                  >
+                    <voice.Icon className={`w-6 h-6 mx-auto mb-2 ${formData.voice === voice.id ? 'text-[#e7f69e]' : 'text-white/40'}`} />
+                    <span className={`text-sm font-medium ${formData.voice === voice.id ? 'text-[#e7f69e]' : 'text-white/60'}`}>
+                      {voice.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white/60 mb-3">Languages</label>
+              <div className="space-y-2">
+                {languageOptions.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      const langs = formData.languages.includes(lang.code)
+                        ? formData.languages.filter(l => l !== lang.code)
+                        : [...formData.languages, lang.code]
+                      setFormData({ 
+                        ...formData, 
+                        languages: langs,
+                        primaryLanguage: langs[0] || 'en-US'
+                      })
+                    }}
+                    className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between ${
+                      formData.languages.includes(lang.code)
+                        ? 'bg-[#1a1b18] border-[#474b37]'
+                        : 'bg-[#1a1b18] border-[#3a3d32] hover:border-[#474b37]'
+                    }`}
+                  >
+                    <span className={formData.languages.includes(lang.code) ? 'text-[#e7f69e]' : 'text-white/60'}>
+                      {lang.name}
+                    </span>
+                    {formData.languages.includes(lang.code) && (
+                      <CheckIcon className="w-4 h-4 text-[#e7f69e]" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-white/60 mb-2">Voice Style</label>
+              <div className="flex items-center gap-3 px-4 py-3 bg-[#1a1b18] border border-[#3a3d32] rounded-xl">
+                {voiceOptions.find(v => v.id === formData.voice)?.Icon && (
+                  <span className="text-[#e7f69e]">
+                    {(() => {
+                      const VoiceIcon = voiceOptions.find(v => v.id === formData.voice)!.Icon
+                      return <VoiceIcon className="w-5 h-5" />
+                    })()}
+                  </span>
+                )}
+                <span className="text-white capitalize">{formData.voice}</span>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white/60 mb-2">Languages</label>
+              <div className="flex flex-wrap gap-2">
+                {formData.languages.map(lang => (
+                  <span key={lang} className="px-3 py-1.5 bg-[#1a1b18] border border-[#3a3d32] rounded-lg text-white text-sm">
+                    {languageOptions.find(l => l.code === lang)?.name || lang}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* System Prompt */}
+      <div className="bg-[#262720] rounded-2xl border border-[#474b37] p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-white">System Prompt</h2>
+          {editingSection !== 'prompt' ? (
+            <button 
+              onClick={() => setEditingSection('prompt')}
+              className="p-2 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors"
+            >
+              <EditIcon className="w-4 h-4" />
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <Button size="sm" variant="ghost" onClick={() => setEditingSection(null)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave} isLoading={isSaving}>Save</Button>
+            </div>
+          )}
+        </div>
+        
+        {editingSection === 'prompt' ? (
+          <textarea
+            value={formData.prompt}
+            onChange={(e) => setFormData({ ...formData, prompt: e.target.value })}
+            placeholder="You are a helpful customer support agent. Be professional and empathetic..."
+            rows={6}
+            className="w-full px-4 py-3 bg-[#1a1b18] border border-[#3a3d32] rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-[#e7f69e] resize-none"
+          />
+        ) : (
+          <div className="px-4 py-3 bg-[#1a1b18] border border-[#3a3d32] rounded-xl text-white/70 min-h-[100px] whitespace-pre-wrap">
+            {formData.prompt || 'No system prompt configured. Click edit to add instructions for your agent.'}
+          </div>
+        )}
+      </div>
+
+      {/* Knowledge Base */}
+      <div className="bg-[#262720] rounded-2xl border border-[#474b37] p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-white">Knowledge Base</h2>
+          {editingSection !== 'knowledge' ? (
+            <button 
+              onClick={() => setEditingSection('knowledge')}
+              className="p-2 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors"
+            >
+              <EditIcon className="w-4 h-4" />
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <Button size="sm" variant="ghost" onClick={() => setEditingSection(null)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave} isLoading={isSaving}>Save</Button>
+            </div>
+          )}
+        </div>
+        
+        {editingSection === 'knowledge' ? (
+          <textarea
+            value={formData.knowledgeBase}
+            onChange={(e) => setFormData({ ...formData, knowledgeBase: e.target.value })}
+            placeholder="Add your business information, FAQs, policies, etc..."
+            rows={6}
+            className="w-full px-4 py-3 bg-[#1a1b18] border border-[#3a3d32] rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-[#e7f69e] resize-none"
+          />
+        ) : (
+          <div className="px-4 py-3 bg-[#1a1b18] border border-[#3a3d32] rounded-xl text-white/70 min-h-[100px] whitespace-pre-wrap">
+            {formData.knowledgeBase || 'No knowledge base added. Click edit to add business information, FAQs, and policies.'}
+          </div>
+        )}
+      </div>
+
+      {/* Stats */}
+      <div className="bg-[#262720] rounded-2xl border border-[#474b37] p-6">
+        <h2 className="text-lg font-semibold text-white mb-4">Performance</h2>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="p-4 bg-[#1a1b18] border border-[#3a3d32] rounded-xl">
+            <div className="text-2xl font-bold text-white">{agent.total_calls || 0}</div>
+            <div className="text-sm text-white/50">Total Calls</div>
+          </div>
+          <div className="p-4 bg-[#1a1b18] border border-[#3a3d32] rounded-xl">
+            <div className="text-2xl font-bold text-white">{Math.round(agent.total_minutes || 0)}m</div>
+            <div className="text-sm text-white/50">Total Minutes</div>
+          </div>
+          <div className="p-4 bg-[#1a1b18] border border-[#3a3d32] rounded-xl">
+            <div className="text-2xl font-bold text-[#e7f69e]">{agent.conversion_rate || 0}%</div>
+            <div className="text-sm text-white/50">Conversion</div>
+          </div>
         </div>
       </div>
     </div>

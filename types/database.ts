@@ -35,10 +35,15 @@ export interface Agent {
   prompt: string | null
   languages: string[]
   primary_language: string
+  voice: string | null
+  knowledge_base: string | null
+  max_call_duration: number | null
+  capabilities: string[] | null
   is_active: boolean
   total_calls: number
   total_bookings: number
   total_minutes: number
+  conversion_rate: number | null
   created_at: string
   updated_at: string
 }

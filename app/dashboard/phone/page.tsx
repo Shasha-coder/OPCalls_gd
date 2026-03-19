@@ -69,7 +69,7 @@ export default function GetNumberPage() {
 
   const handlePurchase = async () => {
     if (!selectedNumber || !selectedAgent) {
-      toast.error('Please select a number and agent')
+      toast.error('Please select a number')
       return
     }
 
@@ -85,21 +85,21 @@ export default function GetNumberPage() {
       .from('phone_numbers')
       .insert({
         org_id: profile?.org_id,
-        agent_id: selectedAgent,
+        agent_id: selectedAgent === 'none' ? null : selectedAgent,
         number: selectedNumber.number,
         country: 'US',
         capabilities: ['voice', 'sms'],
-        status: 'active',
+        status: selectedAgent === 'none' ? 'pending_agent' : 'active',
         monthly_cost: selectedNumber.price,
       })
 
     if (error) {
       // If table doesn't exist, just simulate success
-      toast.success('🎉 Phone number activated!')
-      router.push('/dashboard/agents')
+      toast.success('Phone number activated!')
+      router.push('/dashboard/phone')
     } else {
-      toast.success('🎉 Phone number activated!')
-      router.push('/dashboard/agents')
+      toast.success('Phone number activated!')
+      router.push('/dashboard/phone')
     }
 
     setIsLoading(false)
@@ -226,17 +226,42 @@ export default function GetNumberPage() {
             </>
           )}
 
-          {/* Step 1: Select Agent */}
+          {/* Step 1: Select Agent (Optional) */}
           {step === 1 && (
             <>
               <h2 className="text-xl font-display font-semibold text-white mb-2">
                 Which agent should answer this number?
               </h2>
               <p className="text-white/50 mb-6">
-                Connect this phone number to one of your AI agents
+                {agents.length > 0 
+                  ? 'Connect this phone number to one of your AI agents, or assign later'
+                  : 'You can assign an agent after creating one'}
               </p>
 
               <div className="space-y-3 mb-6">
+                {/* Option to skip agent assignment */}
+                <button
+                  onClick={() => setSelectedAgent('none')}
+                  className={`w-full p-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-4 ${
+                    selectedAgent === 'none'
+                      ? 'bg-[#262720] border-[#474b37]'
+                      : 'bg-[#262720] border-[#3a3d32] hover:border-[#474b37]'
+                  }`}
+                >
+                  <div className="w-12 h-12 rounded-xl bg-[#1a1b18] border border-[#3a3d32] flex items-center justify-center">
+                    <GlobeIcon className="w-5 h-5 text-white/40" />
+                  </div>
+                  <div className="flex-1">
+                    <div className={`font-medium ${selectedAgent === 'none' ? 'text-[#e7f69e]' : 'text-white'}`}>
+                      Assign Later
+                    </div>
+                    <div className="text-sm text-white/40">Configure agent after purchase</div>
+                  </div>
+                  {selectedAgent === 'none' && (
+                    <CheckIcon className="w-5 h-5 text-[#e7f69e]" />
+                  )}
+                </button>
+
                 {agents.map((agent) => (
                   <button
                     key={agent.id}
@@ -261,16 +286,6 @@ export default function GetNumberPage() {
                     )}
                   </button>
                 ))}
-
-                {agents.length === 0 && (
-                  <div className="p-8 text-center bg-[#262720] rounded-2xl border border-[#474b37]">
-                    <SparklesIcon className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                    <p className="text-white/50 mb-4">No agents yet</p>
-                    <Button variant="secondary" onClick={() => router.push('/dashboard/agents/new')}>
-                      Create Your First Agent
-                    </Button>
-                  </div>
-                )}
               </div>
 
               <div className="flex gap-4">
@@ -303,7 +318,14 @@ export default function GetNumberPage() {
 
                 <div className="p-5 rounded-2xl bg-[#262720] border border-[#474b37]">
                   <div className="text-xs text-white/40 mb-1">Connected Agent</div>
-                  <div className="text-white font-medium">{agents.find(a => a.id === selectedAgent)?.name}</div>
+                  <div className="text-white font-medium">
+                    {selectedAgent === 'none' 
+                      ? 'To be assigned later' 
+                      : agents.find(a => a.id === selectedAgent)?.name || 'Not selected'}
+                  </div>
+                  {selectedAgent === 'none' && (
+                    <p className="text-xs text-white/40 mt-1">You can assign an agent from the phone settings</p>
+                  )}
                 </div>
 
                 <div className="p-5 rounded-2xl bg-[#262720] border border-[#474b37]">

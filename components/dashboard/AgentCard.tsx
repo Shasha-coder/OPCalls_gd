@@ -1,10 +1,13 @@
 'use client'
 
 import { useRef, useEffect, useState } from 'react'
-import { Phone, BarChart2, Clock, Zap, MoreVertical, Play, Pause, Settings, Trash2 } from 'lucide-react'
 import gsap from 'gsap'
 import { cn, formatNumber, formatMinutes, getStatusColor } from '@/lib/utils'
 import type { Agent } from '@/types/database'
+import { 
+  PhoneIcon, ChartIcon, ClockIcon, MoreIcon, PlayIcon, PauseIcon, 
+  SettingsIcon, TrashIcon, SparklesIcon 
+} from '@/components/ui/Icons'
 
 interface AgentCardProps {
   agent: Agent
@@ -112,23 +115,25 @@ export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }
           <div className="flex items-center gap-4">
             {/* Agent avatar with animated gradient border */}
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-lime-200 via-olive to-lime-200 rounded-2xl opacity-60 blur-sm group-hover:opacity-100 transition-opacity animate-[spin_8s_linear_infinite]" />
-              <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-lime-200 to-olive flex items-center justify-center">
-                <Phone className="w-6 h-6 text-dark" />
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#e7f69e] via-[#474b37] to-[#e7f69e] rounded-2xl opacity-60 blur-sm group-hover:opacity-100 transition-opacity animate-[spin_8s_linear_infinite]" />
+              <div className="relative w-14 h-14 rounded-xl bg-[#262720] border border-[#474b37] flex items-center justify-center">
+                <PhoneIcon className="w-6 h-6 text-[#e7f69e]" />
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-display font-semibold text-white group-hover:text-lime-200 transition-colors">
+              <h3 className="text-lg font-display font-semibold text-white group-hover:text-[#e7f69e] transition-colors">
                 {agent.name}
               </h3>
               <div className="flex items-center gap-2 mt-1">
                 <span className={cn(
                   'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border',
-                  getStatusColor(agent.is_active ? 'active' : 'inactive')
+                  agent.is_active 
+                    ? 'bg-[#262720] border-[#474b37] text-[#e7f69e]' 
+                    : 'bg-white/5 border-white/10 text-white/50'
                 )}>
                   <span className={cn(
                     'w-1.5 h-1.5 rounded-full',
-                    agent.is_active ? 'bg-lime-200 animate-pulse' : 'bg-white/40'
+                    agent.is_active ? 'bg-[#e7f69e] animate-pulse' : 'bg-white/40'
                   )} />
                   {agent.is_active ? 'Active' : 'Inactive'}
                 </span>
@@ -143,29 +148,29 @@ export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }
               onClick={() => setMenuOpen(!menuOpen)}
               className="p-2 rounded-lg hover:bg-white/10 transition-colors"
             >
-              <MoreVertical className="w-4 h-4 text-white/50" />
+              <MoreIcon className="w-4 h-4 text-white/50" />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 py-2 bg-dark-50 border border-white/10 rounded-xl shadow-xl z-10">
+              <div className="absolute right-0 mt-2 w-48 py-2 bg-[#1a1b18] border border-[#474b37] rounded-xl shadow-xl z-10">
                 <button
                   onClick={() => { onToggleStatus?.(agent); setMenuOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
                 >
-                  {agent.is_active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  {agent.is_active ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4" />}
                   {agent.is_active ? 'Pause Agent' : 'Activate Agent'}
                 </button>
                 <button
                   onClick={() => { onEdit?.(agent); setMenuOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
                 >
-                  <Settings className="w-4 h-4" />
+                  <SettingsIcon className="w-4 h-4" />
                   Edit Settings
                 </button>
                 <button
                   onClick={() => { onDelete?.(agent); setMenuOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <TrashIcon className="w-4 h-4" />
                   Delete Agent
                 </button>
               </div>
@@ -175,30 +180,30 @@ export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }
 
         {/* Stats grid */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+          <div className="p-4 rounded-xl bg-[#1a1b18] border border-[#3a3d32]">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-2">
-              <Phone className="w-3.5 h-3.5" />
+              <PhoneIcon className="w-3.5 h-3.5" />
               <span>Total Calls</span>
             </div>
             <div className="text-2xl font-display font-bold text-white">
               {formatNumber(agent.total_calls)}
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+          <div className="p-4 rounded-xl bg-[#1a1b18] border border-[#3a3d32]">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-2">
-              <Clock className="w-3.5 h-3.5" />
+              <ClockIcon className="w-3.5 h-3.5" />
               <span>Minutes</span>
             </div>
             <div className="text-2xl font-display font-bold text-white">
               {formatMinutes(agent.total_minutes)}
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+          <div className="p-4 rounded-xl bg-[#1a1b18] border border-[#3a3d32]">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-2">
-              <BarChart2 className="w-3.5 h-3.5" />
+              <ChartIcon className="w-3.5 h-3.5" />
               <span>Conversion</span>
             </div>
-            <div className="text-2xl font-display font-bold text-lime-200">
+            <div className="text-2xl font-display font-bold text-[#e7f69e]">
               {conversionRate}%
             </div>
           </div>
@@ -206,15 +211,15 @@ export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }
 
         {/* Capabilities */}
         <div className="flex items-center gap-1.5 mb-4">
-          <span className="px-2 py-1 rounded-full bg-lime-300/10 border border-lime-300/20 text-[10px] text-lime-300">Calls</span>
-          <span className="px-2 py-1 rounded-full bg-lime-300/10 border border-lime-300/20 text-[10px] text-lime-300">SMS</span>
+          <span className="px-2 py-1 rounded-full bg-[#262720] border border-[#474b37] text-[10px] text-[#e7f69e]">Calls</span>
+          <span className="px-2 py-1 rounded-full bg-[#262720] border border-[#474b37] text-[10px] text-[#e7f69e]">SMS</span>
         </div>
 
         {/* Languages & Industry */}
-        <div className="flex items-center justify-between pt-4 border-t border-white/5">
+        <div className="flex items-center justify-between pt-4 border-t border-[#3a3d32]">
           <div className="flex items-center gap-2">
             {agent.languages?.slice(0, 3).map((lang) => (
-              <span key={lang} className="px-2 py-1 rounded-full bg-white/5 text-xs text-white/60">
+              <span key={lang} className="px-2 py-1 rounded-full bg-[#1a1b18] border border-[#3a3d32] text-xs text-white/60">
                 {lang.toUpperCase()}
               </span>
             ))}
@@ -223,14 +228,14 @@ export function AgentCard({ agent, onEdit, onDelete, onToggleStatus, index = 0 }
             )}
           </div>
           <div className="flex items-center gap-2 text-xs text-white/40">
-            <Zap className="w-3.5 h-3.5 text-lime-300" />
+            <SparklesIcon className="w-3.5 h-3.5 text-[#e7f69e]" />
             <span className="capitalize">{agent.industry}</span>
           </div>
         </div>
       </div>
 
       {/* Bottom accent line */}
-      <div className="h-1 bg-gradient-to-r from-lime-200 via-olive to-lime-200 opacity-50 group-hover:opacity-100 transition-opacity" />
+      <div className="h-1 bg-gradient-to-r from-[#e7f69e] via-[#474b37] to-[#e7f69e] opacity-50 group-hover:opacity-100 transition-opacity" />
     </div>
   )
 }

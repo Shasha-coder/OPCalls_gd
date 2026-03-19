@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { User, Building, Bell, Shield, CreditCard, Globe, Save } from 'lucide-react'
+import { UserIcon, OrgIcon, NotificationIcon, ShieldIcon, CreditCardIcon, SaveIcon } from '@/components/ui/Icons'
 import gsap from 'gsap'
 import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/Button'
@@ -9,11 +9,11 @@ import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 
 const tabs = [
-  { id: 'profile', name: 'Profile', icon: User },
-  { id: 'organization', name: 'Organization', icon: Building },
-  { id: 'notifications', name: 'Notifications', icon: Bell },
-  { id: 'security', name: 'Security', icon: Shield },
-  { id: 'billing', name: 'Billing', icon: CreditCard },
+  { id: 'profile', name: 'Profile', Icon: UserIcon },
+  { id: 'organization', name: 'Organization', Icon: OrgIcon },
+  { id: 'notifications', name: 'Notifications', Icon: NotificationIcon },
+  { id: 'security', name: 'Security', Icon: ShieldIcon },
+  { id: 'billing', name: 'Billing', Icon: CreditCardIcon },
 ]
 
 export default function SettingsPage() {
@@ -60,11 +60,11 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   activeTab === tab.id
-                    ? 'bg-lime-200/10 text-lime-200 border border-lime-200/20'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#262720] text-[#e7f69e] border border-[#474b37]'
+                    : 'text-white/60 hover:text-white hover:bg-[#262720]'
                 }`}
               >
-                <tab.icon className="w-5 h-5" />
+                <tab.Icon className="w-5 h-5" />
                 {tab.name}
               </button>
             ))}
@@ -73,14 +73,14 @@ export default function SettingsPage() {
 
         {/* Content */}
         <div className="lg:col-span-3">
-          <div className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/10 rounded-2xl p-6 lg:p-8">
+          <div className="bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-[#474b37] rounded-2xl p-6 lg:p-8">
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="space-y-6">
                 <h2 className="text-lg font-display font-semibold text-white">Profile Information</h2>
                 
                 <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-lime-200 to-olive flex items-center justify-center text-2xl font-bold text-dark">
+                  <div className="w-20 h-20 rounded-full bg-[#262720] border border-[#474b37] flex items-center justify-center text-2xl font-bold text-[#e7f69e]">
                     {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                   </div>
                   <div>
@@ -110,7 +110,7 @@ export default function SettingsPage() {
                   hint="Contact support to change your email"
                 />
 
-                <Button onClick={handleSave} isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+                <Button onClick={handleSave} isLoading={isSaving} leftIcon={<SaveIcon />}>
                   Save Changes
                 </Button>
               </div>
@@ -129,7 +129,7 @@ export default function SettingsPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-white/80 mb-3">Timezone</label>
-                  <select className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-lime-200/50">
+                  <select className="w-full px-4 py-3 bg-[#262720] border border-[#474b37] rounded-xl text-white focus:outline-none focus:border-[#e7f69e]">
                     <option value="America/New_York">Eastern Time (ET)</option>
                     <option value="America/Chicago">Central Time (CT)</option>
                     <option value="America/Denver">Mountain Time (MT)</option>
@@ -137,7 +137,7 @@ export default function SettingsPage() {
                   </select>
                 </div>
 
-                <Button onClick={handleSave} isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+                <Button onClick={handleSave} isLoading={isSaving} leftIcon={<SaveIcon />}>
                   Save Changes
                 </Button>
               </div>
@@ -154,19 +154,19 @@ export default function SettingsPage() {
                   { id: 'email_weekly', label: 'Weekly report', description: 'Weekly performance report every Monday' },
                   { id: 'sms_missed', label: 'SMS for missed calls', description: 'Get notified via SMS when a call is missed' },
                 ].map((pref) => (
-                  <div key={pref.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div key={pref.id} className="flex items-center justify-between p-4 rounded-xl bg-[#262720] border border-[#474b37]">
                     <div>
                       <div className="text-white font-medium">{pref.label}</div>
                       <div className="text-sm text-white/50">{pref.description}</div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-lime-200" />
+                      <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#e7f69e]" />
                     </label>
                   </div>
                 ))}
 
-                <Button onClick={handleSave} isLoading={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+                <Button onClick={handleSave} isLoading={isSaving} leftIcon={<SaveIcon />}>
                   Save Preferences
                 </Button>
               </div>
@@ -177,7 +177,7 @@ export default function SettingsPage() {
               <div className="space-y-6">
                 <h2 className="text-lg font-display font-semibold text-white">Security Settings</h2>
                 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="p-4 rounded-xl bg-[#262720] border border-[#474b37]">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-white font-medium">Two-Factor Authentication</div>
@@ -187,7 +187,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="p-4 rounded-xl bg-[#262720] border border-[#474b37]">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-white font-medium">Change Password</div>
@@ -197,7 +197,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="p-4 rounded-xl bg-[#262720] border border-[#474b37]">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-white font-medium">Active Sessions</div>
@@ -214,10 +214,10 @@ export default function SettingsPage() {
               <div className="space-y-6">
                 <h2 className="text-lg font-display font-semibold text-white">Billing & Subscription</h2>
                 
-                <div className="p-6 rounded-xl bg-gradient-to-br from-lime-200/10 to-olive/10 border border-lime-200/20">
+                <div className="p-6 rounded-xl bg-[#262720] border border-[#474b37]">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <div className="text-sm text-lime-200">Current Plan</div>
+                      <div className="text-sm text-[#e7f69e]">Current Plan</div>
                       <div className="text-2xl font-display font-bold text-white capitalize">
                         {organization?.subscription_tier || 'Free'} Plan
                       </div>
@@ -229,7 +229,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="p-4 rounded-xl bg-[#262720] border border-[#474b37]">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-white font-medium">Payment Method</div>
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="p-4 rounded-xl bg-[#262720] border border-[#474b37]">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-white font-medium">Billing History</div>

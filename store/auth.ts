@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   profile: null,
   organization: null,
   agents: [],
-  isLoading: true,
+  isLoading: false,
   isInitialized: false,
 
   initialize: async () => {

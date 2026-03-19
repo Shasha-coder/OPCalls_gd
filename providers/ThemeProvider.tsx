@@ -16,22 +16,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-    const savedTheme = localStorage.getItem('theme') as Theme | null
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    // Only run on client side
+    const savedTheme = (typeof window !== 'undefined' ? localStorage.getItem('theme') : null) as Theme | null
+    const prefersDark = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)').matches : true
     const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light')
     setTheme(initialTheme)
     applyTheme(initialTheme)
+    setMounted(true)
   }, [])
 
   const applyTheme = (newTheme: Theme) => {
+    if (typeof document === 'undefined') return
     const html = document.documentElement
     if (newTheme === 'dark') {
       html.classList.add('dark')
     } else {
       html.classList.remove('dark')
     }
-    localStorage.setItem('theme', newTheme)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', newTheme)
+    }
   }
 
   const toggleTheme = () => {
@@ -40,7 +44,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyTheme(newTheme)
   }
 
-  if (!mounted) return children
+  // Don't render context consumers until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return <>{children}</>
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Mic, Globe, Phone, Zap, Check, Sparkles } from 'lucide-react'
+import { ArrowLeftIcon, MicIcon, GlobeIcon, PhoneIcon, PhoneInboundIcon, PhoneOutboundIcon, SmsIcon, SparklesIcon, BuildingIcon, CheckIcon, VoiceProfessionalIcon, VoiceFriendlyIcon, VoiceEnergeticIcon, VoiceCalmIcon } from '@/components/ui/Icons'
 import gsap from 'gsap'
 import { createClient } from '@/lib/supabase/client'
 import { useAuthStore } from '@/store/auth'
@@ -12,10 +12,10 @@ import toast from 'react-hot-toast'
 import Link from 'next/link'
 
 const voiceOptions = [
-  { id: 'professional', name: 'Professional', description: 'Clear, business-like tone', icon: '👔' },
-  { id: 'friendly', name: 'Friendly', description: 'Warm and approachable', icon: '😊' },
-  { id: 'energetic', name: 'Energetic', description: 'Upbeat and enthusiastic', icon: '⚡' },
-  { id: 'calm', name: 'Calm', description: 'Soothing and reassuring', icon: '🧘' },
+  { id: 'professional', name: 'Professional', description: 'Clear, business-like tone', Icon: VoiceProfessionalIcon },
+  { id: 'friendly',     name: 'Friendly',     description: 'Warm and approachable',    Icon: VoiceFriendlyIcon },
+  { id: 'energetic',    name: 'Energetic',    description: 'Upbeat and enthusiastic',  Icon: VoiceEnergeticIcon },
+  { id: 'calm',         name: 'Calm',         description: 'Soothing and reassuring',  Icon: VoiceCalmIcon },
 ]
 
 const industryOptions = [
@@ -105,11 +105,11 @@ export default function NewAgentPage() {
   return (
     <div className="max-w-2xl mx-auto">
       {/* Back button */}
-      <Link 
+      <Link
         href="/dashboard/agents"
         className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-8 transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeftIcon />
         Back to Agents
       </Link>
 
@@ -131,7 +131,7 @@ export default function NewAgentPage() {
           <div className="space-y-8">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
-                <Sparkles className="w-4 h-4 text-white/60" />
+                <SparklesIcon />
                 <span className="text-sm text-white/60 font-medium">Step 1 of 4</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
@@ -147,7 +147,7 @@ export default function NewAgentPage() {
               placeholder="e.g., Sarah - Customer Support"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              leftIcon={<Phone className="w-5 h-5" />}
+              leftIcon={<PhoneIcon className="w-5 h-5" />}
             />
 
             {/* Capabilities badge - unified agent */}
@@ -155,14 +155,13 @@ export default function NewAgentPage() {
               <p className="text-sm text-white/60 mb-3">Your agent will be able to:</p>
               <div className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-300/10 border border-lime-300/30 text-lime-300 text-xs font-medium">
-                  <Phone className="w-3 h-3" /> Receive Calls
+                  <PhoneInboundIcon className="w-3 h-3" /> Receive Calls
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-300/10 border border-lime-300/30 text-lime-300 text-xs font-medium">
-                  <Phone className="w-3 h-3" /> Make Calls
+                  <PhoneOutboundIcon className="w-3 h-3" /> Make Calls
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-300/10 border border-lime-300/30 text-lime-300 text-xs font-medium">
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                  Handle SMS
+                  <SmsIcon className="w-3 h-3" /> Handle SMS
                 </span>
               </div>
             </div>
@@ -174,7 +173,7 @@ export default function NewAgentPage() {
           <div className="space-y-8">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
-                <Zap className="w-4 h-4 text-white/60" />
+                <BuildingIcon />
                 <span className="text-sm text-white/60 font-medium">Step 2 of 4</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
@@ -210,7 +209,7 @@ export default function NewAgentPage() {
           <div className="space-y-8">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
-                <Mic className="w-4 h-4 text-white/60" />
+                <MicIcon />
                 <span className="text-sm text-white/60 font-medium">Step 3 of 4</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
@@ -232,7 +231,9 @@ export default function NewAgentPage() {
                       : 'bg-white/5 border-white/10 hover:bg-white/10'
                   }`}
                 >
-                  <span className="text-3xl mb-3 block">{voice.icon}</span>
+                  <div className={`flex justify-center mb-3 ${formData.voice === voice.id ? 'text-lime-300' : 'text-white/40'}`}>
+                    <voice.Icon className="w-7 h-7" />
+                  </div>
                   <span className={`font-medium block mb-1 ${
                     formData.voice === voice.id ? 'text-white' : 'text-white/60'
                   }`}>
@@ -250,7 +251,7 @@ export default function NewAgentPage() {
           <div className="space-y-8">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
-                <Globe className="w-4 h-4 text-white/60" />
+                <GlobeIcon />
                 <span className="text-sm text-white/60 font-medium">Final Step</span>
               </div>
               <h1 className="text-3xl font-display font-bold text-white mb-2">
@@ -285,7 +286,7 @@ export default function NewAgentPage() {
                     {lang.name}
                   </span>
                   {formData.languages.includes(lang.code) && (
-                    <Check className="w-5 h-5 text-white" />
+                    <CheckIcon className="w-5 h-5 text-white" />
                   )}
                 </button>
               ))}

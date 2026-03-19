@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 import { PhoneIcon, ClockIcon, TrendingUpIcon, UsersIcon, PlusIcon, ArrowRightIcon, ChartIcon, AgentIcon } from '@/components/ui/Icons'
 
 export default function DashboardPage() {
-  const { profile, organization, agents } = useAuthStore()
+  const { profile, organization, agents, refreshAgents } = useAuthStore()
   const [isLoading, setIsLoading] = useState(true)
 
   const stats = {
@@ -18,6 +18,8 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
+    console.log('[v0] Dashboard mounted, refreshing agents')
+    refreshAgents()
     setIsLoading(false)
   }, [])
 
